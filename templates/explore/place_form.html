@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - MaricaCity{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 uppercase tracking-wide">{{ title }}</h1>
+            <p class="mt-2 text-gray-600">
+                {% if place %}
+                    Edite as informações do seu lugar
+                {% else %}
+                    Compartilhe um lugar especial com a comunidade
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <form method="post" enctype="multipart/form-data" class="p-8">
+                {% csrf_token %}
+
+                <!-- Display form errors -->
+                {% if form.non_field_errors %}
+                    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                        <div class="flex">
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">Erro no formulário</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    {{ form.non_field_errors }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Place Information Section -->
+                <div class="border-b border-gray-200 pb-8 mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6 uppercase tracking-wide">Informações Básicas</h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Name Field -->
+                        <div class="lg:col-span-1">
+                            <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Nome do Lugar <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Categories Field -->
+                        <div class="lg:col-span-1">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Categorias <span class="text-red-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-3 max-h-40 overflow-y-auto border border-gray-300 rounded-md p-3">
+                                {% for choice in form.categories %}
+                                    <div class="flex items-center">
+                                        {{ choice.tag }}
+                                        <label for="{{ choice.id_for_label }}" class="ml-2 text-sm text-gray-700">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.categories.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.categories.errors.0 }}</p>
+                            {% endif %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.categories.help_text }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Description Field -->
+                    <div class="mt-6">
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Descrição <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Address Field -->
+                    <div class="mt-6">
+                        <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Endereço <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.address.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Contact Information Section -->
+                <div class="border-b border-gray-200 pb-8 mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6 uppercase tracking-wide">Contato (Opcional)</h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Phone Field -->
+                        <div>
+                            <label for="{{ form.contact_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Telefone
+                            </label>
+                            {{ form.contact_phone }}
+                            {% if form.contact_phone.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.contact_phone.errors.0 }}</p>
+                            {% endif %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.contact_phone.help_text }}</p>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div>
+                            <label for="{{ form.contact_email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Email
+                            </label>
+                            {{ form.contact_email }}
+                            {% if form.contact_email.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.contact_email.errors.0 }}</p>
+                            {% endif %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.contact_email.help_text }}</p>
+                        </div>
+
+                        <!-- Website Field -->
+                        <div>
+                            <label for="{{ form.contact_website.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Website
+                            </label>
+                            {{ form.contact_website }}
+                            {% if form.contact_website.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.contact_website.errors.0 }}</p>
+                            {% endif %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.contact_website.help_text }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Section -->
+                <div class="border-b border-gray-200 pb-8 mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6 uppercase tracking-wide">Localização (Opcional)</h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Latitude Field -->
+                        <div>
+                            <label for="{{ form.latitude.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Latitude
+                            </label>
+                            {{ form.latitude }}
+                            {% if form.latitude.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.latitude.errors.0 }}</p>
+                            {% endif %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.latitude.help_text }}</p>
+                        </div>
+
+                        <!-- Longitude Field -->
+                        <div>
+                            <label for="{{ form.longitude.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Longitude
+                            </label>
+                            {{ form.longitude }}
+                            {% if form.longitude.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.longitude.errors.0 }}</p>
+                            {% endif %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.longitude.help_text }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Images Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6 uppercase tracking-wide">Imagens</h2>
+                    <p class="text-sm text-gray-600 mb-6">Adicione até 10 imagens do lugar. A primeira imagem marcada como "principal" será exibida como destaque.</p>
+
+                    {{ formset.management_form }}
+
+                    <!-- Display formset errors -->
+                    {% if formset.non_form_errors %}
+                        <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                            <div class="text-sm text-red-700">
+                                {{ formset.non_form_errors }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div id="formset-container">
+                        {% for form_instance in formset %}
+                            <div class="formset-form border border-gray-200 rounded-lg p-6 mb-4 {% if form_instance.DELETE.value %}hidden{% endif %}">
+                                {{ form_instance.id }}
+
+                                {% if form_instance.instance.pk %}
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h3 class="text-lg font-medium text-gray-900">Imagem {{ forloop.counter }}</h3>
+                                        <div class="flex items-center">
+                                            {{ form_instance.DELETE }}
+                                            <label for="{{ form_instance.DELETE.id_for_label }}" class="ml-2 text-sm text-red-600">
+                                                Remover
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {% if form_instance.instance.image %}
+                                        <img src="{{ form_instance.instance.image.url }}" alt="Preview" class="w-32 h-32 object-cover rounded-md mb-4">
+                                    {% endif %}
+                                {% else %}
+                                    <h3 class="text-lg font-medium text-gray-900 mb-4">Nova Imagem</h3>
+                                {% endif %}
+
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    <!-- Image Field -->
+                                    <div>
+                                        <label for="{{ form_instance.image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Arquivo de Imagem
+                                        </label>
+                                        {{ form_instance.image }}
+                                        {% if form_instance.image.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ form_instance.image.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Caption Field -->
+                                    <div>
+                                        <label for="{{ form_instance.caption.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Legenda
+                                        </label>
+                                        {{ form_instance.caption }}
+                                        {% if form_instance.caption.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ form_instance.caption.errors.0 }}</p>
+                                        {% endif %}
+                                        <p class="mt-1 text-xs text-gray-500">{{ form_instance.caption.help_text }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                                    <!-- Primary Image Field -->
+                                    <div>
+                                        <div class="flex items-center">
+                                            {{ form_instance.is_primary }}
+                                            <label for="{{ form_instance.is_primary.id_for_label }}" class="ml-2 text-sm text-gray-700">
+                                                Imagem Principal
+                                            </label>
+                                        </div>
+                                        {% if form_instance.is_primary.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ form_instance.is_primary.errors.0 }}</p>
+                                        {% endif %}
+                                        <p class="mt-1 text-xs text-gray-500">{{ form_instance.is_primary.help_text }}</p>
+                                    </div>
+
+                                    <!-- Display Order Field -->
+                                    <div>
+                                        <label for="{{ form_instance.display_order.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Ordem de Exibição
+                                        </label>
+                                        {{ form_instance.display_order }}
+                                        {% if form_instance.display_order.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ form_instance.display_order.errors.0 }}</p>
+                                        {% endif %}
+                                        <p class="mt-1 text-xs text-gray-500">{{ form_instance.display_order.help_text }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-gray-200">
+                    <div class="flex items-center space-x-4 mb-4 sm:mb-0">
+                        <a href="{% if place %}{% url 'explore:place_detail' place.pk %}{% else %}{% url 'explore:explore' %}{% endif %}"
+                           class="text-gray-600 hover:text-gray-900 font-medium text-sm tracking-wide border-b-2 border-transparent hover:border-gray-900 transition-all">
+                            ← Cancelar
+                        </a>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        {% if place %}
+                            <a href="{% url 'explore:place_delete' place.pk %}"
+                               class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-md font-medium text-sm uppercase tracking-wide transition-all duration-300"
+                               onclick="return confirm('Tem certeza que deseja excluir este lugar?')">
+                                Excluir
+                            </a>
+                        {% endif %}
+
+                        <button type="submit"
+                                class="bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 rounded-md font-medium text-sm uppercase tracking-wide transition-all duration-300">
+                            {{ submit_text }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Text -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-blue-900 mb-2">Dicas para um bom cadastro:</h3>
+            <ul class="text-sm text-blue-800 space-y-1">
+                <li>• Adicione uma descrição detalhada do lugar</li>
+                <li>• Inclua pelo menos uma foto de boa qualidade</li>
+                <li>• Marque uma imagem como "principal" para destaque</li>
+                <li>• Forneça informações de contato quando possível</li>
+                <li>• {% if not place %}Seu lugar será revisado antes de aparecer no site{% endif %}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Custom styles for form elements */
+.form-checkbox {
+    appearance: none;
+    background-color: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    height: 1rem;
+    width: 1rem;
+    cursor: pointer;
+}
+
+.form-checkbox:checked {
+    background-color: #111827;
+    border-color: #111827;
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-7.5 7.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6 10.293l7.146-7.147a.5.5 0 0 1 .708.708z'/%3e%3c/svg%3e");
+}
+</style>
+{% endblock %}

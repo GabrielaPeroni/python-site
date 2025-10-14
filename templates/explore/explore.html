@@ -27,7 +27,7 @@
 
                     {% if user.is_authenticated %}
                         {% if user.can_create_places %}
-                            <a href="#" class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors">
+                            <a href="{% url 'explore:place_create' %}" class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors">
                                 Adicionar Lugar
                             </a>
                         {% endif %}
@@ -204,8 +204,26 @@
         {% else %}
             <div class="text-center py-12">
                 <p class="text-gray-600 text-xl">Nenhum lugar disponível ainda. Seja o primeiro a adicionar um!</p>
+                {% if user.is_authenticated and user.can_create_places %}
+                    <a href="{% url 'explore:place_create' %}" class="mt-4 inline-block bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 rounded-md font-medium uppercase tracking-wide">
+                        Adicionar Primeiro Lugar
+                    </a>
+                {% endif %}
             </div>
         {% endif %}
     </section>
+
+    <!-- Floating Add Button for Creation Users -->
+    {% if user.is_authenticated and user.can_create_places %}
+        <div class="fixed bottom-8 right-8 z-50">
+            <a href="{% url 'explore:place_create' %}"
+               class="bg-gray-900 hover:bg-gray-800 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+               title="Adicionar Novo Lugar">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+            </a>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

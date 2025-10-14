@@ -1,16 +1,12 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from django.utils import timezone
-from datetime import timedelta
-from .models import Category, Place, PlaceImage, PlaceApproval
+from .models import Category, Place, PlaceApproval
 
 User = get_user_model()
 
 
 class CategoryModelTests(TestCase):
-    """Tests for Category model"""
-
     def setUp(self):
         self.category = Category.objects.create(
             name='Restaurants',
@@ -327,3 +323,442 @@ class LandingPageTests(TestCase):
         response = self.client.get(reverse('core:landing'))
         self.assertIn('featured_places', response.context)
         self.assertContains(response, 'Featured Place')
+
+
+class PlaceCreateViewTests(TestCase):
+    """Tests for place creation functionality"""
+
+    def setUp(self):
+        self.client = Client()
+        self.creation_user = User.objects.create_user(
+            username='creator',
+            password='pass123',
+            user_type='CREATION'
+        )
+        self.explore_user = User.objects.create_user(
+            username='explorer',
+            password='pass123',
+            user_type='EXPLORE'
+        )
+        self.admin_user = User.objects.create_user(
+            username='admin',
+            password='pass123',
+            user_type='ADMIN'
+        )
+        self.category = Category.objects.create(
+            name='Restaurants',
+            slug='restaurants'
+        )
+
+    def test_place_create_view_requires_login(self):
+        """Test place creation requires authentication"""
+        response = self.client.get(reverse('explore:place_create'))
+        self.assertRedirects(response, '/accounts/login/?next=/explore/place/create/')
+
+    def test_explore_user_cannot_create_places(self):
+        """Test explore users cannot access place creation"""
+        self.client.login(username='explorer', password='pass123')
+        response = self.client.get(reverse('explore:place_create'))
+        self.assertRedirects(response, reverse('explore:explore'))
+
+    def test_creation_user_can_access_place_create_form(self):
+        """Test creation users can access place creation form"""
+        self.client.login(username='creator', password='pass123')
+        response = self.client.get(reverse('explore:place_create'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'explore/place_form.html')
+        self.assertContains(response, 'Adicionar Novo Lugar')
+
+    def test_admin_user_can_access_place_create_form(self):
+        """Test admin users can access place creation form"""
+        self.client.login(username='admin', password='pass123')
+        response = self.client.get(reverse('explore:place_create'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'explore/place_form.html')
+
+    def test_place_creation_with_valid_data(self):
+        """Test creating a place with valid data"""
+        self.client.login(username='creator', password='pass123')
+
+        form_data = {
+            'name': 'Test Restaurant',
+            'description': 'Great food and atmosphere',
+            'address': '123 Main Street, Maricá, RJ',
+            'contact_phone': '(21) 99999-9999',
+            'contact_email': 'contact@testrestaurant.com',
+            'contact_website': 'https://testrestaurant.com',
+            'categories': [self.category.id],
+            'latitude': '-22.9192',
+            'longitude': '-42.8186',
+            # Formset management data
+            'placeimage_set-TOTAL_FORMS': '0',
+            'placeimage_set-INITIAL_FORMS': '0',
+            'placeimage_set-MIN_NUM_FORMS': '0',
+            'placeimage_set-MAX_NUM_FORMS': '10',
+        }
+
+        response = self.client.post(reverse('explore:place_create'), data=form_data)
+
+        # Check place was created
+        self.assertEqual(Place.objects.count(), 1)
+        place = Place.objects.first()
+
+        # Check place properties
+        self.assertEqual(place.name, 'Test Restaurant')
+        self.assertEqual(place.created_by, self.creation_user)
+        self.assertFalse(place.is_approved)  # Should start as unapproved
+        self.assertTrue(place.is_active)
+        self.assertIn(self.category, place.categories.all())
+
+        # Check redirect
+        self.assertRedirects(response, reverse('explore:place_detail', kwargs={'pk': place.pk}))
+
+    def test_place_creation_with_invalid_data(self):
+        """Test place creation with invalid data"""
+        self.client.login(username='creator', password='pass123')
+
+        # Missing required fields
+        form_data = {
+            'name': '',  # Required field missing
+            'description': '',  # Required field missing
+            'placeimage_set-TOTAL_FORMS': '0',
+            'placeimage_set-INITIAL_FORMS': '0',
+            'placeimage_set-MIN_NUM_FORMS': '0',
+            'placeimage_set-MAX_NUM_FORMS': '10',
+        }
+
+        response = self.client.post(reverse('explore:place_create'), data=form_data)
+
+        # Should not create place and should show form with errors
+        self.assertEqual(Place.objects.count(), 0)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'explore/place_form.html')
+
+    def test_place_creation_with_partial_coordinates(self):
+        """Test place creation with only latitude or longitude fails validation"""
+        self.client.login(username='creator', password='pass123')
+
+        form_data = {
+            'name': 'Test Place',
+            'description': 'Test description',
+            'address': 'Test address',
+            'categories': [self.category.id],
+            'latitude': '-22.9192',
+            # Missing longitude
+            'placeimage_set-TOTAL_FORMS': '0',
+            'placeimage_set-INITIAL_FORMS': '0',
+            'placeimage_set-MIN_NUM_FORMS': '0',
+            'placeimage_set-MAX_NUM_FORMS': '10',
+        }
+
+        response = self.client.post(reverse('explore:place_create'), data=form_data)
+
+        # Should not create place due to validation error
+        self.assertEqual(Place.objects.count(), 0)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Se você fornecer coordenadas, deve fornecer tanto latitude quanto longitude.')
+
+
+class PlaceUpdateViewTests(TestCase):
+    """Tests for place editing functionality"""
+
+    def setUp(self):
+        self.client = Client()
+        self.creation_user = User.objects.create_user(
+            username='creator',
+            password='pass123',
+            user_type='CREATION'
+        )
+        self.other_user = User.objects.create_user(
+            username='other',
+            password='pass123',
+            user_type='CREATION'
+        )
+        self.admin_user = User.objects.create_user(
+            username='admin',
+            password='pass123',
+            user_type='ADMIN'
+        )
+        self.category = Category.objects.create(name='Restaurants', slug='restaurants')
+
+        self.place = Place.objects.create(
+            name='Original Place',
+            description='Original description',
+            address='Original address',
+            created_by=self.creation_user,
+            is_approved=True
+        )
+        self.place.categories.add(self.category)
+
+    def test_place_update_requires_login(self):
+        """Test place editing requires authentication"""
+        response = self.client.get(reverse('explore:place_edit', kwargs={'pk': self.place.pk}))
+        self.assertRedirects(response, f'/accounts/login/?next=/explore/place/{self.place.pk}/edit/')
+
+    def test_creator_can_edit_own_place(self):
+        """Test place creator can edit their own place"""
+        self.client.login(username='creator', password='pass123')
+        response = self.client.get(reverse('explore:place_edit', kwargs={'pk': self.place.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'explore/place_form.html')
+        self.assertContains(response, f'Editar {self.place.name}')
+
+    def test_admin_can_edit_any_place(self):
+        """Test admin users can edit any place"""
+        self.client.login(username='admin', password='pass123')
+        response = self.client.get(reverse('explore:place_edit', kwargs={'pk': self.place.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'explore/place_form.html')
+
+    def test_other_creation_user_cannot_edit_place(self):
+        """Test other creation users cannot edit places they didn't create"""
+        self.client.login(username='other', password='pass123')
+        response = self.client.get(reverse('explore:place_edit', kwargs={'pk': self.place.pk}))
+        self.assertRedirects(response, reverse('explore:place_detail', kwargs={'pk': self.place.pk}))
+
+    def test_place_update_with_valid_data(self):
+        """Test updating a place with valid data"""
+        self.client.login(username='creator', password='pass123')
+
+        form_data = {
+            'name': 'Updated Place Name',
+            'description': 'Updated description',
+            'address': 'Updated address',
+            'categories': [self.category.id],
+            'placeimage_set-TOTAL_FORMS': '0',
+            'placeimage_set-INITIAL_FORMS': '0',
+            'placeimage_set-MIN_NUM_FORMS': '0',
+            'placeimage_set-MAX_NUM_FORMS': '10',
+        }
+
+        response = self.client.post(
+            reverse('explore:place_edit', kwargs={'pk': self.place.pk}),
+            data=form_data
+        )
+
+        # Check place was updated
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.name, 'Updated Place Name')
+        self.assertEqual(self.place.description, 'Updated description')
+        self.assertEqual(self.place.address, 'Updated address')
+
+        # Check redirect
+        self.assertRedirects(response, reverse('explore:place_detail', kwargs={'pk': self.place.pk}))
+
+
+class PlaceDeleteViewTests(TestCase):
+    """Tests for place deletion functionality"""
+
+    def setUp(self):
+        self.client = Client()
+        self.creation_user = User.objects.create_user(
+            username='creator',
+            password='pass123',
+            user_type='CREATION'
+        )
+        self.other_user = User.objects.create_user(
+            username='other',
+            password='pass123',
+            user_type='CREATION'
+        )
+        self.admin_user = User.objects.create_user(
+            username='admin',
+            password='pass123',
+            user_type='ADMIN'
+        )
+
+        self.place = Place.objects.create(
+            name='Test Place',
+            description='Test description',
+            address='Test address',
+            created_by=self.creation_user
+        )
+
+    def test_place_delete_requires_login(self):
+        """Test place deletion requires authentication"""
+        response = self.client.get(reverse('explore:place_delete', kwargs={'pk': self.place.pk}))
+        self.assertRedirects(response, f'/accounts/login/?next=/explore/place/{self.place.pk}/delete/')
+
+    def test_place_delete_confirmation_page(self):
+        """Test place deletion confirmation page loads"""
+        self.client.login(username='creator', password='pass123')
+        response = self.client.get(reverse('explore:place_delete', kwargs={'pk': self.place.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'explore/place_delete_confirm.html')
+        self.assertContains(response, 'Confirmar Exclusão')
+        self.assertContains(response, self.place.name)
+
+    def test_creator_can_delete_own_place(self):
+        """Test place creator can delete their own place"""
+        self.client.login(username='creator', password='pass123')
+        response = self.client.post(reverse('explore:place_delete', kwargs={'pk': self.place.pk}))
+
+        # Check place was deleted
+        self.assertEqual(Place.objects.count(), 0)
+        self.assertRedirects(response, reverse('explore:explore'))
+
+    def test_admin_can_delete_any_place(self):
+        """Test admin users can delete any place"""
+        self.client.login(username='admin', password='pass123')
+        response = self.client.post(reverse('explore:place_delete', kwargs={'pk': self.place.pk}))
+
+        # Check place was deleted
+        self.assertEqual(Place.objects.count(), 0)
+        self.assertRedirects(response, reverse('explore:explore'))
+
+    def test_other_user_cannot_delete_place(self):
+        """Test other users cannot delete places they didn't create"""
+        self.client.login(username='other', password='pass123')
+        response = self.client.get(reverse('explore:place_delete', kwargs={'pk': self.place.pk}))
+        # Should redirect to detail page or show error
+        self.assertIn(response.status_code, [302, 403, 404])
+
+        # Check place still exists
+        self.assertEqual(Place.objects.count(), 1)
+
+
+class PlaceDetailViewTests(TestCase):
+    """Tests for place detail view functionality"""
+
+    def setUp(self):
+        self.client = Client()
+        self.creation_user = User.objects.create_user(
+            username='creator',
+            password='pass123',
+            user_type='CREATION'
+        )
+        self.admin_user = User.objects.create_user(
+            username='admin',
+            password='pass123',
+            user_type='ADMIN'
+        )
+        self.explore_user = User.objects.create_user(
+            username='explorer',
+            password='pass123',
+            user_type='EXPLORE'
+        )
+
+        self.approved_place = Place.objects.create(
+            name='Approved Place',
+            description='Approved description',
+            address='Approved address',
+            created_by=self.creation_user,
+            is_approved=True,
+            is_active=True
+        )
+
+        self.unapproved_place = Place.objects.create(
+            name='Unapproved Place',
+            description='Unapproved description',
+            address='Unapproved address',
+            created_by=self.creation_user,
+            is_approved=False,
+            is_active=True
+        )
+
+    def test_approved_place_visible_to_all(self):
+        """Test approved places are visible to all users"""
+        # Anonymous user
+        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.approved_place.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Approved Place')
+
+        # Logged in explore user
+        self.client.login(username='explorer', password='pass123')
+        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.approved_place.pk}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_unapproved_place_visible_to_creator_and_admin(self):
+        """Test unapproved places are only visible to creator and admin"""
+        # Creator can see their own unapproved place
+        self.client.login(username='creator', password='pass123')
+        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.unapproved_place.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Unapproved Place')
+
+        # Admin can see any unapproved place
+        self.client.login(username='admin', password='pass123')
+        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.unapproved_place.pk}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_unapproved_place_hidden_from_explore_users(self):
+        """Test unapproved places are hidden from explore users"""
+        self.client.login(username='explorer', password='pass123')
+        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.unapproved_place.pk}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_edit_button_shown_to_authorized_users(self):
+        """Test edit button is shown to authorized users"""
+        # Creator sees edit button
+        self.client.login(username='creator', password='pass123')
+        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.approved_place.pk}))
+        self.assertTrue(response.context['can_edit'])
+
+        # Admin sees edit button
+        self.client.login(username='admin', password='pass123')
+        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.approved_place.pk}))
+        self.assertTrue(response.context['can_edit'])
+
+        # Explore user doesn't see edit button
+        self.client.login(username='explorer', password='pass123')
+        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.approved_place.pk}))
+        self.assertFalse(response.context['can_edit'])
+
+
+class CategoryDetailViewTests(TestCase):
+    """Tests for category detail view"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='creator', password='pass123')
+        self.category = Category.objects.create(
+            name='Restaurants',
+            slug='restaurants',
+            description='Best dining spots'
+        )
+
+        # Create approved places in category
+        for i in range(3):
+            place = Place.objects.create(
+                name=f'Restaurant {i}',
+                description='Test restaurant',
+                address='Test address',
+                created_by=self.user,
+                is_approved=True,
+                is_active=True
+            )
+            place.categories.add(self.category)
+
+        # Create unapproved place (should not appear)
+        unapproved_place = Place.objects.create(
+            name='Unapproved Restaurant',
+            description='Test restaurant',
+            address='Test address',
+            created_by=self.user,
+            is_approved=False
+        )
+        unapproved_place.categories.add(self.category)
+
+    def test_category_detail_page_loads(self):
+        """Test category detail page loads successfully"""
+        response = self.client.get(reverse('explore:category_detail', kwargs={'slug': 'restaurants'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'explore/category_detail.html')
+
+    def test_category_detail_shows_only_approved_places(self):
+        """Test category detail page shows only approved places"""
+        response = self.client.get(reverse('explore:category_detail', kwargs={'slug': 'restaurants'}))
+        self.assertEqual(response.context['places'].count(), 3)
+        self.assertNotContains(response, 'Unapproved Restaurant')
+
+    def test_category_detail_sorting(self):
+        """Test category detail page sorting"""
+        response = self.client.get(
+            reverse('explore:category_detail', kwargs={'slug': 'restaurants'}) + '?sort=name'
+        )
+        self.assertEqual(response.context['current_sort'], 'name')
+
+    def test_nonexistent_category_returns_404(self):
+        """Test accessing nonexistent category returns 404"""
+        response = self.client.get(reverse('explore:category_detail', kwargs={'slug': 'nonexistent'}))
+        self.assertEqual(response.status_code, 404)
