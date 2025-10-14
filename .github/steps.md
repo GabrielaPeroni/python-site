@@ -1,5 +1,7 @@
 # MaricaCity - Development Steps
 
+#poetry run python manage.py test apps --verbosity=1
+
 This document outlines the detailed development steps for building the MaricaCity tourism platform.
 
 ---

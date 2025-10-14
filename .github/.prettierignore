@@ -45,6 +45,9 @@ poetry.lock
 # Pre-commit
 .pre-commit-config.yaml
 
+# Django templates (contain Django template tags)
+templates/
+
 # Other config files that shouldn't be formatted
 .env*
 *.ini

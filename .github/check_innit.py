@@ -1,12 +1,11 @@
 import os
 import sys
 from pathlib import Path
-from typing import List, Set
 
 
 def find_python_directories(
-    root_path: Path, exclude_dirs: Set[str] = None
-) -> List[Path]:
+    root_path: Path, exclude_dirs: set[str] = None
+) -> list[Path]:
     """
     Find all directories that contain Python files (.py).
 
@@ -51,8 +50,8 @@ def find_python_directories(
 
 
 def check_and_create_init_files(
-    python_dirs: List[Path],
-) -> tuple[List[Path], List[Path]]:
+    python_dirs: list[Path],
+) -> tuple[list[Path], list[Path]]:
     """
     Check for missing __init__.py files and create them if needed.
 
