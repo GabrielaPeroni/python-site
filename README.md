@@ -16,8 +16,8 @@ O repositório original pode ser encontrado aqui: [Marica-City](https://github.c
 - Python 3.10+
 - Make (para Windows, instale usando chocolatey: `choco install make` ou use Git Bash)
 
-
 ### 1. Instale as dependências e ative o ambiente virtual
+
 ```bash
 make setup
 ```
@@ -32,25 +32,30 @@ make run
 ## 📖 Setup manual (sem o MakeFile)
 
 ### 1. Instale Poetry e dependencias:
+
 ```bash
 pip install poetry
 poetry install
 ```
 
 ### 2. Rode migrations:
+
 ```bash
 poetry run python manage.py migrate
 ```
 
 ### 3. Crie um superuser (opcional):
+
 ```bash
 poetry run python manage.py createsuperuser
 ```
 
 ### 4. Rode o servidor:
+
 ```bash
 poetry run python manage.py runserver
 ```
 
 ## 📜 Licença
+
 - **Código Django**: [MIT](./LICENSE.txt).

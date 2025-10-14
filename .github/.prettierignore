@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+env/
+venv/
+.venv/
+
+# Build outputs
+dist/
+build/
+staticfiles/
+media/
+
+# Database
+*.sqlite3
+*.db
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Django
+migrations/
+
+# Git
+.git/
+
+# Poetry
+poetry.lock
+
+# Pre-commit
+.pre-commit-config.yaml
+
+# Other config files that shouldn't be formatted
+.env*
+*.ini
+*.cfg

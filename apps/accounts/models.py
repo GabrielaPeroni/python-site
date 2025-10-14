@@ -21,7 +21,10 @@ class User(AbstractUser):
     @property
     def can_create_places(self):
         """Check if user can create places"""
-        return self.user_type in [self.UserType.CREATION, self.UserType.ADMIN] or self.is_superuser
+        return (
+            self.user_type in [self.UserType.CREATION, self.UserType.ADMIN]
+            or self.is_superuser
+        )
 
     @property
     def can_moderate(self):
@@ -29,14 +32,14 @@ class User(AbstractUser):
         return self.user_type == self.UserType.ADMIN or self.is_superuser
 
     class Meta:
-        ordering = ['-created_at']
-        verbose_name = 'User'
-        verbose_name_plural = 'Users'
-    
+        ordering = ["-created_at"]
+        verbose_name = "User"
+        verbose_name_plural = "Users"
+
     class UserType(models.TextChoices):
-        EXPLORE = 'EXPLORE', 'Explore User'
-        CREATION = 'CREATION', 'Creation User'
-        ADMIN = 'ADMIN', 'Admin User'
+        EXPLORE = "EXPLORE", "Explore User"
+        CREATION = "CREATION", "Creation User"
+        ADMIN = "ADMIN", "Admin User"
 
     def __str__(self):
         return f"{self.username} ({self.get_user_type_display()})"
@@ -45,23 +48,14 @@ class User(AbstractUser):
         max_length=10,
         choices=UserType.choices,
         default=UserType.EXPLORE,
-        help_text="Type of user account"
+        help_text="Type of user account",
     )
 
-    bio = models.TextField(
-        blank=True,
-        null=True,
-        help_text="User biography"
-    )
+    bio = models.TextField(blank=True, null=True, help_text="User biography")
 
     profile_picture = models.ImageField(
-        upload_to='profiles/',
-        blank=True,
-        null=True,
-        help_text="User profile picture"
+        upload_to="profiles/", blank=True, null=True, help_text="User profile picture"
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    

@@ -14,6 +14,116 @@ python-decouple = "^3.8"
 django-tailwind = "^4.2.0"
 pillow = "^11.3.0"
 
+[tool.poetry.group.dev.dependencies]
+# Code formatting and linting
+black = "^24.1.1"
+isort = "^5.13.2"
+autoflake = "^2.2.1"
+flake8 = "^6.1.0"
+flake8-mock-spec = "^1.4.0"
+
+# Security and upgrades
+safety = "^3.0.1"
+django-upgrade = "^1.15.0"
+pyupgrade = "^3.15.0"
+
+# Pre-commit and testing
+pre-commit = "^3.6.0"
+django-extra-checks = "^0.13.3"
+
+# Type checking (optional)
+mypy = "^1.8.0"
+django-stubs = "^4.2.7"
+
+# Tool configurations
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | env
+  | venv
+  | staticfiles
+  | media
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+known_django = "django"
+known_first_party = ["apps", "config"]
+skip_glob = ["*/migrations/*", "*/venv/*", "*/env/*"]
+
+[tool.flake8]
+max-line-length = 88
+select = ["TMS010", "TMS011", "TMS012", "TMS013", "TMS020", "TMS021", "TMS022"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "*/migrations/*",
+    "*/venv/*",
+    "*/env/*",
+    "build",
+    "dist",
+    ".tox",
+    ".eggs",
+    "*.egg",
+]
+
+[tool.mypy]
+python_version = "3.10"
+check_untyped_defs = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+plugins = ["mypy_django_plugin.main"]
+
+[[tool.mypy.overrides]]
+module = "*.migrations.*"
+ignore_errors = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
+
+[tool.coverage.run]
+source = "."
+omit = [
+    "*/migrations/*",
+    "*/venv/*",
+    "*/env/*",
+    "manage.py",
+    "*/settings/*",
+    "*/tests/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

@@ -1,0 +1,75 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+      - id: debug-statements
+      - id: check-docstring-first
+
+  # Black
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        name: black
+        language_version: python3
+        args: [--line-length=88]
+
+  # Isort
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: isort
+        args: [--profile=black, --line-length=88]
+
+  # Autoflake
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.1
+    hooks:
+      - id: autoflake
+        args:
+          - --in-place
+          - --remove-all-unused-imports
+          - --remove-unused-variables
+          - --remove-duplicate-keys
+          - --ignore-init-module-imports
+        exclude: ^(env/|venv/|\.venv/|migrations/)
+
+  # Flake8
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        name: flake8
+        args: ['--select=TMS010,TMS011,TMS012,TMS013,TMS020,TMS021,TMS022']
+        additional_dependencies:
+          - flake8-mock-spec==1.4.0
+
+  # Prettier
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        name: prettier
+        types_or: [javascript, ts, jsx, tsx, json, yaml, markdown, html, css]
+        args: [--write, --config, .github/.prettierrc, --ignore-path, .github/.prettierignore]
+        additional_dependencies:
+          - prettier@3.1.0
+
+  # Custom script to check __init__.py files
+  - repo: local
+    hooks:
+      - id: check-init-files
+        name: Check __init__.py files exist
+        entry: python .github/check_innit.py
+        language: system
+        pass_filenames: false
+        always_run: true

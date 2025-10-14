@@ -1,6 +1,7 @@
-from django.test import TestCase, Client
-from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.test import Client, TestCase
+from django.urls import reverse
+
 from .models import Category, Place, PlaceApproval
 
 User = get_user_model()
@@ -9,45 +10,45 @@ User = get_user_model()
 class CategoryModelTests(TestCase):
     def setUp(self):
         self.category = Category.objects.create(
-            name='Restaurants',
-            slug='restaurants',
-            description='Best dining spots',
-            icon='🍽️',
-            display_order=1
+            name="Restaurants",
+            slug="restaurants",
+            description="Best dining spots",
+            icon="🍽️",
+            display_order=1,
         )
 
     def test_category_creation(self):
         """Test category is created correctly"""
-        self.assertEqual(self.category.name, 'Restaurants')
-        self.assertEqual(self.category.slug, 'restaurants')
+        self.assertEqual(self.category.name, "Restaurants")
+        self.assertEqual(self.category.slug, "restaurants")
         self.assertTrue(self.category.is_active)
 
     def test_category_string_representation(self):
         """Test category string representation"""
-        self.assertEqual(str(self.category), 'Restaurants')
+        self.assertEqual(str(self.category), "Restaurants")
 
     def test_active_places_count_property(self):
         """Test active_places_count property"""
-        user = User.objects.create_user(username='creator', password='pass123')
+        user = User.objects.create_user(username="creator", password="pass123")
 
         # Create approved place
         place1 = Place.objects.create(
-            name='Test Place 1',
-            description='Test description',
-            address='Test address',
+            name="Test Place 1",
+            description="Test description",
+            address="Test address",
             created_by=user,
             is_approved=True,
-            is_active=True
+            is_active=True,
         )
         place1.categories.add(self.category)
 
         # Create unapproved place
         place2 = Place.objects.create(
-            name='Test Place 2',
-            description='Test description',
-            address='Test address',
+            name="Test Place 2",
+            description="Test description",
+            address="Test address",
             created_by=user,
-            is_approved=False
+            is_approved=False,
         )
         place2.categories.add(self.category)
 
@@ -55,8 +56,8 @@ class CategoryModelTests(TestCase):
 
     def test_category_ordering(self):
         """Test categories are ordered by display_order and name"""
-        cat2 = Category.objects.create(name='Hotels', slug='hotels', display_order=2)
-        cat3 = Category.objects.create(name='Arts', slug='arts', display_order=1)
+        cat2 = Category.objects.create(name="Hotels", slug="hotels", display_order=2)
+        cat3 = Category.objects.create(name="Arts", slug="arts", display_order=1)
 
         categories = list(Category.objects.all())
         self.assertEqual(categories[0].display_order, 1)
@@ -69,26 +70,21 @@ class PlaceModelTests(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(
-            username='creator',
-            password='pass123',
-            user_type='CREATION'
+            username="creator", password="pass123", user_type="CREATION"
         )
-        self.category = Category.objects.create(
-            name='Restaurants',
-            slug='restaurants'
-        )
+        self.category = Category.objects.create(name="Restaurants", slug="restaurants")
 
     def test_place_creation(self):
         """Test place is created correctly"""
         place = Place.objects.create(
-            name='Test Restaurant',
-            description='Great food',
-            address='123 Main St',
-            contact_phone='1234567890',
-            contact_email='test@example.com',
-            created_by=self.user
+            name="Test Restaurant",
+            description="Great food",
+            address="123 Main St",
+            contact_phone="1234567890",
+            contact_email="test@example.com",
+            created_by=self.user,
         )
-        self.assertEqual(place.name, 'Test Restaurant')
+        self.assertEqual(place.name, "Test Restaurant")
         self.assertFalse(place.is_approved)  # Default should be False
         self.assertTrue(place.is_active)  # Default should be True
         self.assertEqual(place.created_by, self.user)
@@ -96,21 +92,21 @@ class PlaceModelTests(TestCase):
     def test_place_string_representation(self):
         """Test place string representation"""
         place = Place.objects.create(
-            name='Test Place',
-            description='Test',
-            address='Test address',
-            created_by=self.user
+            name="Test Place",
+            description="Test",
+            address="Test address",
+            created_by=self.user,
         )
-        self.assertEqual(str(place), 'Test Place')
+        self.assertEqual(str(place), "Test Place")
 
     def test_place_is_pending_property(self):
         """Test is_pending property"""
         place = Place.objects.create(
-            name='Test Place',
-            description='Test',
-            address='Test address',
+            name="Test Place",
+            description="Test",
+            address="Test address",
             created_by=self.user,
-            is_approved=False
+            is_approved=False,
         )
         self.assertTrue(place.is_pending)
 
@@ -121,10 +117,10 @@ class PlaceModelTests(TestCase):
     def test_place_has_coordinates_property(self):
         """Test has_coordinates property"""
         place = Place.objects.create(
-            name='Test Place',
-            description='Test',
-            address='Test address',
-            created_by=self.user
+            name="Test Place",
+            description="Test",
+            address="Test address",
+            created_by=self.user,
         )
         self.assertFalse(place.has_coordinates)
 
@@ -136,10 +132,10 @@ class PlaceModelTests(TestCase):
     def test_place_category_relationship(self):
         """Test many-to-many relationship with categories"""
         place = Place.objects.create(
-            name='Test Place',
-            description='Test',
-            address='Test address',
-            created_by=self.user
+            name="Test Place",
+            description="Test",
+            address="Test address",
+            created_by=self.user,
         )
         place.categories.add(self.category)
 
@@ -151,12 +147,12 @@ class PlaceImageModelTests(TestCase):
     """Tests for PlaceImage model"""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='creator', password='pass123')
+        self.user = User.objects.create_user(username="creator", password="pass123")
         self.place = Place.objects.create(
-            name='Test Place',
-            description='Test',
-            address='Test address',
-            created_by=self.user
+            name="Test Place",
+            description="Test",
+            address="Test address",
+            created_by=self.user,
         )
 
     def test_place_primary_image_property(self):
@@ -176,21 +172,17 @@ class PlaceApprovalModelTests(TestCase):
 
     def setUp(self):
         self.creator = User.objects.create_user(
-            username='creator',
-            password='pass123',
-            user_type='CREATION'
+            username="creator", password="pass123", user_type="CREATION"
         )
         self.admin = User.objects.create_user(
-            username='admin',
-            password='pass123',
-            user_type='ADMIN'
+            username="admin", password="pass123", user_type="ADMIN"
         )
         self.place = Place.objects.create(
-            name='Test Place',
-            description='Test',
-            address='Test address',
+            name="Test Place",
+            description="Test",
+            address="Test address",
             created_by=self.creator,
-            is_approved=False
+            is_approved=False,
         )
 
     def test_place_approval_creation(self):
@@ -198,19 +190,17 @@ class PlaceApprovalModelTests(TestCase):
         approval = PlaceApproval.objects.create(
             place=self.place,
             reviewer=self.admin,
-            action='APPROVE',
-            comments='Looks good'
+            action="APPROVE",
+            comments="Looks good",
         )
         self.assertEqual(approval.place, self.place)
         self.assertEqual(approval.reviewer, self.admin)
-        self.assertEqual(approval.action, 'APPROVE')
+        self.assertEqual(approval.action, "APPROVE")
 
     def test_approval_updates_place_status(self):
         """Test that approving updates place.is_approved"""
         approval = PlaceApproval.objects.create(
-            place=self.place,
-            reviewer=self.admin,
-            action='APPROVE'
+            place=self.place, reviewer=self.admin, action="APPROVE"
         )
         self.place.refresh_from_db()
         self.assertTrue(self.place.is_approved)
@@ -220,8 +210,8 @@ class PlaceApprovalModelTests(TestCase):
         approval = PlaceApproval.objects.create(
             place=self.place,
             reviewer=self.admin,
-            action='REJECT',
-            comments='Needs more information'
+            action="REJECT",
+            comments="Needs more information",
         )
         self.place.refresh_from_db()
         self.assertFalse(self.place.is_approved)
@@ -234,65 +224,61 @@ class ExploreViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(
-            username='creator',
-            password='pass123',
-            user_type='CREATION'
+            username="creator", password="pass123", user_type="CREATION"
         )
         self.category = Category.objects.create(
-            name='Restaurants',
-            slug='restaurants',
-            icon='🍽️'
+            name="Restaurants", slug="restaurants", icon="🍽️"
         )
 
         # Create approved places
         for i in range(3):
             place = Place.objects.create(
-                name=f'Place {i}',
-                description='Test description',
-                address='Test address',
+                name=f"Place {i}",
+                description="Test description",
+                address="Test address",
                 created_by=self.user,
                 is_approved=True,
-                is_active=True
+                is_active=True,
             )
             place.categories.add(self.category)
 
     def test_explore_page_loads(self):
         """Test explore page loads successfully"""
-        response = self.client.get(reverse('explore:explore'))
+        response = self.client.get(reverse("explore:explore"))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'explore/explore.html')
+        self.assertTemplateUsed(response, "explore/explore.html")
 
     def test_explore_page_shows_categories(self):
         """Test explore page displays categories"""
-        response = self.client.get(reverse('explore:explore'))
-        self.assertContains(response, 'Restaurants')
-        self.assertIn('categories', response.context)
-        self.assertEqual(response.context['categories'].count(), 1)
+        response = self.client.get(reverse("explore:explore"))
+        self.assertContains(response, "Restaurants")
+        self.assertIn("categories", response.context)
+        self.assertEqual(response.context["categories"].count(), 1)
 
     def test_explore_page_shows_approved_places_only(self):
         """Test explore page only shows approved places"""
         # Create unapproved place
         Place.objects.create(
-            name='Unapproved Place',
-            description='Test',
-            address='Test address',
+            name="Unapproved Place",
+            description="Test",
+            address="Test address",
             created_by=self.user,
-            is_approved=False
+            is_approved=False,
         )
 
-        response = self.client.get(reverse('explore:explore'))
-        self.assertNotContains(response, 'Unapproved Place')
-        self.assertEqual(response.context['all_places'].count(), 3)
+        response = self.client.get(reverse("explore:explore"))
+        self.assertNotContains(response, "Unapproved Place")
+        self.assertEqual(response.context["all_places"].count(), 3)
 
     def test_explore_page_sorting(self):
         """Test explore page sorting functionality"""
         # Test default sorting (newest first)
-        response = self.client.get(reverse('explore:explore'))
-        self.assertEqual(response.context['current_sort'], '-created_at')
+        response = self.client.get(reverse("explore:explore"))
+        self.assertEqual(response.context["current_sort"], "-created_at")
 
         # Test name sorting
-        response = self.client.get(reverse('explore:explore') + '?sort=name')
-        self.assertEqual(response.context['current_sort'], 'name')
+        response = self.client.get(reverse("explore:explore") + "?sort=name")
+        self.assertEqual(response.context["current_sort"], "name")
 
 
 class LandingPageTests(TestCase):
@@ -300,29 +286,29 @@ class LandingPageTests(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(username='creator', password='pass123')
+        self.user = User.objects.create_user(username="creator", password="pass123")
 
         # Create a place
         self.place = Place.objects.create(
-            name='Featured Place',
-            description='Test description',
-            address='Test address',
+            name="Featured Place",
+            description="Test description",
+            address="Test address",
             created_by=self.user,
             is_approved=True,
-            is_active=True
+            is_active=True,
         )
 
     def test_landing_page_loads(self):
         """Test landing page loads successfully"""
-        response = self.client.get(reverse('core:landing'))
+        response = self.client.get(reverse("core:landing"))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'core/landing.html')
+        self.assertTemplateUsed(response, "core/landing.html")
 
     def test_landing_page_shows_featured_places(self):
         """Test landing page shows featured places"""
-        response = self.client.get(reverse('core:landing'))
-        self.assertIn('featured_places', response.context)
-        self.assertContains(response, 'Featured Place')
+        response = self.client.get(reverse("core:landing"))
+        self.assertIn("featured_places", response.context)
+        self.assertContains(response, "Featured Place")
 
 
 class PlaceCreateViewTests(TestCase):
@@ -331,132 +317,128 @@ class PlaceCreateViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.creation_user = User.objects.create_user(
-            username='creator',
-            password='pass123',
-            user_type='CREATION'
+            username="creator", password="pass123", user_type="CREATION"
         )
         self.explore_user = User.objects.create_user(
-            username='explorer',
-            password='pass123',
-            user_type='EXPLORE'
+            username="explorer", password="pass123", user_type="EXPLORE"
         )
         self.admin_user = User.objects.create_user(
-            username='admin',
-            password='pass123',
-            user_type='ADMIN'
+            username="admin", password="pass123", user_type="ADMIN"
         )
-        self.category = Category.objects.create(
-            name='Restaurants',
-            slug='restaurants'
-        )
+        self.category = Category.objects.create(name="Restaurants", slug="restaurants")
 
     def test_place_create_view_requires_login(self):
         """Test place creation requires authentication"""
-        response = self.client.get(reverse('explore:place_create'))
-        self.assertRedirects(response, '/accounts/login/?next=/explore/place/create/')
+        response = self.client.get(reverse("explore:place_create"))
+        self.assertRedirects(response, "/accounts/login/?next=/explore/place/create/")
 
     def test_explore_user_cannot_create_places(self):
         """Test explore users cannot access place creation"""
-        self.client.login(username='explorer', password='pass123')
-        response = self.client.get(reverse('explore:place_create'))
-        self.assertRedirects(response, reverse('explore:explore'))
+        self.client.login(username="explorer", password="pass123")
+        response = self.client.get(reverse("explore:place_create"))
+        self.assertRedirects(response, reverse("explore:explore"))
 
     def test_creation_user_can_access_place_create_form(self):
         """Test creation users can access place creation form"""
-        self.client.login(username='creator', password='pass123')
-        response = self.client.get(reverse('explore:place_create'))
+        self.client.login(username="creator", password="pass123")
+        response = self.client.get(reverse("explore:place_create"))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'explore/place_form.html')
-        self.assertContains(response, 'Adicionar Novo Lugar')
+        self.assertTemplateUsed(response, "explore/place_form.html")
+        self.assertContains(response, "Adicionar Novo Lugar")
 
     def test_admin_user_can_access_place_create_form(self):
         """Test admin users can access place creation form"""
-        self.client.login(username='admin', password='pass123')
-        response = self.client.get(reverse('explore:place_create'))
+        self.client.login(username="admin", password="pass123")
+        response = self.client.get(reverse("explore:place_create"))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'explore/place_form.html')
+        self.assertTemplateUsed(response, "explore/place_form.html")
 
     def test_place_creation_with_valid_data(self):
         """Test creating a place with valid data"""
-        self.client.login(username='creator', password='pass123')
+        self.client.login(username="creator", password="pass123")
 
         form_data = {
-            'name': 'Test Restaurant',
-            'description': 'Great food and atmosphere',
-            'address': '123 Main Street, Maricá, RJ',
-            'contact_phone': '(21) 99999-9999',
-            'contact_email': 'contact@testrestaurant.com',
-            'contact_website': 'https://testrestaurant.com',
-            'categories': [self.category.id],
-            'latitude': '-22.9192',
-            'longitude': '-42.8186',
+            "name": "Test Restaurant",
+            "description": "Great food and atmosphere",
+            "address": "123 Main Street, Maricá, RJ",
+            "contact_phone": "(21) 99999-9999",
+            "contact_email": "contact@testrestaurant.com",
+            "contact_website": "https://testrestaurant.com",
+            "categories": [self.category.id],
+            "latitude": "-22.9192",
+            "longitude": "-42.8186",
             # Formset management data
-            'placeimage_set-TOTAL_FORMS': '0',
-            'placeimage_set-INITIAL_FORMS': '0',
-            'placeimage_set-MIN_NUM_FORMS': '0',
-            'placeimage_set-MAX_NUM_FORMS': '10',
+            "placeimage_set-TOTAL_FORMS": "0",
+            "placeimage_set-INITIAL_FORMS": "0",
+            "placeimage_set-MIN_NUM_FORMS": "0",
+            "placeimage_set-MAX_NUM_FORMS": "10",
         }
 
-        response = self.client.post(reverse('explore:place_create'), data=form_data)
+        response = self.client.post(reverse("explore:place_create"), data=form_data)
 
         # Check place was created
         self.assertEqual(Place.objects.count(), 1)
         place = Place.objects.first()
 
         # Check place properties
-        self.assertEqual(place.name, 'Test Restaurant')
+        self.assertEqual(place.name, "Test Restaurant")
         self.assertEqual(place.created_by, self.creation_user)
         self.assertFalse(place.is_approved)  # Should start as unapproved
         self.assertTrue(place.is_active)
         self.assertIn(self.category, place.categories.all())
 
         # Check redirect
-        self.assertRedirects(response, reverse('explore:place_detail', kwargs={'pk': place.pk}))
+        self.assertRedirects(
+            response, reverse("explore:place_detail", kwargs={"pk": place.pk})
+        )
 
     def test_place_creation_with_invalid_data(self):
         """Test place creation with invalid data"""
-        self.client.login(username='creator', password='pass123')
+        self.client.login(username="creator", password="pass123")
 
         # Missing required fields
         form_data = {
-            'name': '',  # Required field missing
-            'description': '',  # Required field missing
-            'placeimage_set-TOTAL_FORMS': '0',
-            'placeimage_set-INITIAL_FORMS': '0',
-            'placeimage_set-MIN_NUM_FORMS': '0',
-            'placeimage_set-MAX_NUM_FORMS': '10',
+            "name": "",  # Required field missing
+            "description": "",  # Required field missing
+            "placeimage_set-TOTAL_FORMS": "0",
+            "placeimage_set-INITIAL_FORMS": "0",
+            "placeimage_set-MIN_NUM_FORMS": "0",
+            "placeimage_set-MAX_NUM_FORMS": "10",
         }
 
-        response = self.client.post(reverse('explore:place_create'), data=form_data)
+        response = self.client.post(reverse("explore:place_create"), data=form_data)
 
         # Should not create place and should show form with errors
         self.assertEqual(Place.objects.count(), 0)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'explore/place_form.html')
+        self.assertTemplateUsed(response, "explore/place_form.html")
 
     def test_place_creation_with_partial_coordinates(self):
         """Test place creation with only latitude or longitude fails validation"""
-        self.client.login(username='creator', password='pass123')
+        self.client.login(username="creator", password="pass123")
 
         form_data = {
-            'name': 'Test Place',
-            'description': 'Test description',
-            'address': 'Test address',
-            'categories': [self.category.id],
-            'latitude': '-22.9192',
+            "name": "Test Place",
+            "description": "Test description",
+            "address": "Test address",
+            "categories": [self.category.id],
+            "latitude": "-22.9192",
             # Missing longitude
-            'placeimage_set-TOTAL_FORMS': '0',
-            'placeimage_set-INITIAL_FORMS': '0',
-            'placeimage_set-MIN_NUM_FORMS': '0',
-            'placeimage_set-MAX_NUM_FORMS': '10',
+            "placeimage_set-TOTAL_FORMS": "0",
+            "placeimage_set-INITIAL_FORMS": "0",
+            "placeimage_set-MIN_NUM_FORMS": "0",
+            "placeimage_set-MAX_NUM_FORMS": "10",
         }
 
-        response = self.client.post(reverse('explore:place_create'), data=form_data)
+        response = self.client.post(reverse("explore:place_create"), data=form_data)
 
         # Should not create place due to validation error
         self.assertEqual(Place.objects.count(), 0)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Se você fornecer coordenadas, deve fornecer tanto latitude quanto longitude.')
+        self.assertContains(
+            response,
+            "Se você fornecer coordenadas, deve fornecer tanto latitude quanto longitude.",
+        )
 
 
 class PlaceUpdateViewTests(TestCase):
@@ -465,85 +447,92 @@ class PlaceUpdateViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.creation_user = User.objects.create_user(
-            username='creator',
-            password='pass123',
-            user_type='CREATION'
+            username="creator", password="pass123", user_type="CREATION"
         )
         self.other_user = User.objects.create_user(
-            username='other',
-            password='pass123',
-            user_type='CREATION'
+            username="other", password="pass123", user_type="CREATION"
         )
         self.admin_user = User.objects.create_user(
-            username='admin',
-            password='pass123',
-            user_type='ADMIN'
+            username="admin", password="pass123", user_type="ADMIN"
         )
-        self.category = Category.objects.create(name='Restaurants', slug='restaurants')
+        self.category = Category.objects.create(name="Restaurants", slug="restaurants")
 
         self.place = Place.objects.create(
-            name='Original Place',
-            description='Original description',
-            address='Original address',
+            name="Original Place",
+            description="Original description",
+            address="Original address",
             created_by=self.creation_user,
-            is_approved=True
+            is_approved=True,
         )
         self.place.categories.add(self.category)
 
     def test_place_update_requires_login(self):
         """Test place editing requires authentication"""
-        response = self.client.get(reverse('explore:place_edit', kwargs={'pk': self.place.pk}))
-        self.assertRedirects(response, f'/accounts/login/?next=/explore/place/{self.place.pk}/edit/')
+        response = self.client.get(
+            reverse("explore:place_edit", kwargs={"pk": self.place.pk})
+        )
+        self.assertRedirects(
+            response, f"/accounts/login/?next=/explore/place/{self.place.pk}/edit/"
+        )
 
     def test_creator_can_edit_own_place(self):
         """Test place creator can edit their own place"""
-        self.client.login(username='creator', password='pass123')
-        response = self.client.get(reverse('explore:place_edit', kwargs={'pk': self.place.pk}))
+        self.client.login(username="creator", password="pass123")
+        response = self.client.get(
+            reverse("explore:place_edit", kwargs={"pk": self.place.pk})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'explore/place_form.html')
-        self.assertContains(response, f'Editar {self.place.name}')
+        self.assertTemplateUsed(response, "explore/place_form.html")
+        self.assertContains(response, f"Editar {self.place.name}")
 
     def test_admin_can_edit_any_place(self):
         """Test admin users can edit any place"""
-        self.client.login(username='admin', password='pass123')
-        response = self.client.get(reverse('explore:place_edit', kwargs={'pk': self.place.pk}))
+        self.client.login(username="admin", password="pass123")
+        response = self.client.get(
+            reverse("explore:place_edit", kwargs={"pk": self.place.pk})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'explore/place_form.html')
+        self.assertTemplateUsed(response, "explore/place_form.html")
 
     def test_other_creation_user_cannot_edit_place(self):
         """Test other creation users cannot edit places they didn't create"""
-        self.client.login(username='other', password='pass123')
-        response = self.client.get(reverse('explore:place_edit', kwargs={'pk': self.place.pk}))
-        self.assertRedirects(response, reverse('explore:place_detail', kwargs={'pk': self.place.pk}))
+        self.client.login(username="other", password="pass123")
+        response = self.client.get(
+            reverse("explore:place_edit", kwargs={"pk": self.place.pk})
+        )
+        self.assertRedirects(
+            response, reverse("explore:place_detail", kwargs={"pk": self.place.pk})
+        )
 
     def test_place_update_with_valid_data(self):
         """Test updating a place with valid data"""
-        self.client.login(username='creator', password='pass123')
+        self.client.login(username="creator", password="pass123")
 
         form_data = {
-            'name': 'Updated Place Name',
-            'description': 'Updated description',
-            'address': 'Updated address',
-            'categories': [self.category.id],
-            'placeimage_set-TOTAL_FORMS': '0',
-            'placeimage_set-INITIAL_FORMS': '0',
-            'placeimage_set-MIN_NUM_FORMS': '0',
-            'placeimage_set-MAX_NUM_FORMS': '10',
+            "name": "Updated Place Name",
+            "description": "Updated description",
+            "address": "Updated address",
+            "categories": [self.category.id],
+            "placeimage_set-TOTAL_FORMS": "0",
+            "placeimage_set-INITIAL_FORMS": "0",
+            "placeimage_set-MIN_NUM_FORMS": "0",
+            "placeimage_set-MAX_NUM_FORMS": "10",
         }
 
         response = self.client.post(
-            reverse('explore:place_edit', kwargs={'pk': self.place.pk}),
-            data=form_data
+            reverse("explore:place_edit", kwargs={"pk": self.place.pk}), data=form_data
         )
 
         # Check place was updated
         self.place.refresh_from_db()
-        self.assertEqual(self.place.name, 'Updated Place Name')
-        self.assertEqual(self.place.description, 'Updated description')
-        self.assertEqual(self.place.address, 'Updated address')
+        self.assertEqual(self.place.name, "Updated Place Name")
+        self.assertEqual(self.place.description, "Updated description")
+        self.assertEqual(self.place.address, "Updated address")
 
         # Check redirect
-        self.assertRedirects(response, reverse('explore:place_detail', kwargs={'pk': self.place.pk}))
+        self.assertRedirects(
+            response, reverse("explore:place_detail", kwargs={"pk": self.place.pk})
+        )
 
 
 class PlaceDeleteViewTests(TestCase):
@@ -552,64 +541,70 @@ class PlaceDeleteViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.creation_user = User.objects.create_user(
-            username='creator',
-            password='pass123',
-            user_type='CREATION'
+            username="creator", password="pass123", user_type="CREATION"
         )
         self.other_user = User.objects.create_user(
-            username='other',
-            password='pass123',
-            user_type='CREATION'
+            username="other", password="pass123", user_type="CREATION"
         )
         self.admin_user = User.objects.create_user(
-            username='admin',
-            password='pass123',
-            user_type='ADMIN'
+            username="admin", password="pass123", user_type="ADMIN"
         )
 
         self.place = Place.objects.create(
-            name='Test Place',
-            description='Test description',
-            address='Test address',
-            created_by=self.creation_user
+            name="Test Place",
+            description="Test description",
+            address="Test address",
+            created_by=self.creation_user,
         )
 
     def test_place_delete_requires_login(self):
         """Test place deletion requires authentication"""
-        response = self.client.get(reverse('explore:place_delete', kwargs={'pk': self.place.pk}))
-        self.assertRedirects(response, f'/accounts/login/?next=/explore/place/{self.place.pk}/delete/')
+        response = self.client.get(
+            reverse("explore:place_delete", kwargs={"pk": self.place.pk})
+        )
+        self.assertRedirects(
+            response, f"/accounts/login/?next=/explore/place/{self.place.pk}/delete/"
+        )
 
     def test_place_delete_confirmation_page(self):
         """Test place deletion confirmation page loads"""
-        self.client.login(username='creator', password='pass123')
-        response = self.client.get(reverse('explore:place_delete', kwargs={'pk': self.place.pk}))
+        self.client.login(username="creator", password="pass123")
+        response = self.client.get(
+            reverse("explore:place_delete", kwargs={"pk": self.place.pk})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'explore/place_delete_confirm.html')
-        self.assertContains(response, 'Confirmar Exclusão')
+        self.assertTemplateUsed(response, "explore/place_delete_confirm.html")
+        self.assertContains(response, "Confirmar Exclusão")
         self.assertContains(response, self.place.name)
 
     def test_creator_can_delete_own_place(self):
         """Test place creator can delete their own place"""
-        self.client.login(username='creator', password='pass123')
-        response = self.client.post(reverse('explore:place_delete', kwargs={'pk': self.place.pk}))
+        self.client.login(username="creator", password="pass123")
+        response = self.client.post(
+            reverse("explore:place_delete", kwargs={"pk": self.place.pk})
+        )
 
         # Check place was deleted
         self.assertEqual(Place.objects.count(), 0)
-        self.assertRedirects(response, reverse('explore:explore'))
+        self.assertRedirects(response, reverse("explore:explore"))
 
     def test_admin_can_delete_any_place(self):
         """Test admin users can delete any place"""
-        self.client.login(username='admin', password='pass123')
-        response = self.client.post(reverse('explore:place_delete', kwargs={'pk': self.place.pk}))
+        self.client.login(username="admin", password="pass123")
+        response = self.client.post(
+            reverse("explore:place_delete", kwargs={"pk": self.place.pk})
+        )
 
         # Check place was deleted
         self.assertEqual(Place.objects.count(), 0)
-        self.assertRedirects(response, reverse('explore:explore'))
+        self.assertRedirects(response, reverse("explore:explore"))
 
     def test_other_user_cannot_delete_place(self):
         """Test other users cannot delete places they didn't create"""
-        self.client.login(username='other', password='pass123')
-        response = self.client.get(reverse('explore:place_delete', kwargs={'pk': self.place.pk}))
+        self.client.login(username="other", password="pass123")
+        response = self.client.get(
+            reverse("explore:place_delete", kwargs={"pk": self.place.pk})
+        )
         # Should redirect to detail page or show error
         self.assertIn(response.status_code, [302, 403, 404])
 
@@ -623,86 +618,96 @@ class PlaceDetailViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.creation_user = User.objects.create_user(
-            username='creator',
-            password='pass123',
-            user_type='CREATION'
+            username="creator", password="pass123", user_type="CREATION"
         )
         self.admin_user = User.objects.create_user(
-            username='admin',
-            password='pass123',
-            user_type='ADMIN'
+            username="admin", password="pass123", user_type="ADMIN"
         )
         self.explore_user = User.objects.create_user(
-            username='explorer',
-            password='pass123',
-            user_type='EXPLORE'
+            username="explorer", password="pass123", user_type="EXPLORE"
         )
 
         self.approved_place = Place.objects.create(
-            name='Approved Place',
-            description='Approved description',
-            address='Approved address',
+            name="Approved Place",
+            description="Approved description",
+            address="Approved address",
             created_by=self.creation_user,
             is_approved=True,
-            is_active=True
+            is_active=True,
         )
 
         self.unapproved_place = Place.objects.create(
-            name='Unapproved Place',
-            description='Unapproved description',
-            address='Unapproved address',
+            name="Unapproved Place",
+            description="Unapproved description",
+            address="Unapproved address",
             created_by=self.creation_user,
             is_approved=False,
-            is_active=True
+            is_active=True,
         )
 
     def test_approved_place_visible_to_all(self):
         """Test approved places are visible to all users"""
         # Anonymous user
-        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.approved_place.pk}))
+        response = self.client.get(
+            reverse("explore:place_detail", kwargs={"pk": self.approved_place.pk})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Approved Place')
+        self.assertContains(response, "Approved Place")
 
         # Logged in explore user
-        self.client.login(username='explorer', password='pass123')
-        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.approved_place.pk}))
+        self.client.login(username="explorer", password="pass123")
+        response = self.client.get(
+            reverse("explore:place_detail", kwargs={"pk": self.approved_place.pk})
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_unapproved_place_visible_to_creator_and_admin(self):
         """Test unapproved places are only visible to creator and admin"""
         # Creator can see their own unapproved place
-        self.client.login(username='creator', password='pass123')
-        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.unapproved_place.pk}))
+        self.client.login(username="creator", password="pass123")
+        response = self.client.get(
+            reverse("explore:place_detail", kwargs={"pk": self.unapproved_place.pk})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Unapproved Place')
+        self.assertContains(response, "Unapproved Place")
 
         # Admin can see any unapproved place
-        self.client.login(username='admin', password='pass123')
-        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.unapproved_place.pk}))
+        self.client.login(username="admin", password="pass123")
+        response = self.client.get(
+            reverse("explore:place_detail", kwargs={"pk": self.unapproved_place.pk})
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_unapproved_place_hidden_from_explore_users(self):
         """Test unapproved places are hidden from explore users"""
-        self.client.login(username='explorer', password='pass123')
-        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.unapproved_place.pk}))
+        self.client.login(username="explorer", password="pass123")
+        response = self.client.get(
+            reverse("explore:place_detail", kwargs={"pk": self.unapproved_place.pk})
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_edit_button_shown_to_authorized_users(self):
         """Test edit button is shown to authorized users"""
         # Creator sees edit button
-        self.client.login(username='creator', password='pass123')
-        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.approved_place.pk}))
-        self.assertTrue(response.context['can_edit'])
+        self.client.login(username="creator", password="pass123")
+        response = self.client.get(
+            reverse("explore:place_detail", kwargs={"pk": self.approved_place.pk})
+        )
+        self.assertTrue(response.context["can_edit"])
 
         # Admin sees edit button
-        self.client.login(username='admin', password='pass123')
-        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.approved_place.pk}))
-        self.assertTrue(response.context['can_edit'])
+        self.client.login(username="admin", password="pass123")
+        response = self.client.get(
+            reverse("explore:place_detail", kwargs={"pk": self.approved_place.pk})
+        )
+        self.assertTrue(response.context["can_edit"])
 
         # Explore user doesn't see edit button
-        self.client.login(username='explorer', password='pass123')
-        response = self.client.get(reverse('explore:place_detail', kwargs={'pk': self.approved_place.pk}))
-        self.assertFalse(response.context['can_edit'])
+        self.client.login(username="explorer", password="pass123")
+        response = self.client.get(
+            reverse("explore:place_detail", kwargs={"pk": self.approved_place.pk})
+        )
+        self.assertFalse(response.context["can_edit"])
 
 
 class CategoryDetailViewTests(TestCase):
@@ -710,55 +715,60 @@ class CategoryDetailViewTests(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(username='creator', password='pass123')
+        self.user = User.objects.create_user(username="creator", password="pass123")
         self.category = Category.objects.create(
-            name='Restaurants',
-            slug='restaurants',
-            description='Best dining spots'
+            name="Restaurants", slug="restaurants", description="Best dining spots"
         )
 
         # Create approved places in category
         for i in range(3):
             place = Place.objects.create(
-                name=f'Restaurant {i}',
-                description='Test restaurant',
-                address='Test address',
+                name=f"Restaurant {i}",
+                description="Test restaurant",
+                address="Test address",
                 created_by=self.user,
                 is_approved=True,
-                is_active=True
+                is_active=True,
             )
             place.categories.add(self.category)
 
         # Create unapproved place (should not appear)
         unapproved_place = Place.objects.create(
-            name='Unapproved Restaurant',
-            description='Test restaurant',
-            address='Test address',
+            name="Unapproved Restaurant",
+            description="Test restaurant",
+            address="Test address",
             created_by=self.user,
-            is_approved=False
+            is_approved=False,
         )
         unapproved_place.categories.add(self.category)
 
     def test_category_detail_page_loads(self):
         """Test category detail page loads successfully"""
-        response = self.client.get(reverse('explore:category_detail', kwargs={'slug': 'restaurants'}))
+        response = self.client.get(
+            reverse("explore:category_detail", kwargs={"slug": "restaurants"})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'explore/category_detail.html')
+        self.assertTemplateUsed(response, "explore/category_detail.html")
 
     def test_category_detail_shows_only_approved_places(self):
         """Test category detail page shows only approved places"""
-        response = self.client.get(reverse('explore:category_detail', kwargs={'slug': 'restaurants'}))
-        self.assertEqual(response.context['places'].count(), 3)
-        self.assertNotContains(response, 'Unapproved Restaurant')
+        response = self.client.get(
+            reverse("explore:category_detail", kwargs={"slug": "restaurants"})
+        )
+        self.assertEqual(response.context["places"].count(), 3)
+        self.assertNotContains(response, "Unapproved Restaurant")
 
     def test_category_detail_sorting(self):
         """Test category detail page sorting"""
         response = self.client.get(
-            reverse('explore:category_detail', kwargs={'slug': 'restaurants'}) + '?sort=name'
+            reverse("explore:category_detail", kwargs={"slug": "restaurants"})
+            + "?sort=name"
         )
-        self.assertEqual(response.context['current_sort'], 'name')
+        self.assertEqual(response.context["current_sort"], "name")
 
     def test_nonexistent_category_returns_404(self):
         """Test accessing nonexistent category returns 404"""
-        response = self.client.get(reverse('explore:category_detail', kwargs={'slug': 'nonexistent'}))
+        response = self.client.get(
+            reverse("explore:category_detail", kwargs={"slug": "nonexistent"})
+        )
         self.assertEqual(response.status_code, 404)
