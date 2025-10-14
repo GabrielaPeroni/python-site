@@ -10,6 +10,82 @@ jobs:
   lint-and-format:
     name: Code Quality & Linting
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: |
+          poetry install --no-interaction --no-root
+
+      - name: Install project
+        run: poetry install --no-interaction
+
+      - name: Check __init__.py files
+        run: |
+          poetry run python .github/check_innit.py
+
+      - name: Run Black (formatting check)
+        run: |
+          poetry run black --check --diff .
+
+      - name: Run isort (import sorting check)
+        run: |
+          poetry run isort --check-only --diff .
+
+      - name: Run autoflake (unused imports check)
+        run: |
+          poetry run autoflake --check --remove-all-unused-imports --remove-unused-variables --remove-duplicate-keys --ignore-init-module-imports --recursive .
+
+      - name: Run flake8 (mock specification linting)
+        run: |
+          poetry run flake8 --select=TMS010,TMS011,TMS012,TMS013,TMS020,TMS021,TMS022 .
+
+      - name: Install Node.js and Prettier
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Prettier
+        run: |
+          npm install -g prettier@3.1.0
+
+      - name: Run Prettier (formatting check)
+        run: |
+          prettier --config .github/.prettierrc --ignore-path .github/.prettierignore --check "**/*.{js,ts,jsx,tsx,json,yaml,yml,md,html,css}" || (echo "::error::Some files need formatting. Run 'prettier --write .' to fix." && exit 1)
+
+      - name: Run django-upgrade
+        run: |
+          poetry run django-upgrade --target-version 5.0 $(find . -name "*.py" -not -path "./env/*" -not -path "./.venv/*")
+
+      - name: Run pyupgrade
+        run: |
+          poetry run pyupgrade --py310-plus $(find . -name "*.py" -not -path "./env/*" -not -path "./.venv/*")
+
+  tests:
+    name: Django Tests
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
@@ -64,43 +140,6 @@ jobs:
           echo "DEBUG=True" > .env
           echo "SECRET_KEY=test-secret-key-for-ci" >> .env
           echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/test_db" >> .env
-
-      - name: Check __init__.py files
-        run: |
-          poetry run python .github/check_innit.py
-
-      - name: Run Black (formatting check)
-        run: |
-          poetry run black --check --diff .
-
-      - name: Run isort (import sorting check)
-        run: |
-          poetry run isort --check-only --diff .
-
-      - name: Run autoflake (unused imports check)
-        run: |
-          poetry run autoflake --check --remove-all-unused-imports --remove-unused-variables --remove-duplicate-keys --ignore-init-module-imports --recursive .
-
-      - name: Run flake8 (mock specification linting)
-        run: |
-          poetry run flake8 --select=TMS010,TMS011,TMS012,TMS013,TMS020,TMS021,TMS022 .
-
-      - name: Install Node.js and Prettier
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-
-      - name: Install Prettier
-        run: |
-          npm install -g prettier@3.1.0
-
-      - name: Run Prettier (formatting check)
-        run: |
-          prettier --config .github/.prettierrc --ignore-path .github/.prettierignore --check "**/*.{js,ts,jsx,tsx,json,yaml,yml,md,html,css}" || (echo "::error::Some files need formatting. Run 'prettier --write .' to fix." && exit 1)
-
-      - name: Run django-upgrade
-        run: |
-          poetry run django-upgrade --target-version 5.0 $(find . -name "*.py" -not -path "./env/*" -not -path "./.venv/*")
 
       - name: Check Django system
         run: |
