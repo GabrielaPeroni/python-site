@@ -1,117 +1,249 @@
-POETRY := $(shell where poetry 2>nul)
+# Detect OS for cross-platform compatibility
+ifeq ($(OS),Windows_NT)
+    POETRY := $(shell where poetry 2>nul)
+    PYTHON := python
+    RM := rmdir /s /q
+    RM_FILE := del /q
+    MKDIR := mkdir
+    COPY := copy
+    ECHO := @echo
+    SEP := &&
+    NULL := nul
+else
+    POETRY := $(shell which poetry 2>/dev/null)
+    PYTHON := python3
+    RM := rm -rf
+    RM_FILE := rm -f
+    MKDIR := mkdir -p
+    COPY := cp
+    ECHO := @echo
+    SEP := ;
+    NULL := /dev/null
+endif
 
-.PHONY: help install setup migrate superuser run test clean lint format shell
+.PHONY: help venv install setup migrate superuser run test clean lint format shell collectstatic startapp dev-deps db-shell db-reset makemigrations tailwind-install tailwind-start tailwind-build test-accounts test-core test-explore test-theme coverage
 
-help: ## Mostra log de ajuda
-	@echo Comandos disponíveis:
-	@echo.
-	@echo   make install      - Instalar Poetry se não estiver presente
-	@echo   make env          - Criar arquivo .env a partir de .env.example
-	@echo   make setup        - Configuração completa: instalar dependências e migrar
-	@echo   make migrate      - Executar migrações de banco de dados
-	@echo   make superuser    - Criar superusuário Django
-	@echo   make run          - Executar servidor de desenvolvimento
-	@echo   make shell        - Abrir shell Django
-	@echo   make clean        - Limpar cache e arquivos temporários
-	@echo   make format       - Formatar código com black (se instalado)
-	@echo   make lint         - Lint código com flake8 (se instalado)
-	@echo   make db-shell     - Abrir shell do banco de dados
-	@echo   make db-reset     - Redefinir banco de dados (deleta todos os dados)
-	@echo.
+help: ## Show help message
+	$(ECHO) "=========================================="
+	$(ECHO) "Django Project - Available Commands"
+	$(ECHO) "=========================================="
+	$(ECHO) ""
+	$(ECHO) "Setup Commands:"
+	$(ECHO) "  make venv             - Create virtual environment"
+	$(ECHO) "  make install          - Install Poetry if not present"
+	$(ECHO) "  make env              - Create .env file from .env.example"
+	$(ECHO) "  make deps             - Install project dependencies"
+	$(ECHO) "  make setup            - Complete setup: venv, install dependencies, and migrate"
+	$(ECHO) ""
+	$(ECHO) "Development Commands:"
+	$(ECHO) "  make run              - Run development server"
+	$(ECHO) "  make shell            - Open Django shell"
+	$(ECHO) "  make migrate          - Run database migrations"
+	$(ECHO) "  make makemigrations   - Create new migrations"
+	$(ECHO) "  make superuser        - Create Django superuser"
+	$(ECHO) "  make startapp         - Create new Django app (usage: make startapp name=myapp)"
+	$(ECHO) ""
+	$(ECHO) "Testing Commands:"
+	$(ECHO) "  make test             - Run all tests"
+	$(ECHO) "  make test-accounts    - Run tests for accounts app"
+	$(ECHO) "  make test-core        - Run tests for core app"
+	$(ECHO) "  make test-explore     - Run tests for explore app"
+	$(ECHO) "  make test-theme       - Run tests for theme app"
+	$(ECHO) "  make coverage         - Run tests with coverage report"
+	$(ECHO) ""
+	$(ECHO) "Code Quality Commands:"
+	$(ECHO) "  make format           - Format code with black"
+	$(ECHO) "  make lint             - Lint code with flake8"
+	$(ECHO) "  make clean            - Clean cache and temporary files"
+	$(ECHO) "  make dev-deps         - Install development dependencies"
+	$(ECHO) ""
+	$(ECHO) "Database Commands:"
+	$(ECHO) "  make db-shell         - Open database shell"
+	$(ECHO) "  make db-reset         - Reset database (WARNING: deletes all data)"
+	$(ECHO) ""
+	$(ECHO) "Static Files & Tailwind:"
+	$(ECHO) "  make collectstatic    - Collect static files"
+	$(ECHO) "  make tailwind-install - Install Tailwind CSS"
+	$(ECHO) "  make tailwind-start   - Start Tailwind CSS dev server"
+	$(ECHO) "  make tailwind-build   - Build Tailwind CSS for production"
+	$(ECHO) ""
+	$(ECHO) "=========================================="
+	$(ECHO) ""
 
-check-poetry: ## Verifica se o Poetry está instalado
+venv: ## Create virtual environment
+	$(ECHO) "Creating virtual environment..."
+ifeq ($(OS),Windows_NT)
+	@if not exist env $(PYTHON) -m venv env
+	$(ECHO) "Virtual environment created! Activate it with: env\Scripts\activate"
+else
+	@test -d env || $(PYTHON) -m venv env
+	$(ECHO) "Virtual environment created! Activate it with: source env/bin/activate"
+endif
+
+check-poetry: ## Check if Poetry is installed
 ifndef POETRY
-	@echo Poetry não está instalado. Por favor, execute 'make install' primeiro.
+	$(ECHO) "Poetry is not installed. Please run 'make install' first."
 	@exit 1
 endif
 
-install: ## Instalar Poetry usando pip
-	@echo Verificando instalação do Poetry...
-	@where poetry >nul 2>&1 || ( \
-		echo Poetry não encontrado. Instalando Poetry... && \
+install: ## Install Poetry using pip
+	$(ECHO) "Checking Poetry installation..."
+ifeq ($(OS),Windows_NT)
+	@where poetry >$(NULL) 2>&1 || ( \
+		echo Poetry not found. Installing Poetry... $(SEP) \
 		pip install poetry \
 	)
-	@echo Poetry está pronto!
-
-env: ## Criar arquivo .env a partir de .env.example
-	@if not exist .env ( \
-		echo Criando arquivo .env a partir de .env.example... && \
-		copy .env.example .env && \
-		echo .env criado. Atualize as credenciais do banco de dados, se necessário. \
-	) else ( \
-		echo .env já existe. Ignorando... \
+else
+	@which poetry >$(NULL) 2>&1 || ( \
+		echo "Poetry not found. Installing Poetry..." $(SEP) \
+		pip3 install poetry \
 	)
+endif
+	$(ECHO) "Poetry is ready!"
 
-deps: check-poetry ## Instalar dependências do projeto
-	@echo Instalando dependências...
+env: ## Create .env file from .env.example
+ifeq ($(OS),Windows_NT)
+	@if not exist .env ( \
+		echo Creating .env file from .env.example... $(SEP) \
+		$(COPY) .env.example .env $(SEP) \
+		echo .env created. Update database credentials if needed. \
+	) else ( \
+		echo .env already exists. Skipping... \
+	)
+else
+	@test -f .env || ( \
+		echo "Creating .env file from .env.example..." $(SEP) \
+		$(COPY) .env.example .env $(SEP) \
+		echo ".env created. Update database credentials if needed." \
+	)
+endif
+
+deps: check-poetry ## Install project dependencies
+	$(ECHO) "Installing dependencies..."
 	poetry install
 
-setup: install deps migrate ## Configuração completa do projeto
-	@echo.
-	@echo ========================================
-	@echo Configuração completa!
-	@echo ========================================
-	@echo.
-	@echo Próximos passos:
-	@echo   1. Criar um superusuário: make superuser
-	@echo   2. Executar o servidor: make run
-	@echo.
+setup: venv install env deps migrate ## Complete project setup
+	$(ECHO) ""
+	$(ECHO) "========================================"
+	$(ECHO) "Setup complete!"
+	$(ECHO) "========================================"
+	$(ECHO) ""
+	$(ECHO) "Next steps:"
+	$(ECHO) "  1. Create a superuser: make superuser"
+	$(ECHO) "  2. Run the server: make run"
+	$(ECHO) ""
 
-migrate: check-poetry ## Executar migrações de banco de dados
-	@echo Executando migrações...
+migrate: check-poetry ## Run database migrations
+	$(ECHO) "Running migrations..."
 	poetry run python manage.py migrate
 
-makemigrations: check-poetry ## Criar novas migrações
-	@echo Criando migrações...
+makemigrations: check-poetry ## Create new migrations
+	$(ECHO) "Creating migrations..."
 	poetry run python manage.py makemigrations
 
-superuser: check-poetry ## Criar superusuário Django
+superuser: check-poetry ## Create Django superuser
 	poetry run python manage.py createsuperuser
 
-run: check-poetry ## Executar servidor
+run: check-poetry ## Run development server
 	poetry run python manage.py runserver
 
-shell: check-poetry ## Abrir shell Django
+shell: check-poetry ## Open Django shell
 	poetry run python manage.py shell
 
-clean: ## Limpar cache e arquivos temporários
-	@echo Limpando cache e arquivos temporários...
-	@if exist __pycache__ rmdir /s /q __pycache__
-	@if exist .pytest_cache rmdir /s /q .pytest_cache
-	@for /d /r %%i in (__pycache__) do @if exist "%%i" rmdir /s /q "%%i"
-	@for /r %%i in (*.pyc) do @if exist "%%i" del /q "%%i"
-	@for /r %%i in (*.pyo) do @if exist "%%i" del /q "%%i"
-	@echo Limpeza completa!
+clean: ## Clean cache and temporary files
+	$(ECHO) "Cleaning cache and temporary files..."
+ifeq ($(OS),Windows_NT)
+	@if exist __pycache__ $(RM) __pycache__
+	@if exist .pytest_cache $(RM) .pytest_cache
+	@for /d /r %%i in (__pycache__) do @if exist "%%i" $(RM) "%%i"
+	@for /r %%i in (*.pyc) do @if exist "%%i" $(RM_FILE) "%%i"
+	@for /r %%i in (*.pyo) do @if exist "%%i" $(RM_FILE) "%%i"
+else
+	@find . -type d -name "__pycache__" -exec $(RM) {} + 2>$(NULL) || true
+	@find . -type f -name "*.pyc" -exec $(RM_FILE) {} + 2>$(NULL) || true
+	@find . -type f -name "*.pyo" -exec $(RM_FILE) {} + 2>$(NULL) || true
+	@$(RM) .pytest_cache 2>$(NULL) || true
+endif
+	$(ECHO) "Cleanup complete!"
 
-collectstatic: check-poetry ## Coletar arquivos estáticos
+collectstatic: check-poetry ## Collect static files
 	poetry run python manage.py collectstatic --noinput
 
-startapp: check-poetry ## Criar um novo aplicativo Django (uso: make startapp name=myapp)
+startapp: check-poetry ## Create new Django app (usage: make startapp name=myapp)
 ifndef name
-	@echo Erro: Por favor, forneça um nome de aplicativo. Uso: make startapp name=myapp
+	$(ECHO) "Error: Please provide an app name. Usage: make startapp name=myapp"
 	@exit 1
 endif
 	poetry run python manage.py startapp $(name)
+	$(ECHO) "App '$(name)' created in apps/ directory"
 
-format: check-poetry ## Formatar código com black
-	poetry run black . 2>nul || echo Black não está instalado. Execute: poetry add --group dev black
+format: check-poetry ## Format code with black
+	@poetry run black . 2>$(NULL) || $(ECHO) "Black is not installed. Run: poetry add --group dev black"
 
-lint: check-poetry ## Lint código com flake8
-	poetry run flake8 . 2>nul || echo Flake8 não está instalado. Execute: poetry add --group dev flake8
+lint: check-poetry ## Lint code with flake8
+	@poetry run flake8 . 2>$(NULL) || $(ECHO) "Flake8 is not installed. Run: poetry add --group dev flake8"
 
-dev-deps: check-poetry ## Instalar dependências de desenvolvimento
+dev-deps: check-poetry ## Install development dependencies
+	$(ECHO) "Installing development dependencies..."
 	poetry add --group dev black flake8 pytest pytest-django
 
 # Database commands
-db-shell: check-poetry ## Abrir shell do banco de dados
+db-shell: check-poetry ## Open database shell
 	poetry run python manage.py dbshell
 
-db-reset: check-poetry ## Resetar banco de dados (ATENÇÃO: deleta todos os dados)
-	@echo ATENÇÃO: Isso irá deletar todos os dados!
-	@set /p confirm="Você tem certeza? (sim/não): "
-	@if "%confirm%"=="sim" ( \
-		if exist db.sqlite3 del db.sqlite3 && \
+db-reset: check-poetry ## Reset database (WARNING: deletes all data)
+ifeq ($(OS),Windows_NT)
+	$(ECHO) "WARNING: This will delete all data!"
+	@set /p confirm="Are you sure? (yes/no): "
+	@if "%confirm%"=="yes" ( \
+		if exist db.sqlite3 $(RM_FILE) db.sqlite3 $(SEP) \
 		poetry run python manage.py migrate \
 	) else ( \
-		echo Reset do banco de dados cancelado. \
+		echo Database reset cancelled. \
 	)
+else
+	$(ECHO) "WARNING: This will delete all data!"
+	@read -p "Are you sure? (yes/no): " confirm $(SEP) \
+	if [ "$$confirm" = "yes" ]; then \
+		$(RM_FILE) db.sqlite3 2>$(NULL) || true $(SEP) \
+		poetry run python manage.py migrate $(SEP) \
+	else \
+		echo "Database reset cancelled." $(SEP) \
+	fi
+endif
+
+# Tailwind CSS commands
+tailwind-install: check-poetry ## Install and setup Tailwind CSS
+	$(ECHO) "Installing Tailwind CSS..."
+	poetry run python manage.py tailwind install
+
+tailwind-start: check-poetry ## Start Tailwind CSS development server
+	$(ECHO) "Starting Tailwind CSS dev server..."
+	poetry run python manage.py tailwind start
+
+tailwind-build: check-poetry ## Build Tailwind CSS for production
+	$(ECHO) "Building Tailwind CSS for production..."
+	poetry run python manage.py tailwind build
+
+# App-specific commands
+test: check-poetry ## Run tests
+	$(ECHO) "Running tests..."
+	poetry run python manage.py test
+
+test-accounts: check-poetry ## Run tests for accounts app
+	poetry run python manage.py test apps.accounts
+
+test-core: check-poetry ## Run tests for core app
+	poetry run python manage.py test apps.core
+
+test-explore: check-poetry ## Run tests for explore app
+	poetry run python manage.py test apps.explore
+
+test-theme: check-poetry ## Run tests for theme app
+	poetry run python manage.py test apps.theme
+
+coverage: check-poetry ## Run tests with coverage report
+	$(ECHO) "Running tests with coverage..."
+	poetry run coverage run --source='.' manage.py test
+	poetry run coverage report
+	poetry run coverage html
