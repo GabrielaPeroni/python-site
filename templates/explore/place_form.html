@@ -1,5 +1,8 @@
-{% extends 'base.html' %} {% block title %}{{ title }} - MaricaCity{% endblock %} {%
-block content %}
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - MaricaCity{% endblock %}
+
+{% block content %}
 <div class="min-h-screen bg-gray-50 py-8">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Header -->
@@ -315,8 +318,8 @@ block content %}
                   >
                     Ordem de Exibição
                   </label>
-                  {{ form_instance.display_order }} {% if
-                  form_instance.display_order.errors %}
+                  {{ form_instance.display_order }}
+                  {% if form_instance.display_order.errors %}
                   <p class="mt-1 text-sm text-red-600">
                     {{ form_instance.display_order.errors.0 }}
                   </p>
@@ -377,8 +380,7 @@ block content %}
         <li>• Marque uma imagem como "principal" para destaque</li>
         <li>• Forneça informações de contato quando possível</li>
         <li>
-          • {% if not place %}Seu lugar será revisado antes de aparecer no site{% endif
-          %}
+          • {% if not place %}Seu lugar será revisado antes de aparecer no site{% endif %}
         </li>
       </ul>
     </div>

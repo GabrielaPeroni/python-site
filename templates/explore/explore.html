@@ -1,4 +1,7 @@
-{% extends 'base.html' %} {% block title %}Explorar Lugares - MaricaCity{% endblock %}
+{% extends 'base.html' %}
+
+{% block title %}Explorar Lugares - MaricaCity{% endblock %}
+
 {% block content %}
 <!-- Page Header with Navigation -->
 <div class="relative bg-gradient-to-r from-gray-700 to-gray-800 text-white py-16">
@@ -222,22 +225,13 @@
           onchange="window.location.href='?sort='+this.value"
           class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
         >
-          <option
-            value="-created_at"
-            {%
-            if
-            current_sort=""
-            ="-created_at"
-            %}selected{%
-            endif
-            %}
-          >
+          <option value="-created_at" {% if current_sort == "-created_at" %}selected{% endif %}>
             Mais Recentes
           </option>
-          <option value="name" {% if current_sort="" ="name" %}selected{% endif %}>
+          <option value="name" {% if current_sort == "name" %}selected{% endif %}>
             Nome (A-Z)
           </option>
-          <option value="-name" {% if current_sort="" ="-name" %}selected{% endif %}>
+          <option value="-name" {% if current_sort == "-name" %}selected{% endif %}>
             Nome (Z-A)
           </option>
         </select>

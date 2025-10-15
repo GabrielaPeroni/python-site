@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  lint-and-format:
-    name: Code Quality & Linting
+  lintert:
+    name: Linters
     runs-on: ubuntu-latest
 
     steps:
@@ -46,19 +46,19 @@ jobs:
         run: |
           poetry run python .github/check_innit.py
 
-      - name: Run Black (formatting check)
+      - name: Run Black
         run: |
           poetry run black --check --diff .
 
-      - name: Run isort (import sorting check)
+      - name: Run isort
         run: |
           poetry run isort --check-only --diff .
 
-      - name: Run autoflake (unused imports check)
+      - name: Run autoflake
         run: |
           poetry run autoflake --check --remove-all-unused-imports --remove-unused-variables --remove-duplicate-keys --ignore-init-module-imports --recursive apps/ config/ manage.py .github/check_innit.py
 
-      - name: Run flake8 (mock specification linting)
+      - name: Run flake8
         run: |
           poetry run flake8 --select=TMS010,TMS011,TMS012,TMS013,TMS020,TMS021,TMS022 apps/ config/ manage.py .github/check_innit.py
 
@@ -71,7 +71,7 @@ jobs:
         run: |
           npm install -g prettier@3.1.0
 
-      - name: Run Prettier (formatting check)
+      - name: Run Prettier
         run: |
           prettier --config .github/.prettierrc --ignore-path .github/.prettierignore --check "**/*.{js,ts,jsx,tsx,json,yaml,yml,md,html,css}" || (echo "::error::Some files need formatting. Run 'prettier --write .' to fix." && exit 1)
 
@@ -84,7 +84,7 @@ jobs:
           poetry run pyupgrade --py310-plus $(find apps/ config/ -name "*.py") manage.py .github/check_innit.py
 
   tests:
-    name: Django Tests
+    name: Tests
     runs-on: ubuntu-latest
 
     services:
@@ -149,41 +149,3 @@ jobs:
       - name: Run Django tests
         run: |
           poetry run python manage.py test apps --verbosity=2
-
-  pre-commit:
-    name: Pre-commit Hooks
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: latest
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Install dependencies
-        run: |
-          poetry install --no-interaction
-
-      - name: Cache pre-commit
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pre-commit
-          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
-
-      - name: Run pre-commit
-        run: |
-          poetry run pre-commit run --all-files

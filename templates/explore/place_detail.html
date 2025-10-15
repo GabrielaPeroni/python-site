@@ -1,4 +1,7 @@
-{% extends 'base.html' %} {% block title %}{{ place.name }} - MaricaCity{% endblock %}
+{% extends 'base.html' %}
+
+{% block title %}{{ place.name }} - MaricaCity{% endblock %}
+
 {% block content %}
 <!-- Navigation Bar -->
 <nav class="bg-gradient-to-r from-gray-700 to-gray-800">
@@ -236,8 +239,8 @@
               🌐 Visitar Website →
             </a>
           </div>
-          {% endif %} {% if not place.contact_phone and not place.contact_email and not
-          place.contact_website %}
+          {% endif %}
+          {% if not place.contact_phone and not place.contact_email and not place.contact_website %}
           <p class="text-gray-500 text-sm italic">
             Nenhuma informação de contato disponível
           </p>

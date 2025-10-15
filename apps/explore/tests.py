@@ -368,10 +368,10 @@ class PlaceCreateViewTests(TestCase):
             "latitude": "-22.9192",
             "longitude": "-42.8186",
             # Formset management data
-            "placeimage_set-TOTAL_FORMS": "0",
-            "placeimage_set-INITIAL_FORMS": "0",
-            "placeimage_set-MIN_NUM_FORMS": "0",
-            "placeimage_set-MAX_NUM_FORMS": "10",
+            "images-TOTAL_FORMS": "0",
+            "images-INITIAL_FORMS": "0",
+            "images-MIN_NUM_FORMS": "0",
+            "images-MAX_NUM_FORMS": "10",
         }
 
         response = self.client.post(reverse("explore:place_create"), data=form_data)
@@ -400,10 +400,10 @@ class PlaceCreateViewTests(TestCase):
         form_data = {
             "name": "",  # Required field missing
             "description": "",  # Required field missing
-            "placeimage_set-TOTAL_FORMS": "0",
-            "placeimage_set-INITIAL_FORMS": "0",
-            "placeimage_set-MIN_NUM_FORMS": "0",
-            "placeimage_set-MAX_NUM_FORMS": "10",
+            "images-TOTAL_FORMS": "0",
+            "images-INITIAL_FORMS": "0",
+            "images-MIN_NUM_FORMS": "0",
+            "images-MAX_NUM_FORMS": "10",
         }
 
         response = self.client.post(reverse("explore:place_create"), data=form_data)
@@ -424,10 +424,10 @@ class PlaceCreateViewTests(TestCase):
             "categories": [self.category.id],
             "latitude": "-22.9192",
             # Missing longitude
-            "placeimage_set-TOTAL_FORMS": "0",
-            "placeimage_set-INITIAL_FORMS": "0",
-            "placeimage_set-MIN_NUM_FORMS": "0",
-            "placeimage_set-MAX_NUM_FORMS": "10",
+            "images-TOTAL_FORMS": "0",
+            "images-INITIAL_FORMS": "0",
+            "images-MIN_NUM_FORMS": "0",
+            "images-MAX_NUM_FORMS": "10",
         }
 
         response = self.client.post(reverse("explore:place_create"), data=form_data)
@@ -513,10 +513,10 @@ class PlaceUpdateViewTests(TestCase):
             "description": "Updated description",
             "address": "Updated address",
             "categories": [self.category.id],
-            "placeimage_set-TOTAL_FORMS": "0",
-            "placeimage_set-INITIAL_FORMS": "0",
-            "placeimage_set-MIN_NUM_FORMS": "0",
-            "placeimage_set-MAX_NUM_FORMS": "10",
+            "images-TOTAL_FORMS": "0",
+            "images-INITIAL_FORMS": "0",
+            "images-MIN_NUM_FORMS": "0",
+            "images-MAX_NUM_FORMS": "10",
         }
 
         response = self.client.post(

@@ -1,5 +1,8 @@
-{% extends 'base.html' %} {% block title %}Confirmar Exclusão - {{ place.name }} -
-MaricaCity{% endblock %} {% block content %}
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Exclusão - {{ place.name }} - MaricaCity{% endblock %}
+
+{% block content %}
 <div class="min-h-screen bg-gray-50 py-8">
   <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Header -->
@@ -75,9 +78,10 @@ MaricaCity{% endblock %} {% block content %}
               {% endif %}
 
               <p class="text-xs text-gray-500">
-                Criado em {{ place.created_at|date:"d/m/Y" }} {% if place.images.count >
-                0 %} • {{ place.images.count }} imagem{{
-                place.images.count|pluralize:"ns" }} {% endif %}
+                Criado em {{ place.created_at|date:"d/m/Y" }}
+                {% if place.images.count > 0 %}
+                  • {{ place.images.count }} imagem{{ place.images.count|pluralize:"ns" }}
+                {% endif %}
               </p>
             </div>
           </div>
