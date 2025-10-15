@@ -56,6 +56,20 @@ poetry run python manage.py createsuperuser
 poetry run python manage.py runserver
 ```
 
+## 🧪 Testes
+
+### Rodar todos os testes:
+
+```bash
+make test
+```
+
+ou manualmente:
+
+```bash
+poetry run python manage.py test apps --verbosity=2
+```
+
 ## 📜 Licença
 
 - **Código Django**: [MIT](./LICENSE.txt).

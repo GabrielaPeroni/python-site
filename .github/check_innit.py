@@ -50,13 +50,14 @@ def find_python_directories(
 
 
 def check_and_create_init_files(
-    python_dirs: list[Path],
+    python_dirs: list[Path], project_root: Path
 ) -> tuple[list[Path], list[Path]]:
     """
     Check for missing __init__.py files and create them if needed.
 
     Args:
         python_dirs: List of directories that contain Python files
+        project_root: The project root directory to exclude
 
     Returns:
         Tuple of (existing_init_files, created_init_files)
@@ -65,6 +66,12 @@ def check_and_create_init_files(
     created_init_files = []
 
     for directory in python_dirs:
+        # Skip the project root directory to avoid creating __init__.py there
+        # This prevents Django from treating the project root as a package
+        if directory == project_root:
+            print(f"Skipping project root: {directory}")
+            continue
+
         init_file = directory / "__init__.py"
 
         if init_file.exists():
@@ -90,34 +97,34 @@ def main() -> int:
     """
     project_root = Path.cwd()
 
-    print(f"🔍 Scanning for Python directories in: {project_root}")
+    print(f"Scanning for Python directories in: {project_root}")
 
     # Find all directories with Python files
     python_dirs = find_python_directories(project_root)
 
     if not python_dirs:
-        print("ℹ️  No Python directories found.")
+        print("No Python directories found.")
         return 0
 
-    print(f"📁 Found {len(python_dirs)} directories with Python files")
+    print(f"Found {len(python_dirs)} directories with Python files")
 
     # Check and create __init__.py files
-    existing_files, created_files = check_and_create_init_files(python_dirs)
+    existing_files, created_files = check_and_create_init_files(python_dirs, project_root)
 
     # Report results
-    print(f"\n📊 Summary:")
+    print(f"\nSummary:")
     print(f"   - Directories with existing __init__.py: {len(existing_files)}")
     print(f"   - Created __init__.py files: {len(created_files)}")
 
     if created_files:
-        print(f"\n📝 Created files:")
+        print(f"\nCreated files:")
         for file_path in created_files:
             print(f"   - {file_path.relative_to(project_root)}")
 
         # Return 1 to indicate changes were made (useful for CI/CD)
         return 1
     else:
-        print(f"\n✨ All Python directories already have __init__.py files!")
+        print(f"\nAll Python directories already have __init__.py files!")
         return 0
 
 

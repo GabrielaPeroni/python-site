@@ -21,7 +21,7 @@ else
     NULL := /dev/null
 endif
 
-.PHONY: help venv install setup migrate superuser run test clean lint format shell collectstatic startapp dev-deps db-shell db-reset makemigrations tailwind-install tailwind-start tailwind-build test-accounts test-core test-explore test-theme coverage
+.PHONY: help venv install setup migrate superuser run test clean lint lint-ci format shell collectstatic startapp dev-deps db-shell db-reset makemigrations tailwind-install tailwind-start tailwind-build test-accounts test-core test-explore test-theme coverage django-upgrade
 
 help: ## Show help message
 	$(ECHO) "=========================================="
@@ -52,8 +52,10 @@ help: ## Show help message
 	$(ECHO) "  make coverage         - Run tests with coverage report"
 	$(ECHO) ""
 	$(ECHO) "Code Quality Commands:"
-	$(ECHO) "  make format           - Format code with black"
-	$(ECHO) "  make lint             - Lint code with flake8"
+	$(ECHO) "  make format           - Format code with black and isort"
+	$(ECHO) "  make lint             - Run basic linting (flake8)"
+	$(ECHO) "  make lint-ci          - Run all CI linters (black, isort, autoflake, flake8, django-upgrade, pyupgrade)"
+	$(ECHO) "  make django-upgrade   - Check for Django 5.0 deprecations"
 	$(ECHO) "  make clean            - Clean cache and temporary files"
 	$(ECHO) "  make dev-deps         - Install development dependencies"
 	$(ECHO) ""
@@ -177,11 +179,61 @@ endif
 	poetry run python manage.py startapp $(name)
 	$(ECHO) "App '$(name)' created in apps/ directory"
 
-format: check-poetry ## Format code with black
+format: check-poetry ## Format code with black and isort
+	$(ECHO) "Formatting code with black..."
 	@poetry run black . 2>$(NULL) || $(ECHO) "Black is not installed. Run: poetry add --group dev black"
+	$(ECHO) "Sorting imports with isort..."
+	@poetry run isort . 2>$(NULL) || $(ECHO) "isort is not installed. Run: poetry add --group dev isort"
 
 lint: check-poetry ## Lint code with flake8
 	@poetry run flake8 . 2>$(NULL) || $(ECHO) "Flake8 is not installed. Run: poetry add --group dev flake8"
+
+django-upgrade: check-poetry ## Check for Django 5.0 deprecations
+	$(ECHO) "Checking for Django 5.0 deprecations..."
+ifeq ($(OS),Windows_NT)
+	@poetry run django-upgrade --target-version 5.0 $(shell for /r apps %%i in (*.py) do @echo %%i) $(shell for /r config %%i in (*.py) do @echo %%i) manage.py 2>$(NULL) || $(ECHO) "django-upgrade is not installed"
+else
+	@poetry run django-upgrade --target-version 5.0 $$(find apps/ config/ -name "*.py") manage.py 2>$(NULL) || $(ECHO) "django-upgrade is not installed"
+endif
+
+lint-ci: check-poetry ## Run all CI linters (matches GitHub Actions workflow)
+	$(ECHO) "Running all CI linters..."
+	$(ECHO) ""
+	$(ECHO) "1. Checking code formatting with Black..."
+	@poetry run black --check --diff . || ($(ECHO) "ERROR: Black formatting check failed. Run 'make format' to fix." && exit 1)
+	$(ECHO) ""
+	$(ECHO) "2. Checking import sorting with isort..."
+	@poetry run isort --check-only --diff . || ($(ECHO) "ERROR: isort check failed. Run 'make format' to fix." && exit 1)
+	$(ECHO) ""
+	$(ECHO) "3. Checking for unused imports with autoflake..."
+ifeq ($(OS),Windows_NT)
+	@poetry run autoflake --check --remove-all-unused-imports --remove-unused-variables --remove-duplicate-keys --ignore-init-module-imports --recursive apps/ config/ manage.py
+else
+	@poetry run autoflake --check --remove-all-unused-imports --remove-unused-variables --remove-duplicate-keys --ignore-init-module-imports --recursive apps/ config/ manage.py
+endif
+	$(ECHO) ""
+	$(ECHO) "4. Running flake8..."
+ifeq ($(OS),Windows_NT)
+	@poetry run flake8 --select=TMS010,TMS011,TMS012,TMS013,TMS020,TMS021,TMS022 apps/ config/ manage.py
+else
+	@poetry run flake8 --select=TMS010,TMS011,TMS012,TMS013,TMS020,TMS021,TMS022 apps/ config/ manage.py
+endif
+	$(ECHO) ""
+	$(ECHO) "5. Checking for Django 5.0 deprecations..."
+ifeq ($(OS),Windows_NT)
+	@poetry run django-upgrade --target-version 5.0 $(shell for /r apps %%i in (*.py) do @echo %%i) $(shell for /r config %%i in (*.py) do @echo %%i) manage.py
+else
+	@poetry run django-upgrade --target-version 5.0 $$(find apps/ config/ -name "*.py") manage.py
+endif
+	$(ECHO) ""
+	$(ECHO) "6. Checking for Python 3.10+ syntax with pyupgrade..."
+ifeq ($(OS),Windows_NT)
+	@poetry run pyupgrade --py310-plus $(shell for /r apps %%i in (*.py) do @echo %%i) $(shell for /r config %%i in (*.py) do @echo %%i) manage.py
+else
+	@poetry run pyupgrade --py310-plus $$(find apps/ config/ -name "*.py") manage.py
+endif
+	$(ECHO) ""
+	$(ECHO) "All linters passed!"
 
 dev-deps: check-poetry ## Install development dependencies
 	$(ECHO) "Installing development dependencies..."
@@ -226,9 +278,9 @@ tailwind-build: check-poetry ## Build Tailwind CSS for production
 	poetry run python manage.py tailwind build
 
 # App-specific commands
-test: check-poetry ## Run tests
+test: check-poetry ## Run all tests (matches CI workflow)
 	$(ECHO) "Running tests..."
-	poetry run python manage.py test
+	poetry run python manage.py test apps --verbosity=2
 
 test-accounts: check-poetry ## Run tests for accounts app
 	poetry run python manage.py test apps.accounts
