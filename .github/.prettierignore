@@ -52,3 +52,13 @@ templates/
 .env*
 *.ini
 *.cfg
+
+# Documentation and context directories
+claude_context/
+
+# Package lock files (auto-generated)
+package-lock.json
+
+# Minified files
+*.min.css
+*.min.js

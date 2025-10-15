@@ -109,7 +109,9 @@ def main() -> int:
     print(f"Found {len(python_dirs)} directories with Python files")
 
     # Check and create __init__.py files
-    existing_files, created_files = check_and_create_init_files(python_dirs, project_root)
+    existing_files, created_files = check_and_create_init_files(
+        python_dirs, project_root
+    )
 
     # Report results
     print(f"\nSummary:")

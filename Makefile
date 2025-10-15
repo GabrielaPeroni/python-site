@@ -21,7 +21,7 @@ else
     NULL := /dev/null
 endif
 
-.PHONY: help venv install setup migrate superuser run test clean lint lint-ci format shell collectstatic startapp dev-deps db-shell db-reset makemigrations tailwind-install tailwind-start tailwind-build test-accounts test-core test-explore test-theme coverage django-upgrade
+.PHONY: help venv install setup migrate superuser run test clean lint lint-ci format shell collectstatic startapp dev-deps db-shell db-reset makemigrations tailwind-install tailwind-start tailwind-build test-accounts test-core test-explore test-theme coverage django-upgrade pre-commit-install
 
 help: ## Show help message
 	$(ECHO) "=========================================="
@@ -29,11 +29,12 @@ help: ## Show help message
 	$(ECHO) "=========================================="
 	$(ECHO) ""
 	$(ECHO) "Setup Commands:"
-	$(ECHO) "  make venv             - Create virtual environment"
-	$(ECHO) "  make install          - Install Poetry if not present"
-	$(ECHO) "  make env              - Create .env file from .env.example"
-	$(ECHO) "  make deps             - Install project dependencies"
-	$(ECHO) "  make setup            - Complete setup: venv, install dependencies, and migrate"
+	$(ECHO) "  make venv                - Create virtual environment"
+	$(ECHO) "  make install             - Install Poetry if not present"
+	$(ECHO) "  make env                 - Create .env file from .env.example"
+	$(ECHO) "  make deps                - Install project dependencies"
+	$(ECHO) "  make pre-commit-install  - Install pre-commit hooks"
+	$(ECHO) "  make setup               - Complete setup: venv, install dependencies, migrate, and pre-commit"
 	$(ECHO) ""
 	$(ECHO) "Development Commands:"
 	$(ECHO) "  make run              - Run development server"
@@ -124,7 +125,12 @@ deps: check-poetry ## Install project dependencies
 	$(ECHO) "Installing dependencies..."
 	poetry install
 
-setup: venv install env deps migrate ## Complete project setup
+pre-commit-install: check-poetry ## Install pre-commit hooks
+	$(ECHO) "Installing pre-commit hooks..."
+	poetry run pre-commit install
+	$(ECHO) "Pre-commit hooks installed successfully!"
+
+setup: venv install env deps migrate pre-commit-install ## Complete project setup
 	$(ECHO) ""
 	$(ECHO) "========================================"
 	$(ECHO) "Setup complete!"
