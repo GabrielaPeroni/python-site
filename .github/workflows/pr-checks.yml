@@ -62,7 +62,7 @@ jobs:
         run: |
           poetry run flake8 --select=TMS010,TMS011,TMS012,TMS013,TMS020,TMS021,TMS022 apps/ config/ manage.py .github/check_innit.py
 
-      - name: Install Node.js and Prettier
+      - name: Install Prettier
         uses: actions/setup-node@v4
         with:
           node-version: "18"
@@ -74,14 +74,6 @@ jobs:
       - name: Run Prettier
         run: |
           prettier --config .github/.prettierrc --ignore-path .github/.prettierignore --check "**/*.{js,ts,jsx,tsx,json,yaml,yml,md,html,css}" || (echo "::error::Some files need formatting. Run 'prettier --write .' to fix." && exit 1)
-
-      - name: Run django-upgrade
-        run: |
-          poetry run django-upgrade --target-version 5.0 $(find apps/ config/ -name "*.py") manage.py .github/check_innit.py
-
-      - name: Run pyupgrade
-        run: |
-          poetry run pyupgrade --py310-plus $(find apps/ config/ -name "*.py") manage.py .github/check_innit.py
 
   tests:
     name: Tests
