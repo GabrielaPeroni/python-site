@@ -320,4 +320,225 @@
     </div>
   </div>
 </div>
+
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold text-uppercase" id="reviewModalLabel">Escrever Avaliação</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="reviewForm" method="post">
+          {% csrf_token %}
+          <input type="hidden" id="reviewId" name="review_id" value="">
+
+          <div class="mb-4">
+            <label class="form-label fw-bold">Avaliação</label>
+            <div class="star-rating-container d-flex gap-2">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="rating" id="rating1" value="1" required>
+                <label class="form-check-label star-label" for="rating1">★</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="rating" id="rating2" value="2">
+                <label class="form-check-label star-label" for="rating2">★</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="rating" id="rating3" value="3">
+                <label class="form-check-label star-label" for="rating3">★</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="rating" id="rating4" value="4">
+                <label class="form-check-label star-label" for="rating4">★</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="rating" id="rating5" value="5">
+                <label class="form-check-label star-label" for="rating5">★</label>
+              </div>
+            </div>
+            <small class="form-text text-muted">Clique nas estrelas para avaliar</small>
+          </div>
+
+          <div class="mb-4">
+            <label for="reviewComment" class="form-label fw-bold">Comentário</label>
+            <textarea class="form-control" id="reviewComment" name="comment" rows="4" maxlength="1000" placeholder="Compartilhe sua experiência neste lugar..." required></textarea>
+            <small class="form-text text-muted">Máximo 1000 caracteres</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-2"></i>Cancelar
+        </button>
+        <button type="button" class="btn btn-primary" onclick="submitReview()">
+          <i class="bi bi-check-circle me-2"></i><span id="submitButtonText">Enviar Avaliação</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-labelledby="deleteReviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title fw-bold" id="deleteReviewModalLabel">
+          <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3">Tem certeza que deseja excluir sua avaliação?</p>
+        <p class="text-danger small mb-0">
+          <i class="bi bi-info-circle me-1"></i>
+          Esta ação não pode ser desfeita.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-2"></i>Cancelar
+        </button>
+        <button type="button" class="btn btn-danger" onclick="confirmDeleteReview()">
+          <i class="bi bi-trash me-2"></i>Sim, Excluir Avaliação
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .star-rating-container .form-check-input {
+    display: none;
+  }
+
+  .star-rating-container .star-label {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #ddd;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+
+  .star-rating-container .form-check-input:checked ~ .star-label,
+  .star-rating-container .star-label:hover {
+    color: #ffc107;
+  }
+
+  .star-rating-container .form-check:has(.form-check-input:checked) .star-label {
+    color: #ffc107;
+  }
+
+  /* Highlight all stars up to the hovered one */
+  .star-rating-container .form-check:hover ~ .form-check .star-label {
+    color: #ddd;
+  }
+
+  .star-rating-container .form-check:hover .star-label {
+    color: #ffc107;
+  }
+</style>
+
+<script>
+  let currentReviewId = null;
+  let deleteReviewId = null;
+
+  // Reset form for creating new review
+  function resetReviewForm() {
+    currentReviewId = null;
+    document.getElementById('reviewForm').reset();
+    document.getElementById('reviewId').value = '';
+    document.getElementById('reviewModalLabel').textContent = 'Escrever Avaliação';
+    document.getElementById('submitButtonText').textContent = 'Enviar Avaliação';
+  }
+
+  // Populate form for editing existing review
+  function editReview(reviewId, rating, comment) {
+    currentReviewId = reviewId;
+    document.getElementById('reviewId').value = reviewId;
+    document.getElementById('reviewModalLabel').textContent = 'Editar Avaliação';
+    document.getElementById('submitButtonText').textContent = 'Atualizar Avaliação';
+
+    // Set rating
+    document.getElementById('rating' + rating).checked = true;
+
+    // Set comment
+    document.getElementById('reviewComment').value = comment;
+  }
+
+  // Submit review (create or update)
+  function submitReview() {
+    const form = document.getElementById('reviewForm');
+    const formData = new FormData(form);
+
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Determine URL based on whether we're creating or editing
+    let url;
+    if (currentReviewId) {
+      url = "{% url 'explore:review_edit' 0 %}".replace('0', currentReviewId);
+    } else {
+      url = "{% url 'explore:review_create' place.pk %}";
+    }
+
+    // Submit form via fetch
+    fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': csrfToken,
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        // Close modal and reload page to show updated review
+        bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
+        location.reload();
+      } else {
+        alert('Erro ao enviar avaliação. Por favor, tente novamente.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Erro ao enviar avaliação. Por favor, tente novamente.');
+    });
+  }
+
+  // Show delete confirmation modal
+  function deleteReview(reviewId) {
+    deleteReviewId = reviewId;
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteReviewModal'));
+    deleteModal.show();
+  }
+
+  // Confirm and execute delete
+  function confirmDeleteReview() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const url = "{% url 'explore:review_delete' 0 %}".replace('0', deleteReviewId);
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        // Close modal and reload page
+        bootstrap.Modal.getInstance(document.getElementById('deleteReviewModal')).hide();
+        location.reload();
+      } else {
+        alert('Erro ao excluir avaliação. Por favor, tente novamente.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Erro ao excluir avaliação. Por favor, tente novamente.');
+    });
+  }
+</script>
+
 {% endblock %}

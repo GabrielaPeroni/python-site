@@ -292,10 +292,6 @@ test: check-poetry ## Executar todos os testes (corresponde ao workflow do CI)
 	@echo Executando testes...
 	poetry run python manage.py test apps --verbosity=2
 
-
-coverage: check-poetry
-	@echo Executando testes com cobertura...
-
 test-accounts: check-poetry ##  Rodar testes accounts app
 	poetry run python manage.py test apps.accounts
 

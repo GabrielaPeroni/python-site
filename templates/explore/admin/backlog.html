@@ -4,320 +4,237 @@
 
 {% block content %}
 <!-- Navigation Bar -->
-<nav class="bg-gradient-to-r from-gray-700 to-gray-800">
-  <div class="mx-auto px-8 py-4">
-    <div class="flex justify-between items-center">
-      <!-- Logo -->
-      <div class="flex items-center">
-        <a
-          href="{% url 'core:landing' %}"
-          class="text-xl font-bold text-white uppercase tracking-wider"
-        >
-          MaricaCity
-        </a>
-      </div>
-
-      <!-- Right side navigation -->
-      <div class="flex items-center space-x-6">
-        <a
-          href="{% url 'core:landing' %}"
-          class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-        >
-          Início
-        </a>
-        <a
-          href="{% url 'explore:explore' %}"
-          class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-        >
-          Explorar
-        </a>
-
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background: linear-gradient(to right, #374151, #1f2937) !important;">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
+        </li>
         {% if user.is_authenticated %}
-        {% if user.can_create_places %}
-        <a
-          href="{% url 'explore:place_create' %}"
-          class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-        >
-          Adicionar Lugar
-        </a>
-        {% endif %}
-        {% if user.can_moderate %}
-        <a
-          href="{% url 'explore:approval_queue' %}"
-          class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-        >
-          Admin
-        </a>
-        {% endif %}
-        <span class="text-gray-300 text-sm">{{ user.username }}</span>
-        <a
-          href="{% url 'accounts:logout' %}"
-          class="border-2 border-white px-4 py-2 text-sm uppercase tracking-wide hover:bg-white hover:text-gray-900 transition-all"
-        >
-          Sair
-        </a>
+          {% if user.can_create_places %}
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
+          </li>
+          {% endif %}
+          {% if user.can_moderate %}
+          <li class="nav-item">
+            <a class="nav-link text-uppercase active border-bottom border-white border-2" href="{% url 'explore:approval_queue' %}">Admin</a>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <span class="nav-link text-white-50">{{ user.username }}</span>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
+          </li>
         {% else %}
-        <a
-          href="{% url 'accounts:login' %}"
-          class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-        >
-          Entrar
-        </a>
-        <a
-          href="{% url 'accounts:register' %}"
-          class="border-2 border-white px-4 py-2 text-sm uppercase tracking-wide hover:bg-white hover:text-gray-900 transition-all"
-        >
-          Cadastrar
-        </a>
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'accounts:login' %}">Entrar</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm text-uppercase ms-2" href="{% url 'accounts:register' %}">Cadastrar</a>
+          </li>
         {% endif %}
-      </div>
+      </ul>
     </div>
   </div>
 </nav>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+<div class="container py-5">
   <!-- Header -->
-  <div class="mb-8">
-    <h1 class="text-4xl font-bold text-gray-900 mb-2 uppercase tracking-wide">
-      Histórico de Lugares
-    </h1>
-    <p class="text-gray-600">
-      Visualize e gerencie todos os lugares do sistema
-    </p>
+  <div class="mb-5">
+    <h1 class="display-5 fw-bold text-uppercase mb-2">Histórico de Lugares</h1>
+    <p class="text-muted">Visualize e gerencie todos os lugares do sistema</p>
   </div>
 
   <!-- Admin Navigation -->
-  <div class="mb-6 flex gap-3">
-    <a
-      href="{% url 'explore:approval_queue' %}"
-      class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-900 px-4 py-2 rounded-md font-medium uppercase tracking-wide transition-colors text-sm"
-    >
+  <div class="mb-4 d-flex gap-2">
+    <a href="{% url 'explore:approval_queue' %}" class="btn btn-outline-secondary text-uppercase">
       Fila de Aprovação
     </a>
-    <a
-      href="{% url 'explore:backlog' %}"
-      class="inline-block bg-gray-900 text-white px-4 py-2 rounded-md font-medium uppercase tracking-wide text-sm"
-    >
+    <a href="{% url 'explore:backlog' %}" class="btn btn-dark text-uppercase">
       Histórico Completo
     </a>
   </div>
 
   <!-- Stats Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-    <div class="bg-white border-2 border-gray-200 rounded-lg p-4">
-      <div class="text-2xl font-bold text-gray-900">{{ total_count }}</div>
-      <div class="text-sm text-gray-600 uppercase tracking-wide">Total</div>
+  <div class="row g-3 mb-5">
+    <div class="col-6 col-md-3">
+      <div class="card border-2">
+        <div class="card-body text-center">
+          <div class="display-6 fw-bold">{{ total_count }}</div>
+          <div class="text-muted small text-uppercase">Total</div>
+        </div>
+      </div>
     </div>
-    <div class="bg-white border-2 border-green-200 rounded-lg p-4">
-      <div class="text-2xl font-bold text-green-700">{{ approved_count }}</div>
-      <div class="text-sm text-gray-600 uppercase tracking-wide">Aprovados</div>
+    <div class="col-6 col-md-3">
+      <div class="card border-2 border-success">
+        <div class="card-body text-center">
+          <div class="display-6 fw-bold text-success">{{ approved_count }}</div>
+          <div class="text-muted small text-uppercase">Aprovados</div>
+        </div>
+      </div>
     </div>
-    <div class="bg-white border-2 border-blue-200 rounded-lg p-4">
-      <div class="text-2xl font-bold text-blue-700">{{ pending_count }}</div>
-      <div class="text-sm text-gray-600 uppercase tracking-wide">Pendentes</div>
+    <div class="col-6 col-md-3">
+      <div class="card border-2 border-primary">
+        <div class="card-body text-center">
+          <div class="display-6 fw-bold text-primary">{{ pending_count }}</div>
+          <div class="text-muted small text-uppercase">Pendentes</div>
+        </div>
+      </div>
     </div>
-    <div class="bg-white border-2 border-red-200 rounded-lg p-4">
-      <div class="text-2xl font-bold text-red-700">{{ rejected_count }}</div>
-      <div class="text-sm text-gray-600 uppercase tracking-wide">Rejeitados</div>
+    <div class="col-6 col-md-3">
+      <div class="card border-2 border-danger">
+        <div class="card-body text-center">
+          <div class="display-6 fw-bold text-danger">{{ rejected_count }}</div>
+          <div class="text-muted small text-uppercase">Rejeitados</div>
+        </div>
+      </div>
     </div>
   </div>
-
-  <!-- Messages -->
-  {% if messages %}
-  <div class="mb-6">
-    {% for message in messages %}
-    <div
-      class="{% if message.tags == 'success' %}bg-green-50 border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %} border-2 rounded-lg p-4 mb-4"
-    >
-      {{ message }}
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
 
   <!-- Filters and Sorting -->
-  <div class="bg-white border-2 border-gray-200 rounded-lg p-6 mb-6">
-    <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- Status Filter -->
-      <div>
-        <label for="status" class="block text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">
-          Filtrar por Status
-        </label>
-        <select
-          id="status"
-          name="status"
-          onchange="this.form.submit()"
-          class="w-full px-4 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-gray-900 transition-colors"
-        >
-          <option value="all" {% if status_filter == "all" %}selected{% endif %}>Todos</option>
-          <option value="approved" {% if status_filter == "approved" %}selected{% endif %}>Aprovados</option>
-          <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>Pendentes</option>
-          <option value="rejected" {% if status_filter == "rejected" %}selected{% endif %}>Rejeitados</option>
-        </select>
-      </div>
+  <div class="card border-2 mb-4">
+    <div class="card-body">
+      <form method="get" class="row g-3">
+        <!-- Status Filter -->
+        <div class="col-md-4">
+          <label for="status" class="form-label fw-bold text-uppercase small">Filtrar por Status</label>
+          <select id="status" name="status" class="form-select" onchange="this.form.submit()">
+            <option value="all" {% if status_filter == "all" %}selected{% endif %}>Todos</option>
+            <option value="approved" {% if status_filter == "approved" %}selected{% endif %}>Aprovados</option>
+            <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>Pendentes</option>
+            <option value="rejected" {% if status_filter == "rejected" %}selected{% endif %}>Rejeitados</option>
+          </select>
+        </div>
 
-      <!-- Category Filter -->
-      <div>
-        <label for="category" class="block text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">
-          Filtrar por Categoria
-        </label>
-        <select
-          id="category"
-          name="category"
-          onchange="this.form.submit()"
-          class="w-full px-4 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-gray-900 transition-colors"
-        >
-          <option value="all" {% if category_filter == "all" %}selected{% endif %}>Todas</option>
-          {% for cat in categories %}
-          <option value="{{ cat.slug }}" {% if category_filter == cat.slug %}selected{% endif %}>
-            {{ cat.name }}
-          </option>
-          {% endfor %}
-        </select>
-      </div>
+        <!-- Category Filter -->
+        <div class="col-md-4">
+          <label for="category" class="form-label fw-bold text-uppercase small">Filtrar por Categoria</label>
+          <select id="category" name="category" class="form-select" onchange="this.form.submit()">
+            <option value="all" {% if category_filter == "all" %}selected{% endif %}>Todas</option>
+            {% for cat in categories %}
+            <option value="{{ cat.slug }}" {% if category_filter == cat.slug %}selected{% endif %}>
+              {{ cat.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
 
-      <!-- Sort -->
-      <div>
-        <label for="sort" class="block text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">
-          Ordenar por
-        </label>
-        <select
-          id="sort"
-          name="sort"
-          onchange="this.form.submit()"
-          class="w-full px-4 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-gray-900 transition-colors"
-        >
-          <option value="-created_at" {% if current_sort == "-created_at" %}selected{% endif %}>
-            Mais Recentes
-          </option>
-          <option value="created_at" {% if current_sort == "created_at" %}selected{% endif %}>
-            Mais Antigos
-          </option>
-          <option value="name" {% if current_sort == "name" %}selected{% endif %}>
-            Nome (A-Z)
-          </option>
-          <option value="-name" {% if current_sort == "-name" %}selected{% endif %}>
-            Nome (Z-A)
-          </option>
-        </select>
-      </div>
-    </form>
+        <!-- Sort -->
+        <div class="col-md-4">
+          <label for="sort" class="form-label fw-bold text-uppercase small">Ordenar por</label>
+          <select id="sort" name="sort" class="form-select" onchange="this.form.submit()">
+            <option value="-created_at" {% if current_sort == "-created_at" %}selected{% endif %}>Mais Recentes</option>
+            <option value="created_at" {% if current_sort == "created_at" %}selected{% endif %}>Mais Antigos</option>
+            <option value="name" {% if current_sort == "name" %}selected{% endif %}>Nome (A-Z)</option>
+            <option value="-name" {% if current_sort == "-name" %}selected{% endif %}>Nome (Z-A)</option>
+          </select>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- Places List -->
   {% if places %}
-  <div class="space-y-4">
+  <div class="row g-3">
     {% for place in places %}
-    <div class="bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-      <div class="md:flex">
-        <!-- Image Section -->
-        <div class="md:w-1/4">
-          {% if place.primary_image %}
-          <img
-            src="{{ place.primary_image.image.url }}"
-            alt="{{ place.name }}"
-            class="w-full h-48 md:h-full object-cover"
-          />
-          {% else %}
-          <div class="w-full h-48 md:h-full bg-gray-800 flex items-center justify-center">
-            <span class="text-white text-4xl font-bold">{{ place.name|first }}</span>
-          </div>
-          {% endif %}
-        </div>
-
-        <!-- Content Section -->
-        <div class="md:w-3/4 p-6">
-          <div class="flex items-start justify-between mb-4">
-            <div class="flex-1">
-              <h2 class="text-2xl font-bold text-gray-900 mb-2 uppercase tracking-wide">
-                {{ place.name }}
-              </h2>
-
-              <!-- Status Badge -->
-              <div class="mb-3">
-                {% if place.is_approved and place.is_active %}
-                <span class="inline-block bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wide">
-                  Aprovado
-                </span>
-                {% elif not place.is_active %}
-                <span class="inline-block bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wide">
-                  Rejeitado
-                </span>
-                {% else %}
-                <span class="inline-block bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wide">
-                  Pendente
-                </span>
-                {% endif %}
-              </div>
-
-              <!-- Categories -->
-              {% if place.categories.exists %}
-              <div class="flex flex-wrap gap-2 mb-3">
-                {% for category in place.categories.all %}
-                <span class="inline-block bg-gray-100 text-gray-900 text-xs px-3 py-1 rounded-full font-medium">
-                  {% if category.icon %}{{ category.icon }}{% endif %} {{ category.name }}
-                </span>
-                {% endfor %}
-              </div>
-              {% endif %}
-
-              <!-- Creator and Date Info -->
-              <div class="text-sm text-gray-600 mb-3">
-                <p>
-                  <span class="font-semibold">Criado por:</span>
-                  {{ place.created_by.username }}
-                </p>
-                <p>
-                  <span class="font-semibold">Data:</span>
-                  {{ place.created_at|date:"d/m/Y H:i" }}
-                </p>
-              </div>
-
-              <!-- Description -->
-              <p class="text-gray-700 leading-relaxed line-clamp-2 mb-4">
-                {{ place.description }}
-              </p>
+    <div class="col-12">
+      <div class="card border-2 shadow-sm hover-shadow">
+        <div class="row g-0">
+          <!-- Image Section -->
+          <div class="col-md-3">
+            {% if place.primary_image %}
+            <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="img-fluid rounded-start h-100 w-100" style="object-fit: cover; min-height: 200px;">
+            {% else %}
+            <div class="bg-dark text-white d-flex align-items-center justify-content-center rounded-start h-100" style="min-height: 200px;">
+              <span class="display-4 fw-bold">{{ place.name|first }}</span>
             </div>
+            {% endif %}
           </div>
 
-          <!-- Action Buttons -->
-          <div class="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
-            <!-- View Details -->
-            <a
-              href="{% url 'explore:place_detail' place.pk %}"
-              class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-900 px-4 py-2 rounded-md font-medium uppercase tracking-wide transition-colors text-sm"
-            >
-              Ver Detalhes
-            </a>
+          <!-- Content Section -->
+          <div class="col-md-9">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="flex-grow-1">
+                  <h2 class="h5 fw-bold text-uppercase mb-2">{{ place.name }}</h2>
 
-            <!-- Edit -->
-            <a
-              href="{% url 'explore:place_edit' place.pk %}"
-              class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium uppercase tracking-wide transition-colors text-sm"
-            >
-              Editar
-            </a>
+                  <!-- Status Badge -->
+                  <div class="mb-3">
+                    {% if place.is_approved and place.is_active %}
+                    <span class="badge bg-success text-uppercase">Aprovado</span>
+                    {% elif not place.is_active %}
+                    <span class="badge bg-danger text-uppercase">Rejeitado</span>
+                    {% else %}
+                    <span class="badge bg-primary text-uppercase">Pendente</span>
+                    {% endif %}
+                  </div>
 
-            <!-- Approve (only if pending) -->
-            {% if not place.is_approved and place.is_active %}
-            <form method="post" action="{% url 'explore:approve_place' place.pk %}" class="inline">
-              {% csrf_token %}
-              <button
-                type="submit"
-                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium uppercase tracking-wide transition-colors text-sm"
-              >
-                Aprovar
-              </button>
-            </form>
-            {% endif %}
+                  <!-- Categories -->
+                  {% if place.categories.exists %}
+                  <div class="d-flex flex-wrap gap-2 mb-3">
+                    {% for category in place.categories.all %}
+                    <span class="badge bg-light text-dark">
+                      {% if category.icon %}{{ category.icon }}{% endif %} {{ category.name }}
+                    </span>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
 
-            <!-- Delete -->
-            <a
-              href="{% url 'explore:place_delete' place.pk %}"
-              class="inline-block bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium uppercase tracking-wide transition-colors text-sm"
-            >
-              Excluir
-            </a>
+                  <!-- Creator and Date Info -->
+                  <div class="text-muted small mb-3">
+                    <p class="mb-1">
+                      <span class="fw-semibold">Criado por:</span> {{ place.created_by.username }}
+                    </p>
+                    <p class="mb-0">
+                      <span class="fw-semibold">Data:</span> {{ place.created_at|date:"d/m/Y H:i" }}
+                    </p>
+                  </div>
+
+                  <!-- Description -->
+                  <p class="text-muted mb-0" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    {{ place.description }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="d-flex flex-wrap gap-2 pt-3 border-top">
+                <!-- View Details -->
+                <a href="{% url 'explore:place_detail' place.pk %}" class="btn btn-sm btn-outline-secondary text-uppercase">
+                  <i class="bi bi-eye me-1"></i>Ver Detalhes
+                </a>
+
+                <!-- Edit -->
+                <a href="{% url 'explore:place_edit' place.pk %}" class="btn btn-sm btn-primary text-uppercase">
+                  <i class="bi bi-pencil me-1"></i>Editar
+                </a>
+
+                <!-- Approve (only if pending) -->
+                {% if not place.is_approved and place.is_active %}
+                <form method="post" action="{% url 'explore:approve_place' place.pk %}" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-success text-uppercase">
+                    <i class="bi bi-check-circle me-1"></i>Aprovar
+                  </button>
+                </form>
+                {% endif %}
+
+                <!-- Delete -->
+                <a href="{% url 'explore:place_delete' place.pk %}" class="btn btn-sm btn-danger text-uppercase">
+                  <i class="bi bi-trash me-1"></i>Excluir
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -326,19 +243,25 @@
   </div>
   {% else %}
   <!-- Empty State -->
-  <div class="bg-white border-2 border-gray-200 rounded-lg p-12 text-center">
-    <div class="text-6xl mb-4">📋</div>
-    <h2 class="text-2xl font-bold text-gray-900 mb-2">Nenhum lugar encontrado</h2>
-    <p class="text-gray-600 mb-6">
-      Não há lugares que correspondam aos filtros selecionados.
-    </p>
-    <a
-      href="{% url 'explore:backlog' %}"
-      class="inline-block bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-md font-medium uppercase tracking-wide transition-colors"
-    >
-      Limpar Filtros
-    </a>
+  <div class="card border-2 shadow-sm">
+    <div class="card-body text-center py-5">
+      <div class="display-1 mb-4">📋</div>
+      <h2 class="h4 fw-bold mb-2">Nenhum lugar encontrado</h2>
+      <p class="text-muted mb-4">Não há lugares que correspondam aos filtros selecionados.</p>
+      <a href="{% url 'explore:backlog' %}" class="btn btn-dark text-uppercase">
+        <i class="bi bi-arrow-clockwise me-2"></i>Limpar Filtros
+      </a>
+    </div>
   </div>
   {% endif %}
 </div>
+
+<style>
+  .hover-shadow {
+    transition: box-shadow 0.3s ease;
+  }
+  .hover-shadow:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+</style>
 {% endblock %}

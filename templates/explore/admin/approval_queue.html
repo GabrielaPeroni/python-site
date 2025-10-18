@@ -4,214 +4,152 @@
 
 {% block content %}
 <!-- Navigation Bar -->
-<nav class="bg-gradient-to-r from-gray-700 to-gray-800">
-  <div class="mx-auto px-8 py-4">
-    <div class="flex justify-between items-center">
-      <!-- Logo -->
-      <div class="flex items-center">
-        <a
-          href="{% url 'core:landing' %}"
-          class="text-xl font-bold text-white uppercase tracking-wider"
-        >
-          MaricaCity
-        </a>
-      </div>
-
-      <!-- Right side navigation -->
-      <div class="flex items-center space-x-6">
-        <a
-          href="{% url 'core:landing' %}"
-          class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-        >
-          Início
-        </a>
-        <a
-          href="{% url 'explore:explore' %}"
-          class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-        >
-          Explorar
-        </a>
-
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background: linear-gradient(to right, #374151, #1f2937) !important;">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
+        </li>
         {% if user.is_authenticated %}
-        {% if user.can_create_places %}
-        <a
-          href="{% url 'explore:place_create' %}"
-          class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-        >
-          Adicionar Lugar
-        </a>
-        {% endif %}
-        {% if user.can_moderate %}
-        <a
-          href="{% url 'explore:approval_queue' %}"
-          class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors border-b-2 border-white"
-        >
-          Admin
-        </a>
-        {% endif %}
-        <span class="text-gray-300 text-sm">{{ user.username }}</span>
-        <a
-          href="{% url 'accounts:logout' %}"
-          class="border-2 border-white px-4 py-2 text-sm uppercase tracking-wide hover:bg-white hover:text-gray-900 transition-all"
-        >
-          Sair
-        </a>
+          {% if user.can_create_places %}
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
+          </li>
+          {% endif %}
+          {% if user.can_moderate %}
+          <li class="nav-item">
+            <a class="nav-link text-uppercase active border-bottom border-white border-2" href="{% url 'explore:approval_queue' %}">Admin</a>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <span class="nav-link text-white-50">{{ user.username }}</span>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
+          </li>
         {% else %}
-        <a
-          href="{% url 'accounts:login' %}"
-          class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-        >
-          Entrar
-        </a>
-        <a
-          href="{% url 'accounts:register' %}"
-          class="border-2 border-white px-4 py-2 text-sm uppercase tracking-wide hover:bg-white hover:text-gray-900 transition-all"
-        >
-          Cadastrar
-        </a>
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'accounts:login' %}">Entrar</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm text-uppercase ms-2" href="{% url 'accounts:register' %}">Cadastrar</a>
+          </li>
         {% endif %}
-      </div>
+      </ul>
     </div>
   </div>
 </nav>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+<div class="container py-5">
   <!-- Header -->
-  <div class="mb-8">
-    <h1 class="text-4xl font-bold text-gray-900 mb-2 uppercase tracking-wide">
-      Fila de Aprovação
-    </h1>
-    <p class="text-gray-600">
-      Revise e aprove lugares enviados pela comunidade
-    </p>
+  <div class="mb-5">
+    <h1 class="display-5 fw-bold text-uppercase mb-2">Fila de Aprovação</h1>
+    <p class="text-muted">Revise e aprove lugares enviados pela comunidade</p>
   </div>
 
   <!-- Admin Navigation -->
-  <div class="mb-6 flex gap-3">
-    <a
-      href="{% url 'explore:approval_queue' %}"
-      class="inline-block bg-gray-900 text-white px-4 py-2 rounded-md font-medium uppercase tracking-wide text-sm"
-    >
+  <div class="mb-4 d-flex gap-2">
+    <a href="{% url 'explore:approval_queue' %}" class="btn btn-dark text-uppercase">
       Fila de Aprovação
     </a>
-    <a
-      href="{% url 'explore:backlog' %}"
-      class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-900 px-4 py-2 rounded-md font-medium uppercase tracking-wide transition-colors text-sm"
-    >
+    <a href="{% url 'explore:backlog' %}" class="btn btn-outline-secondary text-uppercase">
       Histórico Completo
     </a>
   </div>
 
   <!-- Pending Count Badge -->
-  <div class="mb-6">
-    <div class="inline-flex items-center bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">
+  <div class="mb-4">
+    <span class="badge bg-primary fs-6 px-4 py-2">
       {{ pending_count }} lugar{{ pending_count|pluralize:"es" }} pendente{{ pending_count|pluralize:"s" }}
-    </div>
+    </span>
   </div>
-
-  <!-- Messages -->
-  {% if messages %}
-  <div class="mb-6">
-    {% for message in messages %}
-    <div
-      class="{% if message.tags == 'success' %}bg-green-50 border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %} border-2 rounded-lg p-4 mb-4"
-    >
-      {{ message }}
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
 
   <!-- Pending Places List -->
   {% if pending_places %}
-  <div class="space-y-6">
+  <div class="row g-4">
     {% for place in pending_places %}
-    <div class="bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-      <div class="md:flex">
-        <!-- Image Section -->
-        <div class="md:w-1/3">
-          {% if place.primary_image %}
-          <img
-            src="{{ place.primary_image.image.url }}"
-            alt="{{ place.name }}"
-            class="w-full h-64 md:h-full object-cover"
-          />
-          {% else %}
-          <div class="w-full h-64 md:h-full bg-gray-800 flex items-center justify-center">
-            <span class="text-white text-6xl font-bold">{{ place.name|first }}</span>
-          </div>
-          {% endif %}
-        </div>
-
-        <!-- Content Section -->
-        <div class="md:w-2/3 p-6">
-          <!-- Header -->
-          <div class="mb-4">
-            <h2 class="text-2xl font-bold text-gray-900 mb-2 uppercase tracking-wide">
-              {{ place.name }}
-            </h2>
-
-            <!-- Categories -->
-            {% if place.categories.exists %}
-            <div class="flex flex-wrap gap-2 mb-3">
-              {% for category in place.categories.all %}
-              <span class="inline-block bg-gray-100 text-gray-900 text-sm px-3 py-1 rounded-full font-medium">
-                {% if category.icon %}{{ category.icon }}{% endif %} {{ category.name }}
-              </span>
-              {% endfor %}
+    <div class="col-12">
+      <div class="card border-2 shadow-sm hover-shadow">
+        <div class="row g-0">
+          <!-- Image Section -->
+          <div class="col-md-4">
+            {% if place.primary_image %}
+            <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="img-fluid rounded-start h-100 w-100" style="object-fit: cover; min-height: 250px;">
+            {% else %}
+            <div class="bg-dark text-white d-flex align-items-center justify-content-center rounded-start h-100" style="min-height: 250px;">
+              <span class="display-1 fw-bold">{{ place.name|first }}</span>
             </div>
             {% endif %}
-
-            <!-- Creator Info -->
-            <p class="text-sm text-gray-600">
-              Criado por
-              <span class="font-semibold text-gray-900">{{ place.created_by.username }}</span>
-              • {{ place.created_at|date:"d M, Y" }}
-            </p>
           </div>
 
-          <!-- Description -->
-          <div class="mb-4">
-            <p class="text-gray-700 leading-relaxed line-clamp-3">
-              {{ place.description }}
-            </p>
-          </div>
+          <!-- Content Section -->
+          <div class="col-md-8">
+            <div class="card-body p-4">
+              <!-- Header -->
+              <div class="mb-3">
+                <h2 class="h4 fw-bold text-uppercase mb-2">{{ place.name }}</h2>
 
-          <!-- Address -->
-          <div class="mb-4">
-            <p class="text-sm text-gray-600">
-              <span class="font-semibold">Localização:</span> {{ place.address }}
-            </p>
-          </div>
+                <!-- Categories -->
+                {% if place.categories.exists %}
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                  {% for category in place.categories.all %}
+                  <span class="badge bg-light text-dark fs-6 px-3 py-2">
+                    {% if category.icon %}{{ category.icon }}{% endif %} {{ category.name }}
+                  </span>
+                  {% endfor %}
+                </div>
+                {% endif %}
 
-          <!-- Action Buttons -->
-          <div class="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
-            <!-- View Details -->
-            <a
-              href="{% url 'explore:place_detail' place.pk %}"
-              class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-900 px-6 py-2 rounded-md font-medium uppercase tracking-wide transition-colors"
-            >
-              Ver Detalhes
-            </a>
+                <!-- Creator Info -->
+                <p class="text-muted small mb-0">
+                  Criado por <span class="fw-bold text-dark">{{ place.created_by.username }}</span>
+                  • {{ place.created_at|date:"d M, Y" }}
+                </p>
+              </div>
 
-            <!-- Approve Button -->
-            <form method="post" action="{% url 'explore:approve_place' place.pk %}" class="inline">
-              {% csrf_token %}
-              <button
-                type="submit"
-                class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium uppercase tracking-wide transition-colors"
-              >
-                Aprovar
-              </button>
-            </form>
+              <!-- Description -->
+              <div class="mb-3">
+                <p class="text-muted mb-0" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                  {{ place.description }}
+                </p>
+              </div>
 
-            <!-- Reject Button -->
-            <a
-              href="{% url 'explore:reject_place' place.pk %}"
-              class="inline-block bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md font-medium uppercase tracking-wide transition-colors"
-            >
-              Rejeitar
-            </a>
+              <!-- Address -->
+              <div class="mb-4">
+                <p class="text-muted small mb-0">
+                  <i class="bi bi-geo-alt-fill me-1"></i><span class="fw-semibold">Localização:</span> {{ place.address }}
+                </p>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="d-flex flex-wrap gap-2 pt-3 border-top">
+                <!-- View Details -->
+                <a href="{% url 'explore:place_detail' place.pk %}" class="btn btn-outline-secondary text-uppercase">
+                  <i class="bi bi-eye me-2"></i>Ver Detalhes
+                </a>
+
+                <!-- Approve Button -->
+                <form method="post" action="{% url 'explore:approve_place' place.pk %}" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-success text-uppercase">
+                    <i class="bi bi-check-circle me-2"></i>Aprovar
+                  </button>
+                </form>
+
+                <!-- Reject Button -->
+                <a href="{% url 'explore:reject_place' place.pk %}" class="btn btn-danger text-uppercase">
+                  <i class="bi bi-x-circle me-2"></i>Rejeitar
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -220,19 +158,25 @@
   </div>
   {% else %}
   <!-- Empty State -->
-  <div class="bg-white border-2 border-gray-200 rounded-lg p-12 text-center">
-    <div class="text-6xl mb-4">✅</div>
-    <h2 class="text-2xl font-bold text-gray-900 mb-2">Nenhum lugar pendente</h2>
-    <p class="text-gray-600 mb-6">
-      Não há lugares aguardando aprovação no momento.
-    </p>
-    <a
-      href="{% url 'explore:explore' %}"
-      class="inline-block bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-md font-medium uppercase tracking-wide transition-colors"
-    >
-      Explorar Lugares
-    </a>
+  <div class="card border-2 shadow-sm">
+    <div class="card-body text-center py-5">
+      <div class="display-1 mb-4">✅</div>
+      <h2 class="h4 fw-bold mb-2">Nenhum lugar pendente</h2>
+      <p class="text-muted mb-4">Não há lugares aguardando aprovação no momento.</p>
+      <a href="{% url 'explore:explore' %}" class="btn btn-dark text-uppercase">
+        <i class="bi bi-compass me-2"></i>Explorar Lugares
+      </a>
+    </div>
   </div>
   {% endif %}
 </div>
+
+<style>
+  .hover-shadow {
+    transition: box-shadow 0.3s ease;
+  }
+  .hover-shadow:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+</style>
 {% endblock %}

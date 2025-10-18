@@ -93,6 +93,20 @@
           {% endif %}
           <div class="card-body">
             <h5 class="card-title fw-bold text-uppercase">{{ place.name }}</h5>
+
+            <!-- Rating Display -->
+            {% if place.average_rating %}
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="text-warning small">
+                {% for i in "12345" %}
+                  {% if i|add:"0" <= place.average_rating %}★{% else %}☆{% endif %}
+                {% endfor %}
+              </span>
+              <span class="small fw-bold">{{ place.average_rating }}</span>
+              <span class="text-muted small">({{ place.review_count }})</span>
+            </div>
+            {% endif %}
+
             <p class="card-text text-muted small">{{ place.description|truncatewords:15 }}</p>
             <div class="d-flex justify-content-between align-items-center">
               <a href="{% url 'explore:place_detail' place.pk %}" class="text-dark text-decoration-none fw-bold small">Saiba Mais →</a>
@@ -138,7 +152,18 @@
                 <div class="position-relative rounded-4 overflow-hidden shadow h-100">
                   <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="w-100 h-100" style="object-fit: cover;">
                   <div class="position-absolute bottom-0 start-0 end-0 p-4 text-center" style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);">
-                    <h3 class="text-white fw-bold fs-5 mb-3">{{ place.name }}</h3>
+                    <h3 class="text-white fw-bold fs-5 mb-2">{{ place.name }}</h3>
+                    {% if place.average_rating %}
+                    <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+                      <span class="text-warning">
+                        {% for i in "12345" %}
+                          {% if i|add:"0" <= place.average_rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                      </span>
+                      <span class="text-white fw-bold">{{ place.average_rating }}</span>
+                      <span class="text-white-50 small">({{ place.review_count }})</span>
+                    </div>
+                    {% endif %}
                     <span class="btn btn-outline-light rounded-pill px-4 py-2">Saiba mais</span>
                   </div>
                 </div>
@@ -146,7 +171,18 @@
                 <div class="position-relative rounded-4 overflow-hidden bg-dark d-flex align-items-center justify-content-center shadow h-100">
                   <span class="display-1 fw-bold text-white opacity-25">{{ place.name|first }}</span>
                   <div class="position-absolute bottom-0 start-0 end-0 p-4 text-center" style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);">
-                    <h3 class="text-white fw-bold fs-5 mb-3">{{ place.name }}</h3>
+                    <h3 class="text-white fw-bold fs-5 mb-2">{{ place.name }}</h3>
+                    {% if place.average_rating %}
+                    <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+                      <span class="text-warning">
+                        {% for i in "12345" %}
+                          {% if i|add:"0" <= place.average_rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                      </span>
+                      <span class="text-white fw-bold">{{ place.average_rating }}</span>
+                      <span class="text-white-50 small">({{ place.review_count }})</span>
+                    </div>
+                    {% endif %}
                     <span class="btn btn-outline-light rounded-pill px-4 py-2">Saiba mais</span>
                   </div>
                 </div>
