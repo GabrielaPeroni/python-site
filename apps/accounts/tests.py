@@ -154,3 +154,72 @@ class AuthenticationViewTests(TestCase):
         self.client.login(username="testuser", password="testpass123")
         response = self.client.get(reverse("accounts:login"))
         self.assertEqual(response.status_code, 302)
+
+    def test_quick_login_form_submission(self):
+        """Test quick login via modal form"""
+        response = self.client.post(
+            reverse("accounts:login"),
+            {"username": "testuser", "password": "testpass123"},
+            HTTP_REFERER="/explore/",
+        )
+        self.assertEqual(response.status_code, 302)
+        # Verify user is logged in
+        user = response.wsgi_request.user
+        self.assertTrue(user.is_authenticated)
+        self.assertEqual(user.username, "testuser")
+
+    def test_quick_login_form_with_invalid_credentials(self):
+        """Test quick login with invalid credentials"""
+        response = self.client.post(
+            reverse("accounts:login"),
+            {"username": "testuser", "password": "wrongpassword"},
+        )
+        self.assertEqual(response.status_code, 200)
+        # User should not be logged in
+        user = response.wsgi_request.user
+        self.assertFalse(user.is_authenticated)
+
+    def test_login_modal_present_on_pages(self):
+        """Test that login modal HTML is present on pages"""
+        # Test on landing page
+        response = self.client.get(reverse("core:landing"))
+        self.assertContains(response, 'id="loginModal"')
+        self.assertContains(response, "Entre na sua conta")
+
+        # Test on explore page
+        response = self.client.get(reverse("explore:explore"))
+        self.assertContains(response, 'id="loginModal"')
+
+    def test_login_button_present_for_anonymous_users(self):
+        """Test login button appears for anonymous users"""
+        response = self.client.get(reverse("core:landing"))
+        self.assertContains(response, 'data-bs-toggle="modal"')
+        self.assertContains(response, 'data-bs-target="#loginModal"')
+        self.assertContains(response, "Entrar")
+
+    def test_login_button_not_present_for_authenticated_users(self):
+        """Test login button doesn't appear for authenticated users"""
+        self.client.login(username="testuser", password="testpass123")
+        response = self.client.get(reverse("core:landing"))
+        # Should show Sair instead of Entrar
+        self.assertContains(response, "Sair")
+        # Should not show the Entrar button with modal trigger (only in nav, not in modal form)
+        # The modal form button is fine as it's hidden by default
+        content = response.content.decode("utf-8")
+        # Check that navigation doesn't have the login trigger button
+        self.assertNotIn(
+            'btn-outline-light btn-sm text-uppercase" data-bs-toggle="modal" data-bs-target="#loginModal" type="button">Entrar',
+            content,
+        )
+        # Should show username
+        self.assertContains(response, "testuser")
+
+    def test_google_client_id_in_context(self):
+        """Test that Google OAuth client ID is passed to login page"""
+        response = self.client.get(reverse("accounts:login"))
+        self.assertIn("google_client_id", response.context)
+
+    def test_google_client_id_in_register_context(self):
+        """Test that Google OAuth client ID is passed to register page"""
+        response = self.client.get(reverse("accounts:register"))
+        self.assertIn("google_client_id", response.context)

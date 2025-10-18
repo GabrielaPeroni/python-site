@@ -115,3 +115,9 @@ AUTH_USER_MODEL = "accounts.User"
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "core:landing"
 LOGOUT_REDIRECT_URL = "core:landing"
+
+# Google OAuth settings
+GOOGLE_OAUTH_CLIENT_ID = config(
+    "GOOGLE_OAUTH_CLIENT_ID",
+    default="1062198658291-pojte2j0736qudd9ajcv1snsngqa9eak.apps.googleusercontent.com",
+)

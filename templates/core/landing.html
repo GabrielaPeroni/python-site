@@ -1,15 +1,20 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}MaricaCity - Descubra o Turismo Local{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/landing.css' %}">
+{% endblock %}
+
 {% block content %}
 <!-- Hero Banner Section with Embedded Navigation -->
-<div class="position-relative bg-dark text-white overflow-hidden" style="min-height: 500px; background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
+<div class="position-relative bg-dark text-white overflow-hidden d-flex flex-column hero-gradient" style="min-height: 90vh;">
   <!-- Background overlay -->
   <div class="position-absolute top-0 start-0 w-100 h-100 bg-black opacity-25"></div>
 
   <!-- Navigation Bar (embedded in hero) -->
-  <nav class="navbar navbar-expand-lg navbar-dark position-relative" style="z-index: 20;">
+  <nav class="navbar navbar-expand-lg navbar-dark position-relative hero-nav">
     <div class="container-fluid px-4">
       <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -29,6 +34,9 @@
               <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
             </li>
             {% endif %}
+            <li class="nav-item">
+              <a class="nav-link text-uppercase" href="{% url 'explore:favorites' %}">Favoritos</a>
+            </li>
             {% if user.can_moderate %}
             <li class="nav-item">
               <a class="nav-link text-uppercase" href="{% url 'explore:approval_queue' %}">Admin</a>
@@ -41,11 +49,33 @@
               <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
             </li>
           {% else %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'accounts:login' %}">Entrar</a>
-            </li>
-            <li class="nav-item">
-              <a class="btn btn-outline-light btn-sm text-uppercase ms-2" href="{% url 'accounts:register' %}">Cadastrar</a>
+            <li class="nav-item dropdown">
+              <button class="btn btn-outline-light btn-sm text-uppercase" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Entrar
+              </button>
+              <div class="dropdown-menu dropdown-menu-end p-4 shadow-lg dropdown-menu-login">
+                <h5 class="fw-bold mb-3">Entre na sua conta</h5>
+                <form method="post" action="{% url 'accounts:login' %}" id="landingLoginForm">
+                  {% csrf_token %}
+                  <div class="mb-3">
+                    <label for="landingUsername" class="form-label fw-semibold small text-uppercase">Usuário</label>
+                    <input type="text" class="form-control" id="landingUsername" name="username" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="landingPassword" class="form-label fw-semibold small text-uppercase">Senha</label>
+                    <input type="password" class="form-control" id="landingPassword" name="password" required>
+                  </div>
+                  <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-dark">Entrar</button>
+                  </div>
+                </form>
+                <div class="text-center border-top pt-3">
+                  <p class="text-muted small mb-0">
+                    Não tem uma conta?
+                    <a href="{% url 'accounts:register' %}" class="text-decoration-none fw-semibold">Cadastre-se agora</a>
+                  </p>
+                </div>
+              </div>
             </li>
           {% endif %}
         </ul>
@@ -54,9 +84,9 @@
   </nav>
 
   <!-- Hero Content -->
-  <div class="position-relative text-center py-5" style="z-index: 10;">
+  <div class="position-relative text-center d-flex align-items-center justify-content-center flex-grow-1 hero-overlay">
     <div class="container">
-      <div class="d-inline-block bg-black bg-opacity-50 px-5 py-5 rounded">
+      <div class="d-inline-block bg-black bg-opacity-50 px-5 py-5 rounded hero-content">
         <div class="border-top border-bottom border-white border-2 py-3 px-4 mb-4">
           <h1 class="display-3 fw-bold text-uppercase">MARICACITY</h1>
         </div>
@@ -85,9 +115,9 @@
       <div class="col-12 col-sm-6 col-md-4 col-lg-3">
         <div class="card border h-100 card-hover">
           {% if place.primary_image %}
-          <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+          <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="card-img-top place-card-img" loading="lazy">
           {% else %}
-          <div class="bg-dark text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+          <div class="bg-dark text-white d-flex align-items-center justify-content-center place-card-placeholder">
             <span class="display-4 fw-bold">{{ place.name|first }}</span>
           </div>
           {% endif %}
@@ -102,8 +132,6 @@
                   {% if i|add:"0" <= place.average_rating %}★{% else %}☆{% endif %}
                 {% endfor %}
               </span>
-              <span class="small fw-bold">{{ place.average_rating }}</span>
-              <span class="text-muted small">({{ place.review_count }})</span>
             </div>
             {% endif %}
 
@@ -132,8 +160,8 @@
     <div class="row align-items-center">
       <!-- Left: Text Content -->
       <div class="col-12 col-lg-4 mb-4 mb-lg-0">
-        <p class="text-uppercase text-muted small mb-2" style="letter-spacing: 2px;">ONDE IR</p>
-        <h2 class="fw-bold mb-3" style="font-size: 2.5rem; line-height: 1.2;">Escolha sua própria jornada.</h2>
+        <p class="text-uppercase text-muted small mb-2 featured-heading-subtitle">ONDE IR</p>
+        <h2 class="fw-bold mb-3 featured-heading">Escolha sua própria jornada.</h2>
         <p class="text-muted mb-4">
           Explore os lugares mais incríveis de Maricá. De praias paradisíacas a experiências culturais únicas,
           há um lugar em Maricá para todos! Descubra o que torna cada um deles único.
@@ -146,12 +174,12 @@
         <div class="swiper featured-swiper">
           <div class="swiper-wrapper">
             {% for place in featured_places %}
-            <div class="swiper-slide" style="width: 280px; height: 400px;">
+            <div class="swiper-slide swiper-slide-featured">
               <a href="{% url 'explore:place_detail' place.pk %}" class="text-decoration-none d-block h-100">
                 {% if place.primary_image %}
                 <div class="position-relative rounded-4 overflow-hidden shadow h-100">
-                  <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="w-100 h-100" style="object-fit: cover;">
-                  <div class="position-absolute bottom-0 start-0 end-0 p-4 text-center" style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);">
+                  <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="w-100 h-100 img-cover" loading="lazy">
+                  <div class="position-absolute bottom-0 start-0 end-0 p-4 text-center featured-image-gradient">
                     <h3 class="text-white fw-bold fs-5 mb-2">{{ place.name }}</h3>
                     {% if place.average_rating %}
                     <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
@@ -160,8 +188,6 @@
                           {% if i|add:"0" <= place.average_rating %}★{% else %}☆{% endif %}
                         {% endfor %}
                       </span>
-                      <span class="text-white fw-bold">{{ place.average_rating }}</span>
-                      <span class="text-white-50 small">({{ place.review_count }})</span>
                     </div>
                     {% endif %}
                     <span class="btn btn-outline-light rounded-pill px-4 py-2">Saiba mais</span>
@@ -170,7 +196,7 @@
                 {% else %}
                 <div class="position-relative rounded-4 overflow-hidden bg-dark d-flex align-items-center justify-content-center shadow h-100">
                   <span class="display-1 fw-bold text-white opacity-25">{{ place.name|first }}</span>
-                  <div class="position-absolute bottom-0 start-0 end-0 p-4 text-center" style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);">
+                  <div class="position-absolute bottom-0 start-0 end-0 p-4 text-center featured-image-gradient">
                     <h3 class="text-white fw-bold fs-5 mb-2">{{ place.name }}</h3>
                     {% if place.average_rating %}
                     <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
@@ -179,8 +205,6 @@
                           {% if i|add:"0" <= place.average_rating %}★{% else %}☆{% endif %}
                         {% endfor %}
                       </span>
-                      <span class="text-white fw-bold">{{ place.average_rating }}</span>
-                      <span class="text-white-50 small">({{ place.review_count }})</span>
                     </div>
                     {% endif %}
                     <span class="btn btn-outline-light rounded-pill px-4 py-2">Saiba mais</span>
@@ -195,19 +219,6 @@
       </div>
     </div>
   </div>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      new Swiper('.featured-swiper', {
-        slidesPerView: 'auto',
-        spaceBetween: 16,
-        grabCursor: true,
-        freeMode: true,
-        mousewheel: {
-          forceToAxis: true,
-        }
-      });
-    });
-  </script>
   {% else %}
   <div class="container">
     <div class="text-center py-5">
@@ -290,4 +301,8 @@
   </div>
 </section>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/landing.js' %}"></script>
 {% endblock %}

@@ -24,7 +24,7 @@
     {% block extra_css %}{% endblock %}
   </head>
 
-  <body>
+  <body class="d-flex flex-column min-vh-100">
     <!-- Toast Container for Messages -->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
       {% if messages %}
@@ -42,10 +42,13 @@
     </div>
 
     <!-- Main Content -->
-    {% block content %}{% endblock %}
+    <main class="flex-grow-1">
+      {% block content %}{% endblock %}
+    </main>
+
 
     <!-- Footer -->
-    <footer class="bg-dark text-white mt-5">
+    <footer class="bg-dark text-white mt-auto">
       <div class="container py-4">
         <div class="text-center">
           <p class="mb-0">&copy; 2024 MaricaCity. Todos os direitos reservados.</p>
@@ -73,6 +76,7 @@
       });
     </script>
 
+    {% block extra_js %}{% endblock %}
     {% block scripts %}{% endblock %}
   </body>
 </html>

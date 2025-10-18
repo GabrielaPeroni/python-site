@@ -3,74 +3,113 @@
 {% block title %}Fila de Aprovação - MaricaCity{% endblock %}
 
 {% block content %}
-<!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background: linear-gradient(to right, #374151, #1f2937) !important;">
-  <div class="container-fluid px-4">
-    <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
-        </li>
-        {% if user.is_authenticated %}
-          {% if user.can_create_places %}
+<!-- Page Header with Navigation -->
+<div class="bg-dark text-white" style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
+            <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
+          </li>
+          {% if user.is_authenticated %}
+            {% if user.can_create_places %}
+            <li class="nav-item">
+              <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
+            </li>
+            {% endif %}
+            {% if user.can_moderate %}
+            <li class="nav-item">
+              <a class="nav-link text-uppercase active border-bottom border-white border-2" href="{% url 'explore:approval_queue' %}">Admin</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <span class="nav-link text-white-50">{{ user.username }}</span>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
+            </li>
+          {% else %}
+            <li class="nav-item dropdown">
+              <button class="btn btn-outline-light btn-sm text-uppercase" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Entrar
+              </button>
+              <div class="dropdown-menu dropdown-menu-end p-4 shadow-lg" style="width: 320px;">
+                <h5 class="fw-bold mb-3">Entre na sua conta</h5>
+                <form method="post" action="{% url 'accounts:login' %}">
+                  {% csrf_token %}
+                  <div class="mb-3">
+                    <label for="admin-username" class="form-label fw-semibold small text-uppercase">Nome de usuário</label>
+                    <input type="text" class="form-control" id="admin-username" name="username" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="admin-password" class="form-label fw-semibold small text-uppercase">Senha</label>
+                    <input type="password" class="form-control" id="admin-password" name="password" required>
+                  </div>
+                  <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-dark">Entrar</button>
+                  </div>
+                </form>
+                <div class="text-center border-top pt-3">
+                  <p class="text-muted small mb-0">
+                    Não tem uma conta?
+                    <a href="{% url 'accounts:register' %}" class="text-decoration-none fw-semibold">Cadastre-se agora</a>
+                  </p>
+                </div>
+              </div>
+            </li>
           {% endif %}
-          {% if user.can_moderate %}
-          <li class="nav-item">
-            <a class="nav-link text-uppercase active border-bottom border-white border-2" href="{% url 'explore:approval_queue' %}">Admin</a>
-          </li>
-          {% endif %}
-          <li class="nav-item">
-            <span class="nav-link text-white-50">{{ user.username }}</span>
-          </li>
-          <li class="nav-item">
-            <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
-          </li>
-        {% else %}
-          <li class="nav-item">
-            <a class="nav-link text-uppercase" href="{% url 'accounts:login' %}">Entrar</a>
-          </li>
-          <li class="nav-item">
-            <a class="btn btn-outline-light btn-sm text-uppercase ms-2" href="{% url 'accounts:register' %}">Cadastrar</a>
-          </li>
-        {% endif %}
-      </ul>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header Content -->
+  <div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between">
+      <div>
+        <h1 class="h3 fw-bold text-uppercase mb-2">
+          <i class="bi bi-hourglass-split me-2"></i>Fila de Aprovação
+        </h1>
+        <p class="mb-0 text-white-50">Revise e aprove lugares enviados pela comunidade</p>
+      </div>
+      <div>
+        <span class="badge bg-primary fs-5 px-4 py-2">
+          {{ pending_count }} pendente{{ pending_count|pluralize:"s" }}
+        </span>
+      </div>
     </div>
   </div>
-</nav>
+</div>
 
-<div class="container py-5">
-  <!-- Header -->
-  <div class="mb-5">
-    <h1 class="display-5 fw-bold text-uppercase mb-2">Fila de Aprovação</h1>
-    <p class="text-muted">Revise e aprove lugares enviados pela comunidade</p>
-  </div>
+<div class="container py-4">
+  <div class="row">
+    <!-- Admin Sidebar -->
+    <div class="col-md-3 col-lg-2">
+      <div class="card border-0 shadow-sm mb-4 sticky-top" style="top: 20px;">
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            <a href="{% url 'explore:approval_queue' %}" class="list-group-item list-group-item-action active border-0 py-3">
+              <i class="bi bi-hourglass-split me-2"></i>Fila de Aprovação
+            </a>
+            <a href="{% url 'explore:backlog' %}" class="list-group-item list-group-item-action border-0 py-3">
+              <i class="bi bi-archive me-2"></i>Histórico Completo
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <!-- Admin Navigation -->
-  <div class="mb-4 d-flex gap-2">
-    <a href="{% url 'explore:approval_queue' %}" class="btn btn-dark text-uppercase">
-      Fila de Aprovação
-    </a>
-    <a href="{% url 'explore:backlog' %}" class="btn btn-outline-secondary text-uppercase">
-      Histórico Completo
-    </a>
-  </div>
-
-  <!-- Pending Count Badge -->
-  <div class="mb-4">
-    <span class="badge bg-primary fs-6 px-4 py-2">
-      {{ pending_count }} lugar{{ pending_count|pluralize:"es" }} pendente{{ pending_count|pluralize:"s" }}
-    </span>
-  </div>
+    <!-- Main Content -->
+    <div class="col-md-9 col-lg-10">
 
   <!-- Pending Places List -->
   {% if pending_places %}
@@ -82,7 +121,7 @@
           <!-- Image Section -->
           <div class="col-md-4">
             {% if place.primary_image %}
-            <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="img-fluid rounded-start h-100 w-100" style="object-fit: cover; min-height: 250px;">
+            <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="img-fluid rounded-start h-100 w-100" style="object-fit: cover; min-height: 250px;" loading="lazy">
             {% else %}
             <div class="bg-dark text-white d-flex align-items-center justify-content-center rounded-start h-100" style="min-height: 250px;">
               <span class="display-1 fw-bold">{{ place.name|first }}</span>
@@ -169,6 +208,8 @@
     </div>
   </div>
   {% endif %}
+    </div>
+  </div>
 </div>
 
 <style>

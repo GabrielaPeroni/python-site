@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -22,7 +23,11 @@ def register_view(request):
     else:
         form = UserRegistrationForm()
 
-    return render(request, "accounts/register.html", {"form": form})
+    context = {
+        "form": form,
+        "google_client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
+    }
+    return render(request, "accounts/register.html", context)
 
 
 def login_view(request):
@@ -42,7 +47,11 @@ def login_view(request):
     else:
         form = UserLoginForm()
 
-    return render(request, "accounts/login.html", {"form": form})
+    context = {
+        "form": form,
+        "google_client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
+    }
+    return render(request, "accounts/login.html", context)
 
 
 @login_required

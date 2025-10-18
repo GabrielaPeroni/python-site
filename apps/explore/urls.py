@@ -26,4 +26,11 @@ urlpatterns = [
     ),
     path("review/<int:pk>/edit/", views.review_edit_view, name="review_edit"),
     path("review/<int:pk>/delete/", views.review_delete_view, name="review_delete"),
+    # Favorites URLs
+    path(
+        "place/<int:pk>/favorite/toggle/",
+        views.toggle_favorite_view,
+        name="toggle_favorite",
+    ),
+    path("favorites/", views.favorites_list_view, name="favorites"),
 ]

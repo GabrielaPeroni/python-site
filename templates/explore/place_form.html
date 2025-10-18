@@ -4,15 +4,97 @@
 {% block title %}{{ title }} - MaricaCity{% endblock %}
 
 {% block content %}
-<div class="bg-light py-5">
-  <div class="container" style="max-width: 800px;">
-    <!-- Header -->
-    <div class="text-center mb-5">
-      <h1 class="display-5 fw-bold mb-3">{{ title }}</h1>
-      <p class="lead text-muted">
+<!-- Navigation Bar -->
+<div class="bg-dark text-white" style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
+          </li>
+          {% if user.is_authenticated %}
+            {% if user.can_create_places %}
+            <li class="nav-item">
+              <a class="nav-link text-uppercase active border-bottom border-white border-2" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
+            </li>
+            {% endif %}
+            {% if user.can_moderate %}
+            <li class="nav-item">
+              <a class="nav-link text-uppercase" href="{% url 'explore:approval_queue' %}">Admin</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <span class="nav-link text-white-50">{{ user.username }}</span>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
+            </li>
+          {% else %}
+            <li class="nav-item dropdown">
+              <button class="btn btn-outline-light btn-sm text-uppercase" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Entrar
+              </button>
+              <div class="dropdown-menu dropdown-menu-end p-4 shadow-lg" style="width: 320px;">
+                <h5 class="fw-bold mb-3">Entre na sua conta</h5>
+                <form method="post" action="{% url 'accounts:login' %}">
+                  {% csrf_token %}
+                  <div class="mb-3">
+                    <label for="form-username" class="form-label fw-semibold small text-uppercase">Nome de usuário</label>
+                    <input type="text" class="form-control" id="form-username" name="username" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="form-password" class="form-label fw-semibold small text-uppercase">Senha</label>
+                    <input type="password" class="form-control" id="form-password" name="password" required>
+                  </div>
+                  <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-dark">Entrar</button>
+                  </div>
+                </form>
+                <div class="text-center border-top pt-3">
+                  <p class="text-muted small mb-0">
+                    Não tem uma conta?
+                    <a href="{% url 'accounts:register' %}" class="text-decoration-none fw-semibold">Cadastre-se agora</a>
+                  </p>
+                </div>
+              </div>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header Content -->
+  <div class="container py-4">
+    <div class="text-center">
+      <h1 class="h3 fw-bold text-uppercase mb-2">
+        <i class="bi bi-{% if place %}pencil{% else %}plus-circle{% endif %} me-2"></i>{{ title }}
+      </h1>
+      <p class="mb-0 text-white-50">
         {% if place %}Atualize as informações do seu lugar{% else %}Compartilhe um lugar especial com nossa comunidade{% endif %}
       </p>
     </div>
+  </div>
+</div>
+
+<div class="bg-light py-5">
+  <div class="container" style="max-width: 900px;">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'core:landing' %}" class="text-decoration-none text-dark">Início</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'explore:explore' %}" class="text-decoration-none text-dark">Explorar</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+      </ol>
+    </nav>
 
     <!-- Form -->
     <div class="card shadow">
@@ -33,10 +115,14 @@
         {% endif %}
 
         <!-- Place Information Section -->
-        <div class="card-body p-4">
+        <div class="card-body p-5">
+          <h2 class="h5 fw-bold mb-4 text-uppercase">
+            <i class="bi bi-info-circle me-2"></i>Informações Básicas
+          </h2>
+
           <!-- Name Field -->
-          <div class="mb-4">
-            <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">
+          <div class="mb-5">
+            <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold text-uppercase small mb-2">
               Nome do Lugar <span class="text-danger">*</span>
             </label>
             {{ form.name }}
@@ -45,11 +131,12 @@
               <i class="bi bi-exclamation-circle me-1"></i>{{ form.name.errors.0 }}
             </div>
             {% endif %}
+            <div class="form-text mt-2">Ex: Praia de Maricá, Restaurante do João, etc.</div>
           </div>
 
           <!-- Description Field -->
-          <div class="mb-4">
-            <label for="{{ form.description.id_for_label }}" class="form-label fw-semibold">
+          <div class="mb-5">
+            <label for="{{ form.description.id_for_label }}" class="form-label fw-semibold text-uppercase small mb-2">
               Descrição <span class="text-danger">*</span>
             </label>
             {{ form.description }}
@@ -58,12 +145,12 @@
               <i class="bi bi-exclamation-circle me-1"></i>{{ form.description.errors.0 }}
             </div>
             {% endif %}
-            <div class="form-text">Conte o que torna este lugar especial</div>
+            <div class="form-text mt-2">Conte o que torna este lugar especial e único</div>
           </div>
 
           <!-- Address Field -->
-          <div class="mb-4">
-            <label for="{{ form.address.id_for_label }}" class="form-label fw-semibold">
+          <div class="mb-5">
+            <label for="{{ form.address.id_for_label }}" class="form-label fw-semibold text-uppercase small mb-2">
               Endereço <span class="text-danger">*</span>
             </label>
             {{ form.address }}
@@ -72,21 +159,21 @@
               <i class="bi bi-exclamation-circle me-1"></i>{{ form.address.errors.0 }}
             </div>
             {% endif %}
-            <div class="form-text">Endereço completo do local</div>
+            <div class="form-text mt-2">Endereço completo do local para facilitar a localização</div>
           </div>
 
           <!-- Categories Field -->
-          <div class="mb-4">
-            <label class="form-label fw-semibold">
+          <div class="mb-0">
+            <label class="form-label fw-semibold text-uppercase small mb-3">
               Categorias <span class="text-danger">*</span>
             </label>
-            <div class="border rounded p-3 bg-light" style="max-height: 250px; overflow-y: auto;">
-              <div class="row g-2">
+            <div class="border rounded p-4 bg-white" style="max-height: 280px; overflow-y: auto;">
+              <div class="row g-3">
                 {% for choice in form.categories %}
-                <div class="col-6">
-                  <div class="form-check">
+                <div class="col-12 col-sm-6">
+                  <div class="form-check p-2 rounded hover-bg-light">
                     {{ choice.tag }}
-                    <label class="form-check-label" for="{{ choice.id_for_label }}">
+                    <label class="form-check-label ms-1" for="{{ choice.id_for_label }}">
                       {{ choice.choice_label }}
                     </label>
                   </div>
@@ -99,17 +186,19 @@
               <i class="bi bi-exclamation-circle me-1"></i>{{ form.categories.errors.0 }}
             </div>
             {% endif %}
-            <div class="form-text">Selecione uma ou mais categorias</div>
+            <div class="form-text mt-2">Selecione todas as categorias que se aplicam ao lugar</div>
           </div>
         </div>
 
         <hr class="m-0">
 
         <!-- Images Section -->
-        <div class="card-body p-4">
+        <div class="card-body p-5">
           <div class="mb-4">
-            <h2 class="fs-5 fw-bold mb-2">Fotos do Lugar</h2>
-            <p class="text-muted small">Adicione até 10 fotos. A primeira imagem será destacada automaticamente.</p>
+            <h2 class="h5 fw-bold text-uppercase mb-2">
+              <i class="bi bi-camera me-2"></i>Fotos do Lugar
+            </h2>
+            <p class="text-muted">Adicione até 10 fotos. A primeira imagem será destacada automaticamente.</p>
           </div>
 
           {{ formset.management_form }}
@@ -126,7 +215,7 @@
 
           <!-- Upload Button -->
           <div class="mb-4">
-            <button type="button" id="add-image-btn" class="btn btn-outline-secondary w-100 py-3">
+            <button type="button" id="add-image-btn" class="btn btn-outline-dark w-100 py-3 rounded">
               <i class="bi bi-plus-circle me-2"></i>
               <span>Adicionar Fotos</span>
             </button>
@@ -266,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     col.innerHTML = `
       <div class="card position-relative">
-        <img src="${imageSrc}" class="card-img-top" style="height: 150px; object-fit: cover;">
+        <img src="${imageSrc}" class="card-img-top" style="height: 150px; object-fit: cover;" loading="lazy">
         <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 remove-image" data-form-index="${formIndex}">
           <i class="bi bi-trash"></i>
         </button>
@@ -333,10 +422,33 @@ document.addEventListener('DOMContentLoaded', function() {
 <style>
   .form-control, .form-select {
     border-radius: 0.375rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s ease;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: #374151;
+    box-shadow: 0 0 0 0.2rem rgba(55, 65, 81, 0.1);
   }
 
   textarea.form-control {
-    min-height: 120px;
+    min-height: 150px;
+  }
+
+  .hover-bg-light:hover {
+    background-color: #f3f4f6;
+  }
+
+  .form-check-input:checked {
+    background-color: #374151;
+    border-color: #374151;
+  }
+
+  .form-label {
+    color: #374151;
+    letter-spacing: 0.05em;
   }
 </style>
 {% endblock %}

@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from .models import Category, Place, PlaceApproval
+from .models import Category, Place, PlaceApproval, PlaceReview
 
 User = get_user_model()
 
@@ -723,3 +723,348 @@ class CategoryDetailViewTests(TestCase):
             reverse("explore:category_detail", kwargs={"slug": "nonexistent"})
         )
         self.assertEqual(response.status_code, 404)
+
+
+class PlaceReviewModelTests(TestCase):
+    """Tests for PlaceReview model"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="reviewer", password="pass123", user_type="EXPLORE"
+        )
+        self.creator = User.objects.create_user(
+            username="creator", password="pass123", user_type="CREATION"
+        )
+        self.place = Place.objects.create(
+            name="Test Place",
+            description="Test description",
+            address="Test address",
+            created_by=self.creator,
+            is_approved=True,
+            is_active=True,
+        )
+
+    def test_review_creation(self):
+        """Test review is created correctly"""
+        review = PlaceReview.objects.create(
+            place=self.place,
+            user=self.user,
+            rating=5,
+            comment="Excellent place!",
+        )
+        self.assertEqual(review.place, self.place)
+        self.assertEqual(review.user, self.user)
+        self.assertEqual(review.rating, 5)
+        self.assertEqual(review.comment, "Excellent place!")
+
+    def test_review_string_representation(self):
+        """Test review string representation"""
+        review = PlaceReview.objects.create(
+            place=self.place,
+            user=self.user,
+            rating=4,
+            comment="Good place",
+        )
+        expected = f"{self.user.username} - {self.place.name} (4★)"
+        self.assertEqual(str(review), expected)
+
+    def test_unique_review_per_user_per_place(self):
+        """Test one review per user per place constraint"""
+        PlaceReview.objects.create(
+            place=self.place,
+            user=self.user,
+            rating=5,
+            comment="First review",
+        )
+
+        # Attempting to create second review for same user/place should fail
+        with self.assertRaises(Exception):
+            PlaceReview.objects.create(
+                place=self.place,
+                user=self.user,
+                rating=3,
+                comment="Second review",
+            )
+
+    def test_place_average_rating_property(self):
+        """Test place average_rating property"""
+        # No reviews
+        self.assertIsNone(self.place.average_rating)
+
+        # Add reviews
+        user2 = User.objects.create_user(username="user2", password="pass123")
+        user3 = User.objects.create_user(username="user3", password="pass123")
+
+        PlaceReview.objects.create(
+            place=self.place, user=self.user, rating=5, comment="Great!"
+        )
+        PlaceReview.objects.create(
+            place=self.place, user=user2, rating=4, comment="Good"
+        )
+        PlaceReview.objects.create(place=self.place, user=user3, rating=3, comment="OK")
+
+        # Average should be (5+4+3)/3 = 4.0
+        self.assertEqual(self.place.average_rating, 4.0)
+
+    def test_place_review_count_property(self):
+        """Test place review_count property"""
+        self.assertEqual(self.place.review_count, 0)
+
+        PlaceReview.objects.create(
+            place=self.place, user=self.user, rating=5, comment="Great!"
+        )
+        self.assertEqual(self.place.review_count, 1)
+
+        user2 = User.objects.create_user(username="user2", password="pass123")
+        PlaceReview.objects.create(
+            place=self.place, user=user2, rating=4, comment="Good"
+        )
+        self.assertEqual(self.place.review_count, 2)
+
+
+class PlaceReviewViewTests(TestCase):
+    """Tests for place review functionality"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username="reviewer", password="pass123", user_type="EXPLORE"
+        )
+        self.creator = User.objects.create_user(
+            username="creator", password="pass123", user_type="CREATION"
+        )
+        self.admin = User.objects.create_user(
+            username="admin", password="pass123", user_type="ADMIN"
+        )
+        self.place = Place.objects.create(
+            name="Test Place",
+            description="Test description",
+            address="Test address",
+            created_by=self.creator,
+            is_approved=True,
+            is_active=True,
+        )
+
+    def test_review_create_requires_login(self):
+        """Test creating a review requires authentication"""
+        response = self.client.get(
+            reverse("explore:review_create", kwargs={"place_pk": self.place.pk})
+        )
+        self.assertEqual(response.status_code, 302)  # Redirect to login
+
+    def test_authenticated_user_can_create_review(self):
+        """Test authenticated user can create a review"""
+        self.client.login(username="reviewer", password="pass123")
+
+        response = self.client.post(
+            reverse("explore:review_create", kwargs={"place_pk": self.place.pk}),
+            data={
+                "rating": 5,
+                "comment": "Excellent place!",
+            },
+        )
+
+        # Check review was created
+        self.assertEqual(PlaceReview.objects.count(), 1)
+        review = PlaceReview.objects.first()
+        self.assertEqual(review.place, self.place)
+        self.assertEqual(review.user, self.user)
+        self.assertEqual(review.rating, 5)
+        self.assertEqual(review.comment, "Excellent place!")
+
+        # Should redirect to place detail
+        self.assertRedirects(
+            response, reverse("explore:place_detail", kwargs={"pk": self.place.pk})
+        )
+
+    def test_user_cannot_create_duplicate_review(self):
+        """Test user cannot review same place twice"""
+        self.client.login(username="reviewer", password="pass123")
+
+        # Create first review
+        PlaceReview.objects.create(
+            place=self.place,
+            user=self.user,
+            rating=5,
+            comment="First review",
+        )
+
+        # Attempt to create second review
+        response = self.client.post(
+            reverse("explore:review_create", kwargs={"place_pk": self.place.pk}),
+            data={
+                "rating": 3,
+                "comment": "Second review",
+            },
+        )
+
+        # Should still have only one review
+        self.assertEqual(PlaceReview.objects.count(), 1)
+
+        # Should redirect back to place detail with warning
+        self.assertRedirects(
+            response, reverse("explore:place_detail", kwargs={"pk": self.place.pk})
+        )
+
+    def test_user_can_edit_own_review(self):
+        """Test user can edit their own review"""
+        review = PlaceReview.objects.create(
+            place=self.place,
+            user=self.user,
+            rating=4,
+            comment="Original comment",
+        )
+
+        self.client.login(username="reviewer", password="pass123")
+
+        response = self.client.post(
+            reverse("explore:review_edit", kwargs={"pk": review.pk}),
+            data={
+                "rating": 5,
+                "comment": "Updated comment",
+            },
+        )
+
+        # Check review was updated
+        review.refresh_from_db()
+        self.assertEqual(review.rating, 5)
+        self.assertEqual(review.comment, "Updated comment")
+
+        # Should redirect to place detail
+        self.assertRedirects(
+            response, reverse("explore:place_detail", kwargs={"pk": self.place.pk})
+        )
+
+    def test_user_cannot_edit_others_review(self):
+        """Test user cannot edit another user's review"""
+        other_user = User.objects.create_user(
+            username="other", password="pass123", user_type="EXPLORE"
+        )
+        review = PlaceReview.objects.create(
+            place=self.place,
+            user=other_user,
+            rating=4,
+            comment="Other's review",
+        )
+
+        self.client.login(username="reviewer", password="pass123")
+
+        response = self.client.get(
+            reverse("explore:review_edit", kwargs={"pk": review.pk})
+        )
+
+        # Should be forbidden or redirect
+        self.assertIn(response.status_code, [302, 403, 404])
+
+    def test_admin_can_edit_any_review(self):
+        """Test admin can edit any review"""
+        review = PlaceReview.objects.create(
+            place=self.place,
+            user=self.user,
+            rating=4,
+            comment="Original comment",
+        )
+
+        self.client.login(username="admin", password="pass123")
+
+        response = self.client.post(
+            reverse("explore:review_edit", kwargs={"pk": review.pk}),
+            data={
+                "rating": 3,
+                "comment": "Admin edited",
+            },
+        )
+
+        # Check review was updated
+        review.refresh_from_db()
+        self.assertEqual(review.rating, 3)
+        self.assertEqual(review.comment, "Admin edited")
+
+    def test_user_can_delete_own_review(self):
+        """Test user can delete their own review"""
+        review = PlaceReview.objects.create(
+            place=self.place,
+            user=self.user,
+            rating=4,
+            comment="My review",
+        )
+
+        self.client.login(username="reviewer", password="pass123")
+
+        response = self.client.post(
+            reverse("explore:review_delete", kwargs={"pk": review.pk})
+        )
+
+        # Check review was deleted
+        self.assertEqual(PlaceReview.objects.count(), 0)
+
+        # Should redirect to place detail
+        self.assertRedirects(
+            response, reverse("explore:place_detail", kwargs={"pk": self.place.pk})
+        )
+
+    def test_admin_can_delete_any_review(self):
+        """Test admin can delete any review"""
+        review = PlaceReview.objects.create(
+            place=self.place,
+            user=self.user,
+            rating=4,
+            comment="User review",
+        )
+
+        self.client.login(username="admin", password="pass123")
+
+        response = self.client.post(
+            reverse("explore:review_delete", kwargs={"pk": review.pk})
+        )
+
+        # Check review was deleted
+        self.assertEqual(PlaceReview.objects.count(), 0)
+
+    def test_place_detail_shows_reviews(self):
+        """Test place detail page shows reviews"""
+        PlaceReview.objects.create(
+            place=self.place,
+            user=self.user,
+            rating=5,
+            comment="Great place!",
+        )
+
+        response = self.client.get(
+            reverse("explore:place_detail", kwargs={"pk": self.place.pk})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Great place!")
+        self.assertContains(response, self.user.username)
+        self.assertIn("reviews", response.context)
+        self.assertEqual(response.context["reviews"].count(), 1)
+
+    def test_review_validation_requires_rating(self):
+        """Test review form requires rating"""
+        self.client.login(username="reviewer", password="pass123")
+
+        response = self.client.post(
+            reverse("explore:review_create", kwargs={"place_pk": self.place.pk}),
+            data={
+                "comment": "Comment without rating",
+            },
+        )
+
+        # Should not create review
+        self.assertEqual(PlaceReview.objects.count(), 0)
+
+    def test_review_validation_requires_comment(self):
+        """Test review form requires comment"""
+        self.client.login(username="reviewer", password="pass123")
+
+        response = self.client.post(
+            reverse("explore:review_create", kwargs={"place_pk": self.place.pk}),
+            data={
+                "rating": 5,
+                "comment": "",  # Empty comment
+            },
+        )
+
+        # Should not create review
+        self.assertEqual(PlaceReview.objects.count(), 0)

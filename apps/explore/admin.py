@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Place, PlaceApproval, PlaceImage, PlaceReview
+from .models import Category, Favorite, Place, PlaceApproval, PlaceImage, PlaceReview
 
 
 @admin.register(Category)
@@ -137,3 +137,21 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         return obj.comment[:50] + "..." if len(obj.comment) > 50 else obj.comment
 
     get_comment_preview.short_description = "Comment Preview"
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    """Admin for Favorites - manage user saved places"""
+
+    list_display = ("user", "place", "created_at")
+
+    list_filter = ("created_at", "place")
+
+    search_fields = ("user__username", "place__name")
+
+    readonly_fields = ("created_at",)
+
+    fieldsets = (
+        ("Favorite Information", {"fields": ("user", "place")}),
+        ("Timestamp", {"fields": ("created_at",)}),
+    )

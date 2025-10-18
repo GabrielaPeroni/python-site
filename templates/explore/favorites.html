@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}Meus Favoritos - MaricaCity{% endblock %}
+
+{% block content %}
+<!-- Page Header with Navigation -->
+<div class="bg-dark text-white" style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
+          </li>
+          {% if user.is_authenticated %}
+            {% if user.can_create_places %}
+            <li class="nav-item">
+              <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link text-uppercase active border-bottom border-2" href="{% url 'explore:favorites' %}">Favoritos</a>
+            </li>
+            {% if user.can_moderate %}
+            <li class="nav-item">
+              <a class="nav-link text-uppercase" href="{% url 'explore:approval_queue' %}">Admin</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <span class="nav-link text-white-50">{{ user.username }}</span>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header Content -->
+  <div class="container py-4">
+    <div class="text-center">
+      <h1 class="h3 fw-bold text-uppercase mb-2">
+        <i class="bi bi-heart-fill me-2"></i>Meus Favoritos
+      </h1>
+      <p class="mb-0 text-white-50">
+        {{ favorites_count }} lugar{% if favorites_count != 1 %}es{% endif %} salvo{% if favorites_count != 1 %}s{% endif %}
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="container py-5">
+  {% if favorites %}
+  <div class="row g-4">
+    {% for favorite in favorites %}
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card border-2 h-100 card-hover">
+        {% if favorite.place.primary_image %}
+        <img src="{{ favorite.place.primary_image.image.url }}" alt="{{ favorite.place.name }}" class="card-img-top" style="height: 240px; object-fit: cover;" loading="lazy">
+        {% else %}
+        <div class="bg-dark text-white d-flex align-items-center justify-content-center" style="height: 240px;">
+          <span class="display-4 fw-bold">{{ favorite.place.name|first }}</span>
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title fw-bold text-uppercase">{{ favorite.place.name }}</h5>
+          <p class="card-text text-muted">{{ favorite.place.description|truncatewords:25 }}</p>
+          {% if favorite.place.categories.exists %}
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            {% for cat in favorite.place.categories.all|slice:":3" %}
+            <span class="badge rounded-pill bg-light text-dark">
+              {% if cat.icon %}{{ cat.icon }}{% endif %} {{ cat.name }}
+            </span>
+            {% endfor %}
+          </div>
+          {% endif %}
+          <p class="text-muted small mb-3">
+            Salvo em {{ favorite.created_at|date:"d M, Y" }}
+          </p>
+          <div class="d-flex gap-2">
+            <a href="{% url 'explore:place_detail' favorite.place.pk %}" class="btn btn-dark btn-sm text-uppercase flex-grow-1">Ver Detalhes →</a>
+            <button class="btn btn-outline-danger btn-sm favorite-btn"
+                    data-place-id="{{ favorite.place.pk }}"
+                    data-favorited="true"
+                    title="Remover dos favoritos">
+              <i class="bi bi-heart-fill"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <div class="display-1 mb-4">
+      <i class="bi bi-heart"></i>
+    </div>
+    <p class="lead text-muted mb-2">Você ainda não tem favoritos.</p>
+    <p class="text-muted mb-4">Explore lugares incríveis e salve seus favoritos!</p>
+    <a href="{% url 'explore:explore' %}" class="btn btn-dark btn-lg text-uppercase">
+      <i class="bi bi-compass me-2"></i>Explorar Lugares
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+// Handle favorite button clicks
+document.addEventListener('DOMContentLoaded', function() {
+  const favoriteButtons = document.querySelectorAll('.favorite-btn');
+
+  favoriteButtons.forEach(button => {
+    button.addEventListener('click', async function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const placeId = this.dataset.placeId;
+      const isFavorited = this.dataset.favorited === 'true';
+
+      try {
+        const response = await fetch(`/explore/place/${placeId}/favorite/toggle/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Remove the card with animation
+          const card = this.closest('.col-12');
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.9)';
+          setTimeout(() => {
+            card.remove();
+
+            // Check if no more favorites
+            if (document.querySelectorAll('.favorite-btn').length === 0) {
+              location.reload();
+            }
+          }, 300);
+        }
+      } catch (error) {
+        console.error('Error toggling favorite:', error);
+        alert('Erro ao remover dos favoritos. Tente novamente.');
+      }
+    });
+  });
+});
+
+// Get CSRF token from cookie
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+</script>
+
+<style>
+.col-12 {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+</style>
+{% endblock %}

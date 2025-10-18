@@ -1,0 +1,117 @@
+/* ==========================================================================
+   Explore Pages Styles
+   Styles for explore, category detail, and place detail pages
+   ========================================================================== */
+
+/* Common Page Header */
+.page-header-gradient {
+  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  min-height: 140px;
+}
+
+.page-header-nav {
+  z-index: 20;
+}
+
+.dropdown-menu-login {
+  width: 320px;
+}
+
+/* Place Cards */
+.place-card {
+  border-width: 2px;
+  transition: all var(--transition-normal);
+}
+
+.place-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.place-card-img {
+  height: 240px;
+  object-fit: cover;
+}
+
+.place-card-placeholder {
+  height: 240px;
+}
+
+/* Sidebar Sticky */
+.sidebar-sticky {
+  position: sticky;
+  top: 20px;
+}
+
+/* Place Detail Specific */
+.place-detail-image {
+  height: 500px;
+  object-fit: cover;
+}
+
+.place-detail-placeholder {
+  height: 500px;
+}
+
+.favorite-heart-icon {
+  width: 50px;
+  height: 50px;
+  top: 20px;
+  right: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Rating Stars */
+.rating-star-label {
+  cursor: pointer;
+  font-size: 2rem;
+  color: #ddd;
+  transition: color var(--transition-fast);
+}
+
+.rating-star-label:hover,
+.rating-star-label:hover ~ .rating-star-label {
+  color: #ffc107;
+}
+
+.rating-star-input:checked ~ .rating-star-label {
+  color: #ffc107;
+}
+
+/* Related Places */
+.related-place-card {
+  text-decoration: none;
+  display: block;
+  height: 100%;
+}
+
+.related-place-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+.related-place-placeholder {
+  width: 80px;
+  height: 80px;
+}
+
+/* Floating Add Button */
+.floating-add-button {
+  width: 60px;
+  height: 60px;
+  z-index: 1000;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .place-detail-image,
+  .place-detail-placeholder {
+    height: 300px;
+  }
+
+  .favorite-heart-icon {
+    width: 40px;
+    height: 40px;
+  }
+}

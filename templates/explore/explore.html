@@ -1,10 +1,15 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Explorar Lugares - MaricaCity{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/explore.css' %}">
+{% endblock %}
+
 {% block content %}
 <!-- Page Header with Navigation -->
-<div class="bg-dark text-white py-5" style="background: linear-gradient(to right, #374151, #1f2937);">
+<div class="bg-dark text-white page-header-gradient">
   <!-- Navigation Bar -->
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid px-4">
@@ -26,6 +31,9 @@
               <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
             </li>
             {% endif %}
+            <li class="nav-item">
+              <a class="nav-link text-uppercase" href="{% url 'explore:favorites' %}">Favoritos</a>
+            </li>
             {% if user.can_moderate %}
             <li class="nav-item">
               <a class="nav-link text-uppercase" href="{% url 'explore:approval_queue' %}">Admin</a>
@@ -38,11 +46,33 @@
               <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
             </li>
           {% else %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'accounts:login' %}">Entrar</a>
-            </li>
-            <li class="nav-item">
-              <a class="btn btn-outline-light btn-sm text-uppercase ms-2" href="{% url 'accounts:register' %}">Cadastrar</a>
+            <li class="nav-item dropdown">
+              <button class="btn btn-outline-light btn-sm text-uppercase" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Entrar
+              </button>
+              <div class="dropdown-menu dropdown-menu-end p-4 shadow-lg dropdown-menu-login">
+                <h5 class="fw-bold mb-3">Entre na sua conta</h5>
+                <form method="post" action="{% url 'accounts:login' %}" id="exploreLoginForm">
+                  {% csrf_token %}
+                  <div class="mb-3">
+                    <label for="exploreUsername" class="form-label fw-semibold small text-uppercase">Nome de usuário</label>
+                    <input type="text" class="form-control" id="exploreUsername" name="username" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="explorePassword" class="form-label fw-semibold small text-uppercase">Senha</label>
+                    <input type="password" class="form-control" id="explorePassword" name="password" required>
+                  </div>
+                  <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-dark">Entrar</button>
+                  </div>
+                </form>
+                <div class="text-center border-top pt-3">
+                  <p class="text-muted small mb-0">
+                    Não tem uma conta?
+                    <a href="{% url 'accounts:register' %}" class="text-decoration-none fw-semibold">Cadastre-se agora</a>
+                  </p>
+                </div>
+              </div>
             </li>
           {% endif %}
         </ul>
@@ -51,112 +81,72 @@
   </nav>
 
   <!-- Header Content -->
-  <div class="container mt-4">
-    <h1 class="display-4 fw-bold text-uppercase">Explorar Maricá</h1>
-    <p class="lead">Descubra todos os lugares incríveis que nossa cidade tem a oferecer</p>
+  <div class="container py-4">
+    <div class="text-center">
+      <h1 class="h3 fw-bold text-uppercase mb-2">
+        <i class="bi bi-compass me-2"></i>Explorar Maricá
+      </h1>
+      <p class="mb-0 text-white-50">Descubra todos os lugares incríveis que nossa cidade tem a oferecer</p>
+    </div>
   </div>
 </div>
 
 <div class="container py-5">
-  <!-- Categories Section -->
-  <section class="mb-5">
-    <h2 class="display-6 fw-bold mb-4 text-uppercase">Navegar por Categoria</h2>
-    {% if categories %}
-    <div class="row g-3">
-      {% for category in categories %}
-      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-        <a href="{% url 'explore:category_detail' category.slug %}" class="text-decoration-none">
-          <div class="card border-2 h-100 text-center p-3 card-hover">
-            <div class="display-4 mb-2">
-              {% if category.icon %}{{ category.icon }}{% else %}📍{% endif %}
-            </div>
-            <h6 class="card-title fw-bold text-uppercase text-dark small">{{ category.name }}</h6>
-            <p class="card-text text-muted small mb-0">{{ category.active_places_count }} lugares</p>
+  <div class="row">
+    <!-- Category Sidebar Navigation -->
+    <div class="col-md-3 col-lg-2">
+      <div class="card border-0 shadow-sm mb-4 sidebar-sticky">
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            <a href="{% url 'explore:explore' %}" class="list-group-item list-group-item-action active border-0 py-3">
+              <i class="bi bi-grid me-2"></i>Todas as Categorias
+            </a>
+            {% if categories %}
+              {% for category in categories %}
+              <a href="{% url 'explore:category_detail' category.slug %}" class="list-group-item list-group-item-action border-0 py-3">
+                <span class="me-2">{% if category.icon %}{{ category.icon }}{% else %}📍{% endif %}</span>{{ category.name }}
+                <span class="badge bg-light text-dark float-end">{{ category.active_places_count }}</span>
+              </a>
+              {% endfor %}
+            {% endif %}
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="col-md-9 col-lg-10">
+
+  <!-- Search Bar -->
+  <div class="mb-4">
+    <form method="get" action="{% url 'explore:explore' %}">
+      <div class="input-group input-group-lg">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search"></i>
+        </span>
+        <input type="search" name="q" class="form-control border-start-0 ps-0" placeholder="Buscar lugares por nome, descrição ou categoria..." value="{{ request.GET.q }}" aria-label="Buscar lugares">
+        {% if request.GET.q %}
+        <a href="{% url 'explore:explore' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-x-lg"></i> Limpar
         </a>
+        {% endif %}
       </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <p class="text-muted">Nenhuma categoria disponível ainda.</p>
-    {% endif %}
-  </section>
-
-  <!-- Newly Added Section -->
-  {% if newly_added %}
-  <section class="mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="display-6 fw-bold text-uppercase mb-0">
-        Adicionados Recentemente
-        <span class="fs-6 fw-normal text-muted ms-2">• Últimos 7 dias</span>
-      </h2>
-    </div>
-    <div class="row g-4">
-      {% for place in newly_added %}
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card border h-100 card-hover">
-          {% if place.primary_image %}
-          <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="card-img-top" style="height: 200px; object-fit: cover;">
-          {% else %}
-          <div class="bg-dark text-white d-flex align-items-center justify-content-center" style="height: 200px;">
-            <span class="display-5 fw-bold">{{ place.name|first }}</span>
-          </div>
-          {% endif %}
-          <div class="card-body">
-            <h5 class="card-title fw-bold text-uppercase">{{ place.name }}</h5>
-            <p class="card-text text-muted">{{ place.description|truncatewords:15 }}</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <a href="{% url 'explore:place_detail' place.pk %}" class="text-dark text-decoration-none fw-bold small">Ver Detalhes →</a>
-              {% if place.categories.exists %}
-              <div class="d-flex gap-1 flex-wrap">
-                {% for category in place.categories.all|slice:":2" %}
-                <span class="badge bg-light text-dark">{{ category.name }}</span>
-                {% endfor %}
-              </div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </section>
-  {% endif %}
-
-  <!-- Trending/Spotlight Section -->
-  {% if trending_places %}
-  <section class="mb-5">
-    <h2 class="display-6 fw-bold mb-4 text-uppercase">Lugares em Alta</h2>
-    <div class="row g-4">
-      {% for place in trending_places %}
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card border h-100 card-hover">
-          {% if place.primary_image %}
-          <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="card-img-top" style="height: 240px; object-fit: cover;">
-          {% else %}
-          <div class="bg-dark text-white d-flex align-items-center justify-content-center" style="height: 240px;">
-            <span class="display-4 fw-bold">{{ place.name|first }}</span>
-          </div>
-          {% endif %}
-          <div class="card-body">
-            <h5 class="card-title fw-bold text-uppercase">{{ place.name }}</h5>
-            <p class="card-text text-muted">{{ place.description|truncatewords:15 }}</p>
-            <a href="{% url 'explore:place_detail' place.pk %}" class="btn btn-dark btn-sm text-uppercase w-100">Ver Detalhes</a>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </section>
-  {% endif %}
+    </form>
+  </div>
 
   <!-- All Places Section with Sorting -->
   <section>
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="display-6 fw-bold text-uppercase mb-0">Todos os Lugares</h2>
+      <h2 class="display-6 fw-bold text-uppercase mb-0">
+        {% if request.GET.q %}
+          Resultados para "{{ request.GET.q }}"
+        {% else %}
+          Todos os Lugares
+        {% endif %}
+      </h2>
       <div class="d-flex align-items-center gap-2">
         <label for="sort" class="text-muted small mb-0">Ordenar por:</label>
-        <select id="sort" onchange="window.location.href='?sort='+this.value" class="form-select form-select-sm">
+        <select id="sort" onchange="window.location.href='?sort='+this.value{% if request.GET.q %}+'&q={{ request.GET.q }}'{% endif %}" class="form-select form-select-sm">
           <option value="-created_at" {% if current_sort == "-created_at" %}selected{% endif %}>Mais Recentes</option>
           <option value="name" {% if current_sort == "name" %}selected{% endif %}>Nome (A-Z)</option>
           <option value="-name" {% if current_sort == "-name" %}selected{% endif %}>Nome (Z-A)</option>
@@ -168,27 +158,27 @@
     <div class="row g-4">
       {% for place in all_places %}
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card border h-100 card-hover">
+        <div class="card place-card h-100 card-hover">
           {% if place.primary_image %}
-          <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+          <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="card-img-top place-card-img" loading="lazy">
           {% else %}
-          <div class="bg-dark text-white d-flex align-items-center justify-content-center" style="height: 200px;">
-            <span class="display-5 fw-bold">{{ place.name|first }}</span>
+          <div class="bg-dark text-white d-flex align-items-center justify-content-center place-card-placeholder">
+            <span class="display-4 fw-bold">{{ place.name|first }}</span>
           </div>
           {% endif %}
           <div class="card-body">
-            <h6 class="card-title fw-bold text-uppercase">{{ place.name }}</h6>
-            <p class="card-text text-muted small">{{ place.description|truncatewords:20 }}</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <a href="{% url 'explore:place_detail' place.pk %}" class="text-dark text-decoration-none fw-bold small">Ver Detalhes →</a>
-              {% if place.categories.exists %}
-              <div class="d-flex gap-1 flex-wrap">
-                {% for category in place.categories.all|slice:":2" %}
-                <span class="badge bg-light text-dark small">{{ category.name }}</span>
-                {% endfor %}
-              </div>
-              {% endif %}
+            <h5 class="card-title fw-bold text-uppercase">{{ place.name }}</h5>
+            <p class="card-text text-muted">{{ place.description|truncatewords:25 }}</p>
+            {% if place.categories.exists %}
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              {% for cat in place.categories.all|slice:":3" %}
+              <span class="badge rounded-pill bg-light text-dark">
+                {% if cat.icon %}{{ cat.icon }}{% endif %} {{ cat.name }}
+              </span>
+              {% endfor %}
             </div>
+            {% endif %}
+            <a href="{% url 'explore:place_detail' place.pk %}" class="btn btn-dark btn-sm text-uppercase w-100">Ver Detalhes →</a>
           </div>
         </div>
       </div>
@@ -207,11 +197,12 @@
   <!-- Floating Add Button for Creation Users -->
   {% if user.is_authenticated and user.can_create_places %}
   <a href="{% url 'explore:place_create' %}"
-     class="btn btn-dark rounded-circle position-fixed bottom-0 end-0 m-4 shadow-lg"
-     style="width: 60px; height: 60px; z-index: 1000;"
+     class="btn btn-dark rounded-circle position-fixed bottom-0 end-0 m-4 shadow-lg floating-add-button"
      title="Adicionar Novo Lugar">
     <i class="bi bi-plus-lg fs-3"></i>
   </a>
   {% endif %}
+    </div>
+  </div>
 </div>
 {% endblock %}

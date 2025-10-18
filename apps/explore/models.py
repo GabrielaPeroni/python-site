@@ -273,3 +273,36 @@ class PlaceReview(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class Favorite(models.Model):
+    """
+    Model to track user favorites (saved places).
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="favorites",
+        help_text="User who favorited the place",
+    )
+
+    place = models.ForeignKey(
+        Place,
+        on_delete=models.CASCADE,
+        related_name="favorited_by",
+        help_text="Place that was favorited",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = ("user", "place")  # User can only favorite a place once
+        indexes = [
+            models.Index(fields=["user", "-created_at"]),
+            models.Index(fields=["place"]),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} favorited {self.place.name}"

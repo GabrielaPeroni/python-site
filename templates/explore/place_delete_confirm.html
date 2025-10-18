@@ -3,81 +3,55 @@
 {% block title %}Confirmar Exclusão - {{ place.name }} - MaricaCity{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-8">
-  <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="bg-light min-vh-100 py-5">
+  <div class="container" style="max-width: 700px;">
     <!-- Header -->
-    <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 uppercase tracking-wide">
-        Confirmar Exclusão
-      </h1>
-      <p class="mt-2 text-gray-600">Esta ação não pode ser desfeita</p>
+    <div class="text-center mb-5">
+      <h1 class="display-6 fw-bold text-uppercase">Confirmar Exclusão</h1>
+      <p class="text-muted">Esta ação não pode ser desfeita</p>
     </div>
 
     <!-- Confirmation Card -->
-    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-      <div class="p-8">
+    <div class="card shadow-lg border-0">
+      <div class="card-body p-4 p-md-5">
         <!-- Warning Icon -->
-        <div class="text-center mb-6">
-          <div
-            class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4"
-          >
-            <svg
-              class="w-8 h-8 text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.962-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-              ></path>
-            </svg>
+        <div class="text-center mb-4">
+          <div class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 rounded-circle mb-3" style="width: 64px; height: 64px;">
+            <i class="bi bi-exclamation-triangle-fill text-danger fs-1"></i>
           </div>
-          <h2 class="text-xl font-semibold text-red-900 mb-2">
+          <h2 class="h5 fw-bold text-danger mb-2">
             Tem certeza que deseja excluir este lugar?
           </h2>
         </div>
 
         <!-- Place Information -->
-        <div class="bg-gray-50 rounded-lg p-6 mb-6">
-          <div class="flex items-start space-x-4">
+        <div class="bg-light rounded p-4 mb-4">
+          <div class="d-flex gap-3">
             {% if place.primary_image %}
-            <img
-              src="{{ place.primary_image.image.url }}"
-              alt="{{ place.name }}"
-              class="w-20 h-20 object-cover rounded-lg flex-shrink-0"
-            />
+            <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="rounded flex-shrink-0" style="width: 80px; height: 80px; object-fit: cover;" loading="lazy">
             {% else %}
-            <div
-              class="w-20 h-20 bg-gray-300 rounded-lg flex items-center justify-center flex-shrink-0"
-            >
-              <span class="text-gray-600 text-xl font-bold"
-                >{{ place.name|first }}</span
-              >
+            <div class="bg-secondary bg-opacity-25 rounded flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+              <span class="text-muted fw-bold fs-4">{{ place.name|first }}</span>
             </div>
             {% endif %}
 
-            <div class="flex-1 min-w-0">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ place.name }}</h3>
-              <p class="text-gray-600 text-sm mb-2">
+            <div class="flex-grow-1 min-w-0">
+              <h3 class="h6 fw-bold mb-2">{{ place.name }}</h3>
+              <p class="text-muted small mb-2">
                 {{ place.description|truncatewords:20 }}
               </p>
 
               {% if place.categories.exists %}
-              <div class="flex flex-wrap gap-1 mb-2">
+              <div class="d-flex flex-wrap gap-1 mb-2">
                 {% for category in place.categories.all %}
-                <span
-                  class="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded"
-                >
+                <span class="badge bg-secondary bg-opacity-25 text-dark">
                   {{ category.name }}
                 </span>
                 {% endfor %}
               </div>
               {% endif %}
 
-              <p class="text-xs text-gray-500">
+              <p class="text-muted small mb-0">
                 Criado em {{ place.created_at|date:"d/m/Y" }}
                 {% if place.images.count > 0 %}
                   • {{ place.images.count }} imagem{{ place.images.count|pluralize:"ns" }}
@@ -88,84 +62,53 @@
         </div>
 
         <!-- Warning Message -->
-        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <div class="flex">
+        <div class="alert alert-danger border-2 border-danger">
+          <div class="d-flex">
             <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
+              <i class="bi bi-exclamation-circle-fill text-danger"></i>
             </div>
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800">
+            <div class="ms-3">
+              <h6 class="alert-heading fw-bold mb-2">
                 Atenção! Esta ação é irreversível.
-              </h3>
-              <div class="mt-2 text-sm text-red-700">
-                <ul class="list-disc list-inside space-y-1">
-                  <li>O lugar será removido permanentemente do sistema</li>
-                  <li>Todas as imagens associadas serão excluídas</li>
-                  <li>Os dados não poderão ser recuperados</li>
-                  {% if place.is_approved %}
-                  <li>O lugar será removido das páginas públicas imediatamente</li>
-                  {% endif %}
-                </ul>
-              </div>
+              </h6>
+              <ul class="mb-0 small">
+                <li>O lugar será removido permanentemente do sistema</li>
+                <li>Todas as imagens associadas serão excluídas</li>
+                <li>Todas as avaliações serão excluídas</li>
+                <li>Os dados não poderão ser recuperados</li>
+                {% if place.is_approved %}
+                <li>O lugar será removido das páginas públicas imediatamente</li>
+                {% endif %}
+              </ul>
             </div>
           </div>
         </div>
 
         <!-- Form -->
-        <form method="post" class="space-y-4">
+        <form method="post">
           {% csrf_token %}
 
           <!-- Confirmation Checkbox -->
-          <div class="flex items-start">
-            <div class="flex items-center h-5">
-              <input
-                id="confirm_delete"
-                name="confirm_delete"
-                type="checkbox"
-                required
-                class="form-checkbox h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
-              />
-            </div>
-            <div class="ml-3 text-sm">
-              <label for="confirm_delete" class="font-medium text-gray-900">
-                Sim, eu entendo que esta ação é irreversível e desejo excluir este lugar
-                permanentemente.
-              </label>
-            </div>
+          <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" id="confirm_delete" name="confirm_delete" required>
+            <label class="form-check-label fw-medium" for="confirm_delete">
+              Sim, eu entendo que esta ação é irreversível e desejo excluir este lugar permanentemente.
+            </label>
           </div>
 
           <!-- Action Buttons -->
-          <div
-            class="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-200"
-          >
-            <div class="mb-4 sm:mb-0">
-              <a
-                href="{% url 'explore:place_detail' place.pk %}"
-                class="text-gray-600 hover:text-gray-900 font-medium text-sm tracking-wide border-b-2 border-transparent hover:border-gray-900 transition-all"
-              >
-                ← Cancelar e Voltar
-              </a>
-            </div>
+          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center pt-4 border-top gap-3">
+            <a href="{% url 'explore:place_detail' place.pk %}" class="text-muted text-decoration-none fw-semibold order-sm-1">
+              <i class="bi bi-arrow-left me-2"></i>Cancelar e Voltar
+            </a>
 
-            <div class="flex items-center space-x-4">
-              <a
-                href="{% url 'explore:place_edit' place.pk %}"
-                class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-md font-medium text-sm uppercase tracking-wide transition-all duration-300"
-              >
+            <div class="d-flex gap-2 order-sm-2">
+              <a href="{% url 'explore:place_edit' place.pk %}" class="btn btn-outline-secondary text-uppercase">
                 Editar ao Invés
               </a>
 
-              <button
-                type="submit"
-                class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-md font-medium text-sm uppercase tracking-wide transition-all duration-300"
-              >
-                Excluir Permanentemente
+              <button type="submit" class="btn btn-danger text-uppercase">
+                <i class="bi bi-trash me-2"></i>Excluir Permanentemente
               </button>
             </div>
           </div>
@@ -174,36 +117,14 @@
     </div>
 
     <!-- Additional Help -->
-    <div class="mt-8 text-center">
-      <p class="text-sm text-gray-500">
+    <div class="mt-4 text-center">
+      <p class="text-muted small mb-0">
         Precisa de ajuda?
-        <a
-          href="{% url 'explore:explore' %}"
-          class="text-gray-900 hover:text-gray-700 font-medium"
-        >
+        <a href="{% url 'explore:explore' %}" class="text-dark fw-medium text-decoration-none">
           Volte à página inicial
         </a>
       </p>
     </div>
   </div>
 </div>
-
-<style>
-  /* Custom styles for form elements */
-  .form-checkbox {
-    appearance: none;
-    background-color: white;
-    border: 1px solid #d1d5db;
-    border-radius: 0.25rem;
-    height: 1rem;
-    width: 1rem;
-    cursor: pointer;
-  }
-
-  .form-checkbox:checked {
-    background-color: #dc2626;
-    border-color: #dc2626;
-    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-7.5 7.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6 10.293l7.146-7.147a.5.5 0 0 1 .708.708z'/%3e%3c/svg%3e");
-  }
-</style>
 {% endblock %}

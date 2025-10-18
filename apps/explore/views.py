@@ -1,36 +1,21 @@
-from datetime import timedelta
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 
 from .forms import PlaceForm, PlaceImageFormSet, PlaceReviewForm
-from .models import Category, Place, PlaceApproval, PlaceReview
+from .models import Category, Favorite, Place, PlaceApproval, PlaceReview
 
 
 def explore_view(request):
-    """Explore page with categories, newly added, and trending places"""
+    """Explore page with categories and all places with search"""
 
     # Get all active categories with place counts
     categories = Category.objects.filter(is_active=True).order_by("display_order")
 
-    # Get newly added places (approved in last 7 days)
-    seven_days_ago = timezone.now() - timedelta(days=7)
-    newly_added = (
-        Place.objects.filter(
-            is_approved=True, is_active=True, created_at__gte=seven_days_ago
-        )
-        .prefetch_related("images", "categories")
-        .order_by("-created_at")[:6]
-    )
-
-    # Get trending/spotlight places (most recent if no view tracking)
-    trending_places = (
-        Place.objects.filter(is_approved=True, is_active=True)
-        .prefetch_related("images", "categories")
-        .order_by("-created_at")[:6]
-    )
+    # Get search query
+    search_query = request.GET.get("q", "").strip()
 
     # Get sorting parameter
     sort_by = request.GET.get("sort", "-created_at")
@@ -41,17 +26,23 @@ def explore_view(request):
     }
     sort_order = valid_sorts.get(sort_by, "-created_at")
 
-    # Get all approved places with sorting
-    all_places = (
-        Place.objects.filter(is_approved=True, is_active=True)
-        .prefetch_related("images", "categories")
-        .order_by(sort_order)
+    # Get all approved places with optional search and sorting
+    all_places = Place.objects.filter(is_approved=True, is_active=True)
+
+    # Apply search filter if query exists
+    if search_query:
+        all_places = all_places.filter(
+            Q(name__icontains=search_query)
+            | Q(description__icontains=search_query)
+            | Q(categories__name__icontains=search_query)
+        ).distinct()
+
+    all_places = all_places.prefetch_related("images", "categories").order_by(
+        sort_order
     )
 
     context = {
         "categories": categories,
-        "newly_added": newly_added,
-        "trending_places": trending_places,
         "all_places": all_places,
         "current_sort": sort_by,
     }
@@ -138,12 +129,22 @@ def place_detail_view(request, pk):
     if request.user.is_authenticated:
         user_review = reviews.filter(user=request.user).first()
 
+    # Check if place is favorited by current user
+    is_favorited = False
+    if request.user.is_authenticated:
+        is_favorited = Favorite.objects.filter(user=request.user, place=place).exists()
+
+    # Get favorites count
+    favorites_count = place.favorited_by.count()
+
     context = {
         "place": place,
         "related_places": related_places,
         "can_edit": can_edit,
         "reviews": reviews,
         "user_review": user_review,
+        "is_favorited": is_favorited,
+        "favorites_count": favorites_count,
     }
     return render(request, "explore/place_detail.html", context)
 
@@ -520,3 +521,58 @@ def review_delete_view(request, pk):
 
     context = {"review": review}
     return render(request, "explore/review_delete_confirm.html", context)
+
+
+# Favorite Views
+
+
+@login_required
+def toggle_favorite_view(request, pk):
+    """Toggle favorite status for a place (AJAX endpoint)"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST method required"}, status=405)
+
+    place = get_object_or_404(Place, pk=pk, is_approved=True, is_active=True)
+
+    # Check if already favorited
+    favorite = Favorite.objects.filter(user=request.user, place=place).first()
+
+    if favorite:
+        # Remove favorite
+        favorite.delete()
+        is_favorited = False
+        message = "Lugar removido dos favoritos"
+    else:
+        # Add favorite
+        Favorite.objects.create(user=request.user, place=place)
+        is_favorited = True
+        message = "Lugar adicionado aos favoritos"
+
+    # Get total favorites count for this place
+    favorites_count = place.favorited_by.count()
+
+    return JsonResponse(
+        {
+            "success": True,
+            "is_favorited": is_favorited,
+            "favorites_count": favorites_count,
+            "message": message,
+        }
+    )
+
+
+@login_required
+def favorites_list_view(request):
+    """List all favorites for the current user"""
+    favorites = (
+        Favorite.objects.filter(user=request.user)
+        .select_related("place", "place__created_by")
+        .prefetch_related("place__images", "place__categories")
+        .order_by("-created_at")
+    )
+
+    context = {
+        "favorites": favorites,
+        "favorites_count": favorites.count(),
+    }
+    return render(request, "explore/favorites.html", context)
