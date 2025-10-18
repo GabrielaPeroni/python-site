@@ -52,33 +52,6 @@ class Place(models.Model):
 
     address = models.TextField(help_text="Full address of the place")
 
-    contact_phone = models.CharField(
-        max_length=20, blank=True, null=True, help_text="Contact phone number"
-    )
-
-    contact_email = models.EmailField(
-        blank=True, null=True, help_text="Contact email address"
-    )
-
-    contact_website = models.URLField(blank=True, null=True, help_text="Website URL")
-
-    # Location coordinates (optional for map integration)
-    latitude = models.DecimalField(
-        max_digits=9,
-        decimal_places=6,
-        blank=True,
-        null=True,
-        help_text="Latitude coordinate",
-    )
-
-    longitude = models.DecimalField(
-        max_digits=9,
-        decimal_places=6,
-        blank=True,
-        null=True,
-        help_text="Longitude coordinate",
-    )
-
     # Relationships
     categories = models.ManyToManyField(
         Category,
@@ -124,16 +97,25 @@ class Place(models.Model):
         return not self.is_approved
 
     @property
-    def has_coordinates(self):
-        return self.latitude is not None and self.longitude is not None
-
-    @property
     def primary_image(self):
         return self.images.filter(is_primary=True).first()
 
     @property
     def gallery_images(self):
         return self.images.all()
+
+    @property
+    def average_rating(self):
+        """Calculate average rating from all reviews"""
+        from django.db.models import Avg
+
+        result = self.reviews.aggregate(Avg("rating"))
+        return round(result["rating__avg"], 1) if result["rating__avg"] else None
+
+    @property
+    def review_count(self):
+        """Count of reviews for this place"""
+        return self.reviews.count()
 
 
 class PlaceImage(models.Model):
@@ -240,3 +222,54 @@ class PlaceApproval(models.Model):
     reviewed_at = models.DateTimeField(
         auto_now_add=True, help_text="When the review was conducted"
     )
+
+
+class PlaceReview(models.Model):
+    """User reviews and ratings for places"""
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Place Review"
+        verbose_name_plural = "Place Reviews"
+        unique_together = [["place", "user"]]  # One review per user per place
+        indexes = [
+            models.Index(fields=["place", "-created_at"]),
+            models.Index(fields=["user", "-created_at"]),
+            models.Index(fields=["rating"]),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.place.name} ({self.rating}★)"
+
+    place = models.ForeignKey(
+        Place,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+        help_text="Place being reviewed",
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="place_reviews_written",
+        help_text="User who wrote the review",
+    )
+
+    rating = models.IntegerField(
+        choices=[
+            (1, "1 Star"),
+            (2, "2 Stars"),
+            (3, "3 Stars"),
+            (4, "4 Stars"),
+            (5, "5 Stars"),
+        ],
+        help_text="Rating from 1 to 5 stars",
+    )
+
+    comment = models.TextField(
+        help_text="Review comment/feedback",
+        max_length=1000,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

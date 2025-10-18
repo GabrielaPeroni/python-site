@@ -11,4 +11,19 @@ urlpatterns = [
     path("place/create/", views.place_create_view, name="place_create"),
     path("place/<int:pk>/edit/", views.place_update_view, name="place_edit"),
     path("place/<int:pk>/delete/", views.place_delete_view, name="place_delete"),
+    # Admin approval URLs
+    path("admin/approval-queue/", views.approval_queue_view, name="approval_queue"),
+    path(
+        "admin/place/<int:pk>/approve/", views.approve_place_view, name="approve_place"
+    ),
+    path("admin/place/<int:pk>/reject/", views.reject_place_view, name="reject_place"),
+    path("admin/backlog/", views.backlog_view, name="backlog"),
+    # Review URLs
+    path(
+        "place/<int:place_pk>/review/create/",
+        views.review_create_view,
+        name="review_create",
+    ),
+    path("review/<int:pk>/edit/", views.review_edit_view, name="review_edit"),
+    path("review/<int:pk>/delete/", views.review_delete_view, name="review_delete"),
 ]

@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block title %}{% if review %}Editar{% else %}Escrever{% endif %} Avaliação - {{ place.name }}{% endblock %}
+
+{% block content %}
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background: linear-gradient(to right, #374151, #1f2937) !important;">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
+        </li>
+        {% if user.is_authenticated %}
+          {% if user.can_create_places %}
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
+          </li>
+          {% endif %}
+          {% if user.can_moderate %}
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'explore:approval_queue' %}">Admin</a>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <span class="nav-link text-white-50">{{ user.username }}</span>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'accounts:login' %}">Entrar</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm text-uppercase ms-2" href="{% url 'accounts:register' %}">Cadastrar</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5 mb-5">
+  <div class="row">
+    <div class="col-12 col-lg-8 mx-auto">
+      <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'explore:explore' %}">Explorar</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'explore:place_detail' place.pk %}">{{ place.name }}</a></li>
+          <li class="breadcrumb-item active">{% if review %}Editar Avaliação{% else %}Nova Avaliação{% endif %}</li>
+        </ol>
+      </nav>
+
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h2 class="h4 mb-0">{% if review %}Editar Sua Avaliação{% else %}Escrever Avaliação{% endif %}</h2>
+        </div>
+        <div class="card-body">
+          <div class="mb-4 p-3 bg-light rounded">
+            <h3 class="h5 mb-1">{{ place.name }}</h3>
+            <p class="text-muted small mb-0">
+              {% for category in place.categories.all %}
+                <span class="badge bg-secondary me-1">{{ category.name }}</span>
+              {% endfor %}
+            </p>
+          </div>
+
+          <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-4">
+              <label class="form-label fw-bold">{{ form.rating.label }}</label>
+              <div class="star-rating-container d-flex gap-2">
+                {% for radio in form.rating %}
+                  <div class="form-check form-check-inline">
+                    {{ radio.tag }}
+                    <label class="form-check-label star-label" for="{{ radio.id_for_label }}">
+                      {{ radio.choice_label }}
+                    </label>
+                  </div>
+                {% endfor %}
+              </div>
+              {% if form.rating.help_text %}
+                <small class="form-text text-muted d-block mt-2">{{ form.rating.help_text }}</small>
+              {% endif %}
+              {% if form.rating.errors %}
+                <div class="text-danger small mt-2">{{ form.rating.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-4">
+              <label for="{{ form.comment.id_for_label }}" class="form-label fw-bold">{{ form.comment.label }}</label>
+              {{ form.comment }}
+              {% if form.comment.help_text %}
+                <small class="form-text text-muted">{{ form.comment.help_text }}</small>
+              {% endif %}
+              {% if form.comment.errors %}
+                <div class="text-danger small mt-2">{{ form.comment.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {{ form.non_field_errors.0 }}
+              </div>
+            {% endif %}
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle me-2"></i>
+                {% if review %}Atualizar Avaliação{% else %}Enviar Avaliação{% endif %}
+              </button>
+              <a href="{% url 'explore:place_detail' place.pk %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle me-2"></i>
+                Cancelar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .star-rating-container .form-check-input {
+    display: none;
+  }
+
+  .star-rating-container .star-label {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #ddd;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+
+  .star-rating-container .form-check-input:checked ~ .star-label,
+  .star-rating-container .star-label:hover {
+    color: #ffc107;
+  }
+
+  .star-rating-container .form-check:has(.form-check-input:checked) .star-label {
+    color: #ffc107;
+  }
+</style>
+{% endblock %}

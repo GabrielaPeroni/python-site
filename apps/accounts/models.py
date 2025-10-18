@@ -57,5 +57,18 @@ class User(AbstractUser):
         upload_to="profiles/", blank=True, null=True, help_text="User profile picture"
     )
 
+    # Contact information
+    contact_phone = models.CharField(
+        max_length=20, blank=True, null=True, help_text="Contact phone number"
+    )
+    contact_email = models.EmailField(
+        blank=True,
+        null=True,
+        help_text="Public contact email (different from login email)",
+    )
+    contact_website = models.URLField(
+        blank=True, null=True, help_text="Website or social media URL"
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

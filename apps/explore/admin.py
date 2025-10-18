@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Place, PlaceApproval, PlaceImage
+from .models import Category, Place, PlaceApproval, PlaceImage, PlaceReview
 
 
 @admin.register(Category)
@@ -113,3 +113,27 @@ class PlaceApprovalAdmin(admin.ModelAdmin):
         ("Review Information", {"fields": ("place", "action", "reviewer", "comments")}),
         ("Timestamp", {"fields": ("reviewed_at",)}),
     )
+
+
+@admin.register(PlaceReview)
+class PlaceReviewAdmin(admin.ModelAdmin):
+    """Admin for Place Reviews - full CRUD access for admins"""
+
+    list_display = ("place", "user", "rating", "created_at", "get_comment_preview")
+
+    list_filter = ("rating", "created_at", "updated_at")
+
+    search_fields = ("place__name", "user__username", "comment")
+
+    readonly_fields = ("created_at", "updated_at")
+
+    fieldsets = (
+        ("Review Information", {"fields": ("place", "user", "rating", "comment")}),
+        ("Timestamps", {"fields": ("created_at", "updated_at")}),
+    )
+
+    def get_comment_preview(self, obj):
+        """Show first 50 characters of comment"""
+        return obj.comment[:50] + "..." if len(obj.comment) > 50 else obj.comment
+
+    get_comment_preview.short_description = "Comment Preview"

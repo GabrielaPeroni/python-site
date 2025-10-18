@@ -21,287 +21,280 @@ else
     NULL := /dev/null
 endif
 
-.PHONY: help venv install setup migrate superuser run test clean lint lint-ci format shell collectstatic startapp dev-deps db-shell db-reset makemigrations tailwind-install tailwind-start tailwind-build test-accounts test-core test-explore test-theme coverage django-upgrade pre-commit-install
+.PHONY: help venv install setup migrate superuser run test clean lint lint-ci format shell collectstatic startapp dev-deps db-shell db-reset makemigrations test-accounts test-core test-explore test-theme coverage django-upgrade pre-commit-install
 
-help: ## Show help message
-	$(ECHO) "=========================================="
-	$(ECHO) "Django Project - Available Commands"
-	$(ECHO) "=========================================="
-	$(ECHO) ""
-	$(ECHO) "Setup Commands:"
-	$(ECHO) "  make venv                - Create virtual environment"
-	$(ECHO) "  make install             - Install Poetry if not present"
-	$(ECHO) "  make env                 - Create .env file from .env.example"
-	$(ECHO) "  make deps                - Install project dependencies"
-	$(ECHO) "  make pre-commit-install  - Install pre-commit hooks"
-	$(ECHO) "  make setup               - Complete setup: venv, install dependencies, migrate, and pre-commit"
-	$(ECHO) ""
-	$(ECHO) "Development Commands:"
-	$(ECHO) "  make run              - Run development server"
-	$(ECHO) "  make shell            - Open Django shell"
-	$(ECHO) "  make migrate          - Run database migrations"
-	$(ECHO) "  make makemigrations   - Create new migrations"
-	$(ECHO) "  make superuser        - Create Django superuser"
-	$(ECHO) "  make startapp         - Create new Django app (usage: make startapp name=myapp)"
-	$(ECHO) ""
-	$(ECHO) "Testing Commands:"
-	$(ECHO) "  make test             - Run all tests"
-	$(ECHO) "  make test-accounts    - Run tests for accounts app"
-	$(ECHO) "  make test-core        - Run tests for core app"
-	$(ECHO) "  make test-explore     - Run tests for explore app"
-	$(ECHO) "  make test-theme       - Run tests for theme app"
-	$(ECHO) "  make coverage         - Run tests with coverage report"
-	$(ECHO) ""
-	$(ECHO) "Code Quality Commands:"
-	$(ECHO) "  make format           - Format code with black and isort"
-	$(ECHO) "  make lint             - Run basic linting (flake8)"
-	$(ECHO) "  make lint-ci          - Run all CI linters (black, isort, autoflake, flake8, django-upgrade, pyupgrade)"
-	$(ECHO) "  make django-upgrade   - Check for Django 5.0 deprecations"
-	$(ECHO) "  make clean            - Clean cache and temporary files"
-	$(ECHO) "  make dev-deps         - Install development dependencies"
-	$(ECHO) ""
-	$(ECHO) "Database Commands:"
-	$(ECHO) "  make db-shell         - Open database shell"
-	$(ECHO) "  make db-reset         - Reset database (WARNING: deletes all data)"
-	$(ECHO) ""
-	$(ECHO) "Static Files & Tailwind:"
-	$(ECHO) "  make collectstatic    - Collect static files"
-	$(ECHO) "  make tailwind-install - Install Tailwind CSS"
-	$(ECHO) "  make tailwind-start   - Start Tailwind CSS dev server"
-	$(ECHO) "  make tailwind-build   - Build Tailwind CSS for production"
-	$(ECHO) ""
-	$(ECHO) "=========================================="
-	$(ECHO) ""
+## Mostrar mensagem de ajuda
+help:
+	@echo ==========================================
+	@echo Projeto Django - Comandos Disponiveis
+	@echo ==========================================
+	@echo Comandos de Configuracao:
+	@echo   make venv                - Criar ambiente virtual
+	@echo   make install             - Instalar Poetry se nao estiver presente
+	@echo   make env                 - Criar arquivo .env do .env.example
+	@echo   make deps                - Instalar dependencias do projeto
+	@echo   make pre-commit-install  - Instalar hooks do pre-commit
+	@echo   make setup               - Configuracao completa: venv, dependencias, migrate e pre-commit
+	@echo .
+	@echo Comandos de Desenvolvimento:
+	@echo   make run              - Executar servidor de desenvolvimento
+	@echo   make shell            - Abrir shell do Django
+	@echo   make migrate          - Executar migracoes do banco de dados
+	@echo   make makemigrations   - Criar novas migracoes
+	@echo   make superuser        - Criar superusuario do Django
+	@echo   make startapp         - Criar novo app Django (uso: make startapp name=myapp)
+	@echo .
+	@echo Comandos de Teste:
+	@echo   make test             - Executar todos os testes
+	@echo   make test-accounts    - Executar testes para o app de contas
+	@echo   make test-core        - Executar testes para o app principal
+	@echo   make test-explore     - Executar testes para o app de exploração
+	@echo   make test-theme       - Executar testes para o app de tema
+	@echo   make coverage         - Executar testes com relatorio de cobertura
+	@echo .
+	@echo Comandos de Qualidade de Codigo:
+	@echo   make format           - Formatar codigo com black e isort
+	@echo   make lint             - Executar linting basico (flake8)
+	@echo   make lint-ci          - Executar todos os linters do CI (black, isort, autoflake, flake8, django-upgrade, pyupgrade)
+	@echo   make django-upgrade   - Verificar deprecacoes do Django 5.0
+	@echo   make clean            - Limpar cache e arquivos temporarios
+	@echo   make dev-deps         - Instalar dependencias de desenvolvimento
+	@echo .
+	@echo Comandos de Banco de Dados:
+	@echo   make db-shell         - Abrir shell do banco de dados
+	@echo   make db-reset         - Resetar banco de dados (AVISO: apaga todos os dados)
+	@echo
+	@echo Arquivos Estaticos:
+	@echo   make collectstatic    - Coletar arquivos estaticos
+	@echo ==========================================
 
-venv: ## Create virtual environment
-	$(ECHO) "Creating virtual environment..."
+
+
+venv: ## Criar ambiente virtual
+	@echo Criando ambiente virtual...
 ifeq ($(OS),Windows_NT)
 	@if not exist env $(PYTHON) -m venv env
-	$(ECHO) "Virtual environment created! Activate it with: env\Scripts\activate"
+	@echo   Ambiente virtual criado! Ative com: env\Scripts\activate
 else
 	@test -d env || $(PYTHON) -m venv env
-	$(ECHO) "Virtual environment created! Activate it with: source env/bin/activate"
+	@echo   Ambiente virtual criado! Ative com: source env/bin/activate
 endif
 
-check-poetry: ## Check if Poetry is installed
+
+env: ## Criar arquivo .env
+ifeq ($(OS),Windows_NT)
+	@if not exist .env ( \
+		echo Criando arquivo .env... $(SEP) \
+		$(COPY) .env.example .env $(SEP) \
+	)
+else
+	@test -f .env || ( \
+		echo Criando arquivo .env... $(SEP) \
+		$(COPY) .env.example .env $(SEP) \
+	)
+endif
+
+
+check-poetry: ## Verificar se Poetry esta instalado
 ifndef POETRY
-	$(ECHO) "Poetry is not installed. Please run 'make install' first."
+	@echo    Poetry nao esta instalado. Por favor, execute 'make install' primeiro.
 	@exit 1
 endif
 
-install: ## Install Poetry using pip
-	$(ECHO) "Checking Poetry installation..."
+
+install: ## Instalar Poetry usando pip
+	@echo Verificando instalacao do Poetry...
 ifeq ($(OS),Windows_NT)
 	@where poetry >$(NULL) 2>&1 || ( \
-		echo Poetry not found. Installing Poetry... $(SEP) \
+		echo    Poetry nao encontrado. Instalando Poetry... $(SEP) \
 		pip install poetry \
 	)
 else
 	@which poetry >$(NULL) 2>&1 || ( \
-		echo "Poetry not found. Installing Poetry..." $(SEP) \
+		echo    Poetry nao encontrado. Instalando Poetry... $(SEP) \
 		pip3 install poetry \
 	)
 endif
-	$(ECHO) "Poetry is ready!"
 
-env: ## Create .env file from .env.example
-ifeq ($(OS),Windows_NT)
-	@if not exist .env ( \
-		echo Creating .env file from .env.example... $(SEP) \
-		$(COPY) .env.example .env $(SEP) \
-		echo .env created. Update database credentials if needed. \
-	) else ( \
-		echo .env already exists. Skipping... \
-	)
-else
-	@test -f .env || ( \
-		echo "Creating .env file from .env.example..." $(SEP) \
-		$(COPY) .env.example .env $(SEP) \
-		echo ".env created. Update database credentials if needed." \
-	)
-endif
 
-deps: check-poetry ## Install project dependencies
-	$(ECHO) "Installing dependencies..."
+deps: check-poetry ## Instalar dependencias do projeto
+	@echo Instalando dependencias...
 	poetry install
 
-pre-commit-install: check-poetry ## Install pre-commit hooks
-	$(ECHO) "Installing pre-commit hooks..."
+
+pre-commit-install: check-poetry ## Instalar hooks do pre-commit
+	@echo Instalando hooks do pre-commit...
 	poetry run pre-commit install
-	$(ECHO) "Pre-commit hooks installed successfully!"
 
-setup: venv install env deps migrate pre-commit-install ## Complete project setup
-	$(ECHO) ""
-	$(ECHO) "========================================"
-	$(ECHO) "Setup complete!"
-	$(ECHO) "========================================"
-	$(ECHO) ""
-	$(ECHO) "Next steps:"
-	$(ECHO) "  1. Create a superuser: make superuser"
-	$(ECHO) "  2. Run the server: make run"
-	$(ECHO) ""
 
-migrate: check-poetry ## Run database migrations
-	$(ECHO) "Running migrations..."
+setup: venv install env deps migrate pre-commit-install ## Configuracao completa do projeto
+	@echo ========================================
+	@echo Configuracao completa!
+	@echo ========================================
+	@echo Proximos passos:
+	@echo   1. Criar um superusuario: make superuser
+	@echo   2. Executar o servidor: make run
+
+migrate: check-poetry
+	@echo Executando migracoes...
 	poetry run python manage.py migrate
 
-makemigrations: check-poetry ## Create new migrations
-	$(ECHO) "Creating migrations..."
+makemigrations: check-poetry
+	@echo Criando migracoes...
 	poetry run python manage.py makemigrations
 
-superuser: check-poetry ## Create Django superuser
+superuser: check-poetry
 	poetry run python manage.py createsuperuser
 
-run: check-poetry ## Run development server
+run: check-poetry
 	poetry run python manage.py runserver
 
-shell: check-poetry ## Open Django shell
+shell: check-poetry
 	poetry run python manage.py shell
 
-clean: ## Clean cache and temporary files
-	$(ECHO) "Cleaning cache and temporary files..."
+clean:
+	@echo Limpando cache e arquivos temporarios...
 ifeq ($(OS),Windows_NT)
 	@if exist __pycache__ $(RM) __pycache__
 	@if exist .pytest_cache $(RM) .pytest_cache
-	@for /d /r %%i in (__pycache__) do @if exist "%%i" $(RM) "%%i"
-	@for /r %%i in (*.pyc) do @if exist "%%i" $(RM_FILE) "%%i"
-	@for /r %%i in (*.pyo) do @if exist "%%i" $(RM_FILE) "%%i"
+	@for /d /r %%i in (__pycache__) do @if exist %%i $(RM) %%i
+	@for /r %%i in (*.pyc) do @if exist %%i $(RM_FILE) %%i
+	@for /r %%i in (*.pyo) do @if exist %%i $(RM_FILE) %%i
 else
-	@find . -type d -name "__pycache__" -exec $(RM) {} + 2>$(NULL) || true
-	@find . -type f -name "*.pyc" -exec $(RM_FILE) {} + 2>$(NULL) || true
-	@find . -type f -name "*.pyo" -exec $(RM_FILE) {} + 2>$(NULL) || true
+	@find . -type d -name __pycache__ -exec $(RM) {} + 2>$(NULL) || true
+	@find . -type f -name *.pyc -exec $(RM_FILE) {} + 2>$(NULL) || true
+	@find . -type f -name *.pyo -exec $(RM_FILE) {} + 2>$(NULL) || true
 	@$(RM) .pytest_cache 2>$(NULL) || true
 endif
-	$(ECHO) "Cleanup complete!"
+	@echo   Limpeza completa!
 
-collectstatic: check-poetry ## Collect static files
+
+collectstatic: check-poetry ## Coletar arquivos estaticos
 	poetry run python manage.py collectstatic --noinput
 
-startapp: check-poetry ## Create new Django app (usage: make startapp name=myapp)
+
+startapp: check-poetry ## Criar novo app Django
 ifndef name
-	$(ECHO) "Error: Please provide an app name. Usage: make startapp name=myapp"
+	@echo Erro: Por favor forneça um nome de app
 	@exit 1
 endif
 	poetry run python manage.py startapp $(name)
-	$(ECHO) "App '$(name)' created in apps/ directory"
+	@echo App '$(name)' criado no diretorio apps/
 
-format: check-poetry ## Format code with black and isort
-	$(ECHO) "Formatting code with black..."
-	@poetry run black . 2>$(NULL) || $(ECHO) "Black is not installed. Run: poetry add --group dev black"
-	$(ECHO) "Sorting imports with isort..."
-	@poetry run isort . 2>$(NULL) || $(ECHO) "isort is not installed. Run: poetry add --group dev isort"
 
-lint: check-poetry ## Lint code with flake8
-	@poetry run flake8 . 2>$(NULL) || $(ECHO) "Flake8 is not installed. Run: poetry add --group dev flake8"
+format: check-poetry ## Formatar codigo com black e isort
+	@echo Formatando codigo com black...
+	@poetry run black . 2>$(NULL) || @echo Black nao esta instalado. Execute: poetry add --group dev black
+	@echo Ordenando imports com isort...
+	@poetry run isort . 2>$(NULL) || @echo isort nao esta instalado. Execute: poetry add --group dev isort
 
-django-upgrade: check-poetry ## Check for Django 5.0 deprecations
-	$(ECHO) "Checking for Django 5.0 deprecations..."
+
+lint: check-poetry ## Executar linting basico com flake8
+	@poetry run flake8 . 2>$(NULL) || @echo Flake8 nao esta instalado. Execute: poetry add --group dev flake8
+
+
+django-upgrade: check-poetry ## Verificar deprecacoes do Django 5.0
+	@echo Verificando deprecacoes do Django 5.0...
 ifeq ($(OS),Windows_NT)
-	@poetry run django-upgrade --target-version 5.0 $(shell for /r apps %%i in (*.py) do @echo %%i) $(shell for /r config %%i in (*.py) do @echo %%i) manage.py 2>$(NULL) || $(ECHO) "django-upgrade is not installed"
+	@poetry run django-upgrade --target-version 5.0 $(shell for /r apps %%i in (*.py) do @echo %%i) $(shell for /r config %%i in (*.py) do @echo %%i) manage.py 2>$(NULL) || @echo django-upgrade nao esta instalado
 else
-	@poetry run django-upgrade --target-version 5.0 $$(find apps/ config/ -name "*.py") manage.py 2>$(NULL) || $(ECHO) "django-upgrade is not installed"
+	@poetry run django-upgrade --target-version 5.0 $$(find apps/ config/ -name *.py) manage.py 2>$(NULL) || @echo django-upgrade nao esta instalado
 endif
 
-lint-ci: check-poetry ## Run all CI linters (matches GitHub Actions workflow)
-	$(ECHO) "Running all CI linters..."
-	$(ECHO) ""
-	$(ECHO) "1. Checking code formatting with Black..."
-	@poetry run black --check --diff . || ($(ECHO) "ERROR: Black formatting check failed. Run 'make format' to fix." && exit 1)
-	$(ECHO) ""
-	$(ECHO) "2. Checking import sorting with isort..."
-	@poetry run isort --check-only --diff . || ($(ECHO) "ERROR: isort check failed. Run 'make format' to fix." && exit 1)
-	$(ECHO) ""
-	$(ECHO) "3. Checking for unused imports with autoflake..."
+
+lint-ci: check-poetry ## Executar todos os linters do CI (corresponde ao workflow do GitHub Actions)
+	@echo Executando todos os linters do CI...
+	@echo
+	@echo 1. Verificando formatacao de codigo com Black...
+	@poetry run black --check --diff . || (@echo ERRO: Verificacao de formatacao do Black falhou. Execute 'make format' para corrigir. && exit 1)
+	@echo
+	@echo 2. Verificando ordenacao de imports com isort...
+	@poetry run isort --check-only --diff . || (@echo ERRO: Verificacao do isort falhou. Execute 'make format' para corrigir. && exit 1)
+	@echo
+	@echo 3. Verificando imports nao utilizados com autoflake...
 ifeq ($(OS),Windows_NT)
 	@poetry run autoflake --check --remove-all-unused-imports --remove-unused-variables --remove-duplicate-keys --ignore-init-module-imports --recursive apps/ config/ manage.py
 else
 	@poetry run autoflake --check --remove-all-unused-imports --remove-unused-variables --remove-duplicate-keys --ignore-init-module-imports --recursive apps/ config/ manage.py
 endif
-	$(ECHO) ""
-	$(ECHO) "4. Running flake8..."
+	@echo
+	@echo 4. Executando flake8...
 ifeq ($(OS),Windows_NT)
 	@poetry run flake8 --select=TMS010,TMS011,TMS012,TMS013,TMS020,TMS021,TMS022 apps/ config/ manage.py
 else
 	@poetry run flake8 --select=TMS010,TMS011,TMS012,TMS013,TMS020,TMS021,TMS022 apps/ config/ manage.py
 endif
-	$(ECHO) ""
-	$(ECHO) "5. Checking for Django 5.0 deprecations..."
+	@echo
+	@echo 5. Verificando deprecacoes do Django 5.0...
 ifeq ($(OS),Windows_NT)
 	@poetry run django-upgrade --target-version 5.0 $(shell for /r apps %%i in (*.py) do @echo %%i) $(shell for /r config %%i in (*.py) do @echo %%i) manage.py
 else
-	@poetry run django-upgrade --target-version 5.0 $$(find apps/ config/ -name "*.py") manage.py
+	@poetry run django-upgrade --target-version 5.0 $$(find apps/ config/ -name *.py) manage.py
 endif
-	$(ECHO) ""
-	$(ECHO) "6. Checking for Python 3.10+ syntax with pyupgrade..."
+	@echo
+	@echo 6. Verificando sintaxe Python 3.10+ com pyupgrade...
 ifeq ($(OS),Windows_NT)
 	@poetry run pyupgrade --py310-plus $(shell for /r apps %%i in (*.py) do @echo %%i) $(shell for /r config %%i in (*.py) do @echo %%i) manage.py
 else
-	@poetry run pyupgrade --py310-plus $$(find apps/ config/ -name "*.py") manage.py
+	@poetry run pyupgrade --py310-plus $$(find apps/ config/ -name *.py) manage.py
 endif
-	$(ECHO) ""
-	$(ECHO) "All linters passed!"
+	@echo
+	@echo Todos os linters passaram!
 
-dev-deps: check-poetry ## Install development dependencies
-	$(ECHO) "Installing development dependencies..."
+
+dev-deps: check-poetry ## Instalar dependencias de desenvolvimento
+	@echo Instalando dependencias de desenvolvimento...
 	poetry add --group dev black flake8 pytest pytest-django
 
-# Database commands
-db-shell: check-poetry ## Open database shell
+
+db-shell: check-poetry ## Abrir shell do banco de dados
 	poetry run python manage.py dbshell
 
-db-reset: check-poetry ## Reset database (WARNING: deletes all data)
+
+db-reset: check-poetry ## Resetar banco de dados (AVISO: apaga todos os dados)
 ifeq ($(OS),Windows_NT)
-	$(ECHO) "WARNING: This will delete all data!"
-	@set /p confirm="Are you sure? (yes/no): "
-	@if "%confirm%"=="yes" ( \
+	@echo AVISO: Isso apagara todos os dados!
+	@set /p confirm=Tem certeza? (sim/nao):
+	@if %confirm%==sim ( \
 		if exist db.sqlite3 $(RM_FILE) db.sqlite3 $(SEP) \
 		poetry run python manage.py migrate \
 	) else ( \
-		echo Database reset cancelled. \
+		echo Reset do banco de dados cancelado. \
 	)
 else
-	$(ECHO) "WARNING: This will delete all data!"
-	@read -p "Are you sure? (yes/no): " confirm $(SEP) \
-	if [ "$$confirm" = "yes" ]; then \
+	@echo AVISO: Isso apagara todos os dados!
+	@read -p Tem certeza? (sim/nao):  confirm $(SEP) \
+	if [ $$confirm = sim ]; then \
 		$(RM_FILE) db.sqlite3 2>$(NULL) || true $(SEP) \
 		poetry run python manage.py migrate $(SEP) \
 	else \
-		echo "Database reset cancelled." $(SEP) \
+		echo Reset do banco de dados cancelado. $(SEP) \
 	fi
 endif
 
-# Tailwind CSS commands
-tailwind-install: check-poetry ## Install and setup Tailwind CSS
-	$(ECHO) "Installing Tailwind CSS..."
-	poetry run python manage.py tailwind install
 
-tailwind-start: check-poetry ## Start Tailwind CSS development server
-	$(ECHO) "Starting Tailwind CSS dev server..."
-	poetry run python manage.py tailwind start
-
-tailwind-build: check-poetry ## Build Tailwind CSS for production
-	$(ECHO) "Building Tailwind CSS for production..."
-	poetry run python manage.py tailwind build
-
-# App-specific commands
-test: check-poetry ## Run all tests (matches CI workflow)
-	$(ECHO) "Running tests..."
+test: check-poetry ## Executar todos os testes (corresponde ao workflow do CI)
+	@echo Executando testes...
 	poetry run python manage.py test apps --verbosity=2
 
-test-accounts: check-poetry ## Run tests for accounts app
+
+coverage: check-poetry
+	@echo Executando testes com cobertura...
+
+test-accounts: check-poetry ##  Rodar testes accounts app
 	poetry run python manage.py test apps.accounts
 
-test-core: check-poetry ## Run tests for core app
+test-core: check-poetry ##  Rodar testes core app
 	poetry run python manage.py test apps.core
 
-test-explore: check-poetry ## Run tests for explore app
+test-explore: check-poetry ##  Rodar testes explore app
 	poetry run python manage.py test apps.explore
 
-test-theme: check-poetry ## Run tests for theme app
+test-theme: check-poetry ##  Rodar testes theme app
 	poetry run python manage.py test apps.theme
 
-coverage: check-poetry ## Run tests with coverage report
-	$(ECHO) "Running tests with coverage..."
+coverage: check-poetry ## Rodar testes com relatório de cobertura
+	@echo "Rodando testes com relatorio de cobertura..."
 	poetry run coverage run --source='.' manage.py test
 	poetry run coverage report
 	poetry run coverage html

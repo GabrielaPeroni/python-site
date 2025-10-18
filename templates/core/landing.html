@@ -4,110 +4,68 @@
 
 {% block content %}
 <!-- Hero Banner Section with Embedded Navigation -->
-<div
-  class="relative bg-gradient-to-br from-gray-700 via-gray-600 to-gray-800 text-white overflow-hidden"
-  style="min-height: 500px"
->
+<div class="position-relative bg-dark text-white overflow-hidden" style="min-height: 500px; background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
   <!-- Background overlay -->
-  <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+  <div class="position-absolute top-0 start-0 w-100 h-100 bg-black opacity-25"></div>
 
   <!-- Navigation Bar (embedded in hero) -->
-  <nav class="relative z-20">
-    <div class="mx-auto px-8 py-4">
-      <div class="flex justify-between items-center">
-        <!-- Logo -->
-        <div class="flex items-center">
-          <a
-            href="{% url 'core:landing' %}"
-            class="text-xl font-bold text-white uppercase tracking-wider"
-          >
-            MaricaCity
-          </a>
-        </div>
-
-        <!-- Right side navigation (moved to right edge) -->
-        <div class="flex items-center space-x-6">
-          <!-- Main Navigation Links -->
-          <a
-            href="{% url 'core:landing' %}"
-            class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-          >
-            Início
-          </a>
-          <a
-            href="{% url 'explore:explore' %}"
-            class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-          >
-            Explorar
-          </a>
-
-          {% if user.is_authenticated %} {% if user.can_create_places %}
-          <a
-            href="{% url 'explore:place_create' %}"
-            class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-          >
-            Adicionar Lugar
-          </a>
-          {% endif %} {% if user.can_moderate %}
-          <a
-            href="#"
-            class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-          >
-            Admin
-          </a>
-          {% endif %}
-          <span class="text-gray-300 text-sm">{{ user.username }}</span>
-          <a
-            href="{% url 'accounts:logout' %}"
-            class="border-2 border-white px-4 py-2 text-sm uppercase tracking-wide hover:bg-white hover:text-gray-900 transition-all"
-          >
-            Sair
-          </a>
+  <nav class="navbar navbar-expand-lg navbar-dark position-relative" style="z-index: 20;">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
+          </li>
+          {% if user.is_authenticated %}
+            {% if user.can_create_places %}
+            <li class="nav-item">
+              <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
+            </li>
+            {% endif %}
+            {% if user.can_moderate %}
+            <li class="nav-item">
+              <a class="nav-link text-uppercase" href="{% url 'explore:approval_queue' %}">Admin</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <span class="nav-link text-white-50">{{ user.username }}</span>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
+            </li>
           {% else %}
-          <a
-            href="{% url 'accounts:login' %}"
-            class="text-white hover:text-gray-300 text-sm uppercase tracking-wide transition-colors"
-          >
-            Entrar
-          </a>
-          <a
-            href="{% url 'accounts:register' %}"
-            class="border-2 border-white px-4 py-2 text-sm uppercase tracking-wide hover:bg-white hover:text-gray-900 transition-all"
-          >
-            Cadastrar
-          </a>
+            <li class="nav-item">
+              <a class="nav-link text-uppercase" href="{% url 'accounts:login' %}">Entrar</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-light btn-sm text-uppercase ms-2" href="{% url 'accounts:register' %}">Cadastrar</a>
+            </li>
           {% endif %}
-        </div>
+        </ul>
       </div>
     </div>
   </nav>
 
   <!-- Hero Content -->
-  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-    <div class="inline-block bg-black bg-opacity-50 px-12 py-16 rounded-lg">
-      <div class="border-t-2 border-b-2 border-white py-4 px-8 mb-8">
-        <h1 class="text-5xl md:text-6xl font-black tracking-widest uppercase">
-          MARICACITY
-        </h1>
-      </div>
-
-      <p class="text-lg md:text-xl uppercase tracking-wide mb-3">
-        Este é <strong class="font-bold">MaricaCity</strong>, uma plataforma
-      </p>
-      <p class="text-lg md:text-xl uppercase tracking-wide mb-3">
-        gratuita para explorar
-      </p>
-      <p class="text-lg md:text-xl uppercase tracking-wide mb-8">
-        o melhor de <strong class="font-bold">Maricá</strong>
-      </p>
-
-      <div class="mt-10">
-        <a
-          href="#featured"
-          class="inline-block border-2 border-white px-12 py-3 text-lg uppercase tracking-wide hover:bg-white hover:text-gray-900 transition-all duration-300"
-        >
-          Saiba Mais
-        </a>
+  <div class="position-relative text-center py-5" style="z-index: 10;">
+    <div class="container">
+      <div class="d-inline-block bg-black bg-opacity-50 px-5 py-5 rounded">
+        <div class="border-top border-bottom border-white border-2 py-3 px-4 mb-4">
+          <h1 class="display-3 fw-bold text-uppercase">MARICACITY</h1>
+        </div>
+        <p class="fs-5 text-uppercase mb-2">Este é <strong>MaricaCity</strong>, uma plataforma</p>
+        <p class="fs-5 text-uppercase mb-2">gratuita para explorar</p>
+        <p class="fs-5 text-uppercase mb-4">o melhor de <strong>Maricá</strong></p>
+        <div class="mt-4">
+          <a href="#featured" class="btn btn-outline-light btn-lg text-uppercase">Saiba Mais</a>
+        </div>
       </div>
     </div>
   </div>
@@ -115,244 +73,185 @@
 
 <!-- Trending Places Section -->
 {% if trending_places %}
-<div class="bg-white py-16" id="trending">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12">
-      <h2 class="text-4xl font-bold text-gray-900 uppercase tracking-wide">
-        Em Alta <span class="text-gray-700">Agora</span>
-      </h2>
-      <p class="mt-4 text-lg text-gray-600">Destinos populares este mês</p>
+<section class="bg-white py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold text-uppercase">Em Alta <span class="text-secondary">Agora</span></h2>
+      <p class="lead text-muted">Destinos populares este mês</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="row g-4">
       {% for place in trending_places %}
-      <div
-        class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg hover:border-gray-800 transition-all duration-300"
-      >
-        {% if place.primary_image %}
-        <img
-          src="{{ place.primary_image.image.url }}"
-          alt="{{ place.name }}"
-          class="w-full h-48 object-cover"
-        />
-        {% else %}
-        <div class="w-full h-48 bg-gray-800 flex items-center justify-center">
-          <span class="text-white text-3xl font-bold">{{ place.name|first }}</span>
-        </div>
-        {% endif %}
-
-        <div class="p-6">
-          <h3 class="text-lg font-bold text-gray-900 mb-2 uppercase tracking-wide">
-            {{ place.name }}
-          </h3>
-          <p class="text-gray-600 mb-4 text-sm">
-            {{ place.description|truncatewords:15 }}
-          </p>
-
-          <div class="flex items-center justify-between">
-            <a
-              href="{% url 'explore:place_detail' place.pk %}"
-              class="text-gray-900 hover:text-gray-700 font-medium text-sm tracking-wide border-b-2 border-transparent hover:border-gray-900 transition-all"
-            >
-              Saiba Mais →
-            </a>
-            {% if place.categories.exists %}
-            <div class="flex flex-wrap gap-1">
-              {% for category in place.categories.all|slice:":1" %}
-              <span
-                class="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
-              >
-                {{ category.name }}
-              </span>
-              {% endfor %}
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+        <div class="card border h-100 card-hover">
+          {% if place.primary_image %}
+          <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+          {% else %}
+          <div class="bg-dark text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+            <span class="display-4 fw-bold">{{ place.name|first }}</span>
+          </div>
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title fw-bold text-uppercase">{{ place.name }}</h5>
+            <p class="card-text text-muted small">{{ place.description|truncatewords:15 }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="{% url 'explore:place_detail' place.pk %}" class="text-dark text-decoration-none fw-bold small">Saiba Mais →</a>
+              {% if place.categories.exists %}
+                {% for category in place.categories.all|slice:":1" %}
+                <span class="badge bg-light text-dark">{{ category.name }}</span>
+                {% endfor %}
+              {% endif %}
             </div>
-            {% endif %}
           </div>
         </div>
       </div>
       {% endfor %}
     </div>
   </div>
-</div>
+</section>
 {% endif %}
 
-<!-- Featured Places Section -->
-<div class="bg-gray-50 py-16" id="featured">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12">
-      <h2 class="text-4xl font-bold text-gray-900 uppercase tracking-wide">
-        Lugares em Destaque
-      </h2>
-      <p class="mt-4 text-lg text-gray-600">Destinos adicionados recentemente</p>
-    </div>
+<!-- Featured Places Section with Shoelace Carousel -->
+<section class="bg-light py-5" id="featured">
+  {% if featured_places %}
+  <div class="container">
+    <div class="row align-items-center">
+      <!-- Left: Text Content -->
+      <div class="col-12 col-lg-4 mb-4 mb-lg-0">
+        <p class="text-uppercase text-muted small mb-2" style="letter-spacing: 2px;">ONDE IR</p>
+        <h2 class="fw-bold mb-3" style="font-size: 2.5rem; line-height: 1.2;">Escolha sua própria jornada.</h2>
+        <p class="text-muted mb-4">
+          Explore os lugares mais incríveis de Maricá. De praias paradisíacas a experiências culturais únicas,
+          há um lugar em Maricá para todos! Descubra o que torna cada um deles único.
+        </p>
+        <a href="{% url 'explore:explore' %}" class="btn btn-outline-dark rounded-pill px-4">Veja mais</a>
+      </div>
 
-    {% if featured_places %}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {% for place in featured_places %}
-      <div
-        class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg hover:border-gray-800 transition-all duration-300"
-      >
-        {% if place.primary_image %}
-        <img
-          src="{{ place.primary_image.image.url }}"
-          alt="{{ place.name }}"
-          class="w-full h-56 object-cover"
-        />
-        {% else %}
-        <div class="w-full h-56 bg-gray-800 flex items-center justify-center">
-          <span class="text-white text-4xl font-bold">{{ place.name|first }}</span>
-        </div>
-        {% endif %}
-
-        <div class="p-6">
-          <h3 class="text-xl font-bold text-gray-900 mb-3 uppercase tracking-wide">
-            {{ place.name }}
-          </h3>
-          <p class="text-gray-600 mb-4 leading-relaxed">
-            {{ place.description|truncatewords:20 }}
-          </p>
-
-          <div class="flex items-center justify-between">
-            <a
-              href="{% url 'explore:place_detail' place.pk %}"
-              class="text-gray-900 hover:text-gray-700 font-medium text-sm tracking-wide border-b-2 border-transparent hover:border-gray-900 transition-all"
-            >
-              Ver Detalhes →
-            </a>
-            {% if place.categories.exists %}
-            <div class="flex flex-wrap gap-1">
-              {% for category in place.categories.all|slice:":2" %}
-              <span
-                class="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
-              >
-                {{ category.name }}
-              </span>
-              {% endfor %}
+      <!-- Right: Swiper Container -->
+      <div class="col-12 col-lg-8">
+        <div class="swiper featured-swiper">
+          <div class="swiper-wrapper">
+            {% for place in featured_places %}
+            <div class="swiper-slide" style="width: 280px; height: 400px;">
+              <a href="{% url 'explore:place_detail' place.pk %}" class="text-decoration-none d-block h-100">
+                {% if place.primary_image %}
+                <div class="position-relative rounded-4 overflow-hidden shadow h-100">
+                  <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="w-100 h-100" style="object-fit: cover;">
+                  <div class="position-absolute bottom-0 start-0 end-0 p-4 text-center" style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);">
+                    <h3 class="text-white fw-bold fs-5 mb-3">{{ place.name }}</h3>
+                    <span class="btn btn-outline-light rounded-pill px-4 py-2">Saiba mais</span>
+                  </div>
+                </div>
+                {% else %}
+                <div class="position-relative rounded-4 overflow-hidden bg-dark d-flex align-items-center justify-content-center shadow h-100">
+                  <span class="display-1 fw-bold text-white opacity-25">{{ place.name|first }}</span>
+                  <div class="position-absolute bottom-0 start-0 end-0 p-4 text-center" style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);">
+                    <h3 class="text-white fw-bold fs-5 mb-3">{{ place.name }}</h3>
+                    <span class="btn btn-outline-light rounded-pill px-4 py-2">Saiba mais</span>
+                  </div>
+                </div>
+                {% endif %}
+              </a>
             </div>
-            {% endif %}
+            {% endfor %}
           </div>
         </div>
       </div>
-      {% endfor %}
     </div>
-    {% else %}
-    <div class="text-center py-12">
-      <p class="text-gray-600 text-xl">
-        Nenhum lugar disponível ainda. Volte em breve!
-      </p>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      new Swiper('.featured-swiper', {
+        slidesPerView: 'auto',
+        spaceBetween: 16,
+        grabCursor: true,
+        freeMode: true,
+        mousewheel: {
+          forceToAxis: true,
+        }
+      });
+    });
+  </script>
+  {% else %}
+  <div class="container">
+    <div class="text-center py-5">
+      <p class="lead text-muted">Nenhum lugar disponível ainda. Volte em breve!</p>
       {% if user.is_authenticated and user.can_create_places %}
-      <a
-        href="{% url 'explore:place_create' %}"
-        class="mt-4 inline-block bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 rounded-md font-medium uppercase tracking-wide"
-      >
+      <a href="{% url 'explore:place_create' %}" class="btn btn-dark btn-lg text-uppercase mt-3">
         Adicione Seu Primeiro Lugar
       </a>
       {% endif %}
     </div>
-    {% endif %}
-
-    <!-- View All Link -->
-    <div class="text-center mt-12">
-      <a
-        href="{% url 'explore:explore' %}"
-        class="inline-block border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white px-8 py-3 rounded-md font-medium uppercase tracking-wide transition-all duration-300"
-      >
-        Ver Todos os Lugares
-      </a>
-    </div>
   </div>
-</div>
+  {% endif %}
+</section>
 
 <!-- Categories Overview Section -->
-<div class="bg-white py-16">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12">
-      <h2 class="text-4xl font-bold text-gray-900 uppercase tracking-wide">
-        Explorar por Categoria
-      </h2>
-      <p class="mt-4 text-lg text-gray-600">Encontre exatamente o que você procura</p>
+<section class="bg-white py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold text-uppercase">Explorar por Categoria</h2>
+      <p class="lead text-muted">Encontre exatamente o que você procura</p>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div class="row g-4">
       {% load static %}
       {% with categories=categories|default_if_none:"" %}
         {% if categories %}
           {% for category in categories %}
-          <a
-            href="{% url 'explore:category_detail' category.slug %}"
-            class="bg-gray-50 border-2 border-gray-200 rounded-lg p-8 text-center hover:border-gray-900 hover:shadow-lg transition-all duration-300 group"
-          >
-            <div class="text-5xl mb-4">{{ category.icon|default:"📍" }}</div>
-            <h3 class="text-lg font-bold text-gray-900 uppercase tracking-wide">
-              {{ category.name }}
-            </h3>
-            <p class="text-sm text-gray-600 mt-2">
-              {{ category.active_places_count }} lugares
-            </p>
-          </a>
+          <div class="col-6 col-md-4 col-lg-3">
+            <a href="{% url 'explore:category_detail' category.slug %}" class="text-decoration-none">
+              <div class="card border-2 h-100 text-center p-4 card-hover">
+                <div class="display-3 mb-3">{{ category.icon|default:"📍" }}</div>
+                <h5 class="card-title fw-bold text-uppercase text-dark">{{ category.name }}</h5>
+                <p class="card-text text-muted small">{{ category.active_places_count }} lugares</p>
+              </div>
+            </a>
+          </div>
           {% endfor %}
         {% else %}
-      <!-- Default categories placeholder -->
-      <div
-        class="bg-gray-50 border-2 border-gray-200 rounded-lg p-8 text-center hover:border-gray-900 hover:shadow-lg transition-all duration-300"
-      >
-        <div class="text-5xl mb-4">🍽️</div>
-        <h3 class="text-lg font-bold text-gray-900 uppercase tracking-wide">
-          Restaurantes
-        </h3>
-      </div>
-      <div
-        class="bg-gray-50 border-2 border-gray-200 rounded-lg p-8 text-center hover:border-gray-900 hover:shadow-lg transition-all duration-300"
-      >
-        <div class="text-5xl mb-4">🎨</div>
-        <h3 class="text-lg font-bold text-gray-900 uppercase tracking-wide">
-          Artes e Cultura
-        </h3>
-      </div>
-      <div
-        class="bg-gray-50 border-2 border-gray-200 rounded-lg p-8 text-center hover:border-gray-900 hover:shadow-lg transition-all duration-300"
-      >
-        <div class="text-5xl mb-4">🌳</div>
-        <h3 class="text-lg font-bold text-gray-900 uppercase tracking-wide">
-          Natureza e Parques
-        </h3>
-      </div>
-      <div
-        class="bg-gray-50 border-2 border-gray-200 rounded-lg p-8 text-center hover:border-gray-900 hover:shadow-lg transition-all duration-300"
-      >
-        <div class="text-5xl mb-4">🏨</div>
-        <h3 class="text-lg font-bold text-gray-900 uppercase tracking-wide">Hotéis</h3>
-      </div>
+          <!-- Default categories placeholder -->
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card border-2 h-100 text-center p-4 card-hover">
+              <div class="display-3 mb-3">🍽️</div>
+              <h5 class="card-title fw-bold text-uppercase">Restaurantes</h5>
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card border-2 h-100 text-center p-4 card-hover">
+              <div class="display-3 mb-3">🎨</div>
+              <h5 class="card-title fw-bold text-uppercase">Artes e Cultura</h5>
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card border-2 h-100 text-center p-4 card-hover">
+              <div class="display-3 mb-3">🌳</div>
+              <h5 class="card-title fw-bold text-uppercase">Natureza e Parques</h5>
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card border-2 h-100 text-center p-4 card-hover">
+              <div class="display-3 mb-3">🏨</div>
+              <h5 class="card-title fw-bold text-uppercase">Hotéis</h5>
+            </div>
+          </div>
         {% endif %}
       {% endwith %}
     </div>
   </div>
-</div>
+</section>
 
-<!-- Join CTA Section with Subtle Red Accent -->
+<!-- Join CTA Section -->
 {% if not user.is_authenticated %}
-<div class="bg-gray-900 text-white py-20">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    <h2 class="text-4xl font-bold mb-4 uppercase tracking-wide">
-      Junte-se à Nossa Comunidade
-    </h2>
-    <p class="text-xl mb-10 text-gray-300">
-      Descubra lugares incríveis ou compartilhe seus locais favoritos com outros
-    </p>
-    <div class="flex flex-col sm:flex-row justify-center gap-4">
-      <a
-        href="{% url 'accounts:register' %}"
-        class="inline-block border-2 border-white text-white hover:bg-white hover:text-gray-900 px-10 py-4 rounded-md text-lg font-medium uppercase tracking-wide transition-all duration-300"
-      >
-        Cadastre-se Agora
-      </a>
-      <a
-        href="{% url 'accounts:login' %}"
-        class="inline-block bg-white text-gray-900 hover:bg-gray-100 px-10 py-4 rounded-md text-lg font-medium uppercase tracking-wide transition-all duration-300"
-      >
-        Entrar
-      </a>
+<section class="bg-dark text-white py-5">
+  <div class="container text-center">
+    <h2 class="display-5 fw-bold text-uppercase mb-3">Junte-se à Nossa Comunidade</h2>
+    <p class="lead mb-4">Descubra lugares incríveis ou compartilhe seus locais favoritos com outros</p>
+    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+      <a href="{% url 'accounts:register' %}" class="btn btn-outline-light btn-lg text-uppercase px-5">Cadastre-se Agora</a>
+      <a href="{% url 'accounts:login' %}" class="btn btn-light btn-lg text-uppercase px-5">Entrar</a>
     </div>
   </div>
-</div>
-{% endif %} {% endblock %}
+</section>
+{% endif %}
+{% endblock %}

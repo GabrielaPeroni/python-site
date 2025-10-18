@@ -9,7 +9,7 @@ class UserRegistrationForm(UserCreationForm):
         required=True,
         widget=forms.EmailInput(
             attrs={
-                "class": "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                "class": "form-control",
                 "placeholder": "Endereço de e-mail",
             }
         ),
@@ -20,7 +20,7 @@ class UserRegistrationForm(UserCreationForm):
             (User.UserType.EXPLORE, "Usuário Explorador - Navegar e descobrir lugares"),
             (User.UserType.CREATION, "Usuário Criador - Adicionar e gerenciar lugares"),
         ],
-        widget=forms.RadioSelect(attrs={"class": "form-radio text-blue-600"}),
+        widget=forms.RadioSelect(attrs={"class": "form-check-input"}),
     )
 
     class Meta:
@@ -29,7 +29,7 @@ class UserRegistrationForm(UserCreationForm):
         widgets = {
             "username": forms.TextInput(
                 attrs={
-                    "class": "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                    "class": "form-control",
                     "placeholder": "Nome de usuário",
                 }
             ),
@@ -39,13 +39,13 @@ class UserRegistrationForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         self.fields["password1"].widget.attrs.update(
             {
-                "class": "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                "class": "form-control",
                 "placeholder": "Senha",
             }
         )
         self.fields["password2"].widget.attrs.update(
             {
-                "class": "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                "class": "form-control",
                 "placeholder": "Confirmar senha",
             }
         )
@@ -55,7 +55,7 @@ class UserLoginForm(AuthenticationForm):
     username = forms.CharField(
         widget=forms.TextInput(
             attrs={
-                "class": "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                "class": "form-control",
                 "placeholder": "Nome de usuário",
             }
         )
@@ -64,7 +64,7 @@ class UserLoginForm(AuthenticationForm):
     password = forms.CharField(
         widget=forms.PasswordInput(
             attrs={
-                "class": "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                "class": "form-control",
                 "placeholder": "Senha",
             }
         )

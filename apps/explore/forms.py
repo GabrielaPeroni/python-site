@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory
 
-from .models import Category, Place, PlaceImage
+from .models import Category, Place, PlaceImage, PlaceReview
 
 
 class PlaceForm(forms.ModelForm):
@@ -11,77 +11,35 @@ class PlaceForm(forms.ModelForm):
             "name",
             "description",
             "address",
-            "contact_phone",
-            "contact_email",
-            "contact_website",
             "categories",
-            "latitude",
-            "longitude",
         ]
         widgets = {
             "name": forms.TextInput(
                 attrs={
-                    "class": "w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent",
+                    "class": "form-control",
                     "placeholder": "Nome do lugar",
                 }
             ),
             "description": forms.Textarea(
                 attrs={
-                    "class": "w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent",
+                    "class": "form-control",
                     "placeholder": "Descreva o lugar em detalhes...",
                     "rows": 6,
                 }
             ),
             "address": forms.Textarea(
                 attrs={
-                    "class": "w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent",
+                    "class": "form-control",
                     "placeholder": "Endereço completo",
                     "rows": 3,
                 }
             ),
-            "contact_phone": forms.TextInput(
-                attrs={
-                    "class": "w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent",
-                    "placeholder": "(21) 99999-9999",
-                }
-            ),
-            "contact_email": forms.EmailInput(
-                attrs={
-                    "class": "w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent",
-                    "placeholder": "contato@exemplo.com",
-                }
-            ),
-            "contact_website": forms.URLInput(
-                attrs={
-                    "class": "w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent",
-                    "placeholder": "https://exemplo.com",
-                }
-            ),
             "categories": forms.CheckboxSelectMultiple(
-                attrs={"class": "form-checkbox"}
-            ),
-            "latitude": forms.NumberInput(
-                attrs={
-                    "class": "w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent",
-                    "placeholder": "-22.9068",
-                    "step": "any",
-                }
-            ),
-            "longitude": forms.NumberInput(
-                attrs={
-                    "class": "w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent",
-                    "placeholder": "-43.1729",
-                    "step": "any",
-                }
+                attrs={"class": "form-check-input"}
             ),
         }
         help_texts = {
             "categories": "Selecione uma ou mais categorias que descrevem seu lugar",
-            "latitude": "Opcional - coordenada de latitude para localização no mapa",
-            "longitude": "Opcional - coordenada de longitude para localização no mapa",
-            "contact_phone": "Opcional - telefone de contato",
-            "contact_email": "Opcional - email de contato",
-            "contact_website": "Opcional - website ou página do lugar",
         }
 
     def __init__(self, *args, **kwargs):
@@ -91,26 +49,11 @@ class PlaceForm(forms.ModelForm):
             is_active=True
         ).order_by("display_order")
 
-        # Make some fields required
+        # Make all fields required
         self.fields["name"].required = True
         self.fields["description"].required = True
         self.fields["address"].required = True
         self.fields["categories"].required = True
-
-    def clean(self):
-        cleaned_data = super().clean()
-        latitude = cleaned_data.get("latitude")
-        longitude = cleaned_data.get("longitude")
-
-        # If one coordinate is provided, both should be provided
-        if (latitude is not None and longitude is None) or (
-            latitude is None and longitude is not None
-        ):
-            raise forms.ValidationError(
-                "Se você fornecer coordenadas, deve fornecer tanto latitude quanto longitude."
-            )
-
-        return cleaned_data
 
 
 class PlaceImageForm(forms.ModelForm):
@@ -120,22 +63,20 @@ class PlaceImageForm(forms.ModelForm):
         widgets = {
             "image": forms.FileInput(
                 attrs={
-                    "class": "w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent",
+                    "class": "form-control",
                     "accept": "image/*",
                 }
             ),
             "caption": forms.TextInput(
                 attrs={
-                    "class": "w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent",
+                    "class": "form-control",
                     "placeholder": "Descrição da imagem (opcional)",
                 }
             ),
-            "is_primary": forms.CheckboxInput(
-                attrs={"class": "form-checkbox h-4 w-4 text-gray-900"}
-            ),
+            "is_primary": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "display_order": forms.NumberInput(
                 attrs={
-                    "class": "w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent",
+                    "class": "form-control",
                     "min": "0",
                     "value": "0",
                 }
@@ -159,3 +100,38 @@ PlaceImageFormSet = inlineformset_factory(
     max_num=10,  # Maximum 10 images per place
     validate_max=True,
 )
+
+
+class PlaceReviewForm(forms.ModelForm):
+    """Form for submitting place reviews"""
+
+    class Meta:
+        model = PlaceReview
+        fields = ["rating", "comment"]
+        widgets = {
+            "rating": forms.RadioSelect(
+                choices=[(1, "★"), (2, "★★"), (3, "★★★"), (4, "★★★★"), (5, "★★★★★")],
+                attrs={"class": "star-rating-input"},
+            ),
+            "comment": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Compartilhe sua experiência neste lugar...",
+                    "rows": 4,
+                    "maxlength": "1000",
+                }
+            ),
+        }
+        labels = {
+            "rating": "Avaliação",
+            "comment": "Comentário",
+        }
+        help_texts = {
+            "rating": "Selecione de 1 a 5 estrelas",
+            "comment": "Descreva sua experiência (máximo 1000 caracteres)",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["rating"].required = True
+        self.fields["comment"].required = True

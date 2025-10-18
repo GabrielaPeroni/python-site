@@ -1,5 +1,3 @@
-import os
-import shutil
 from pathlib import Path
 
 from decouple import config
@@ -27,9 +25,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Third party apps
-    "tailwind",
-    "apps.theme",
     # Local apps
     "apps.core",
     "apps.accounts",
@@ -110,26 +105,6 @@ STATICFILES_DIRS = [
 # Media files (User uploaded content)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-
-# Tailwind CSS
-TAILWIND_APP_NAME = "apps.theme"
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
-
-# NPM path - automatic detection
-NPM_BIN_PATH = shutil.which("npm")
-if NPM_BIN_PATH is None:
-    # Fallback for Windows
-    if os.name == "nt":
-        npm_locations = [
-            r"C:\Program Files\nodejs\npm.cmd",
-            r"C:\Program Files (x86)\nodejs\npm.cmd",
-        ]
-        for location in npm_locations:
-            if os.path.exists(location):
-                NPM_BIN_PATH = location
-                break
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

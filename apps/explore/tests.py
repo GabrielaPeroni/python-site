@@ -80,8 +80,6 @@ class PlaceModelTests(TestCase):
             name="Test Restaurant",
             description="Great food",
             address="123 Main St",
-            contact_phone="1234567890",
-            contact_email="test@example.com",
             created_by=self.user,
         )
         self.assertEqual(place.name, "Test Restaurant")
@@ -113,21 +111,6 @@ class PlaceModelTests(TestCase):
         place.is_approved = True
         place.save()
         self.assertFalse(place.is_pending)
-
-    def test_place_has_coordinates_property(self):
-        """Test has_coordinates property"""
-        place = Place.objects.create(
-            name="Test Place",
-            description="Test",
-            address="Test address",
-            created_by=self.user,
-        )
-        self.assertFalse(place.has_coordinates)
-
-        place.latitude = -22.9192
-        place.longitude = -42.8186
-        place.save()
-        self.assertTrue(place.has_coordinates)
 
     def test_place_category_relationship(self):
         """Test many-to-many relationship with categories"""
@@ -361,12 +344,7 @@ class PlaceCreateViewTests(TestCase):
             "name": "Test Restaurant",
             "description": "Great food and atmosphere",
             "address": "123 Main Street, Maricá, RJ",
-            "contact_phone": "(21) 99999-9999",
-            "contact_email": "contact@testrestaurant.com",
-            "contact_website": "https://testrestaurant.com",
             "categories": [self.category.id],
-            "latitude": "-22.9192",
-            "longitude": "-42.8186",
             # Formset management data
             "images-TOTAL_FORMS": "0",
             "images-INITIAL_FORMS": "0",
@@ -412,33 +390,6 @@ class PlaceCreateViewTests(TestCase):
         self.assertEqual(Place.objects.count(), 0)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "explore/place_form.html")
-
-    def test_place_creation_with_partial_coordinates(self):
-        """Test place creation with only latitude or longitude fails validation"""
-        self.client.login(username="creator", password="pass123")
-
-        form_data = {
-            "name": "Test Place",
-            "description": "Test description",
-            "address": "Test address",
-            "categories": [self.category.id],
-            "latitude": "-22.9192",
-            # Missing longitude
-            "images-TOTAL_FORMS": "0",
-            "images-INITIAL_FORMS": "0",
-            "images-MIN_NUM_FORMS": "0",
-            "images-MAX_NUM_FORMS": "10",
-        }
-
-        response = self.client.post(reverse("explore:place_create"), data=form_data)
-
-        # Should not create place due to validation error
-        self.assertEqual(Place.objects.count(), 0)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response,
-            "Se você fornecer coordenadas, deve fornecer tanto latitude quanto longitude.",
-        )
 
 
 class PlaceUpdateViewTests(TestCase):

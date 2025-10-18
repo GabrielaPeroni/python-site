@@ -5,8 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .forms import PlaceForm, PlaceImageFormSet
-from .models import Category, Place
+from .forms import PlaceForm, PlaceImageFormSet, PlaceReviewForm
+from .models import Category, Place, PlaceApproval, PlaceReview
 
 
 def explore_view(request):
@@ -130,10 +130,20 @@ def place_detail_view(request, pk):
         if request.user.user_type == "ADMIN" or place.created_by == request.user:
             can_edit = True
 
+    # Get all reviews for this place
+    reviews = place.reviews.select_related("user").order_by("-created_at")
+
+    # Check if current user has already reviewed this place
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = reviews.filter(user=request.user).first()
+
     context = {
         "place": place,
         "related_places": related_places,
         "can_edit": can_edit,
+        "reviews": reviews,
+        "user_review": user_review,
     }
     return render(request, "explore/place_detail.html", context)
 
@@ -275,3 +285,238 @@ def place_delete_view(request, pk):
         "place": place,
     }
     return render(request, "explore/place_delete_confirm.html", context)
+
+
+# Admin approval views
+
+
+@login_required
+def approval_queue_view(request):
+    """Admin approval queue showing pending places"""
+
+    # Check if user is admin
+    if not request.user.can_moderate:
+        messages.error(request, "Você não tem permissão para acessar esta página.")
+        return redirect("explore:explore")
+
+    # Get all pending places (unapproved and active)
+    pending_places = (
+        Place.objects.filter(is_approved=False, is_active=True)
+        .select_related("created_by")
+        .prefetch_related("images", "categories")
+        .order_by("-created_at")
+    )
+
+    context = {
+        "pending_places": pending_places,
+        "pending_count": pending_places.count(),
+    }
+    return render(request, "explore/admin/approval_queue.html", context)
+
+
+@login_required
+def approve_place_view(request, pk):
+    """Approve a pending place"""
+
+    # Check if user is admin
+    if not request.user.can_moderate:
+        messages.error(request, "Você não tem permissão para realizar esta ação.")
+        return redirect("explore:explore")
+
+    place = get_object_or_404(Place, pk=pk)
+
+    if request.method == "POST":
+        # Create approval record
+        PlaceApproval.objects.create(
+            place=place,
+            reviewer=request.user,
+            action=PlaceApproval.ActionType.APPROVE,
+            comments=request.POST.get("comments", ""),
+        )
+
+        messages.success(
+            request,
+            f'Lugar "{place.name}" foi aprovado com sucesso!',
+        )
+        return redirect("explore:approval_queue")
+
+    # If GET, redirect to place detail
+    return redirect("explore:place_detail", pk=pk)
+
+
+@login_required
+def reject_place_view(request, pk):
+    """Reject a pending place"""
+
+    # Check if user is admin
+    if not request.user.can_moderate:
+        messages.error(request, "Você não tem permissão para realizar esta ação.")
+        return redirect("explore:explore")
+
+    place = get_object_or_404(Place, pk=pk)
+
+    if request.method == "POST":
+        comments = request.POST.get("comments", "")
+
+        if not comments:
+            messages.error(request, "Por favor, forneça um motivo para a rejeição.")
+            return redirect("explore:approval_queue")
+
+        # Create rejection record
+        PlaceApproval.objects.create(
+            place=place,
+            reviewer=request.user,
+            action=PlaceApproval.ActionType.REJECT,
+            comments=comments,
+        )
+
+        messages.success(
+            request,
+            f'Lugar "{place.name}" foi rejeitado.',
+        )
+        return redirect("explore:approval_queue")
+
+    # If GET, show rejection form
+    context = {
+        "place": place,
+    }
+    return render(request, "explore/admin/reject_form.html", context)
+
+
+@login_required
+def backlog_view(request):
+    """Admin backlog showing all places with filtering"""
+
+    # Check if user is admin
+    if not request.user.can_moderate:
+        messages.error(request, "Você não tem permissão para acessar esta página.")
+        return redirect("explore:explore")
+
+    # Get filter parameters
+    status_filter = request.GET.get("status", "all")
+    category_filter = request.GET.get("category", "all")
+    sort_by = request.GET.get("sort", "-created_at")
+
+    # Start with all places
+    places = Place.objects.select_related("created_by").prefetch_related(
+        "images", "categories"
+    )
+
+    # Apply status filter
+    if status_filter == "approved":
+        places = places.filter(is_approved=True, is_active=True)
+    elif status_filter == "pending":
+        places = places.filter(is_approved=False, is_active=True)
+    elif status_filter == "rejected":
+        places = places.filter(is_active=False)
+
+    # Apply category filter
+    if category_filter != "all":
+        places = places.filter(categories__slug=category_filter)
+
+    # Apply sorting
+    valid_sorts = {
+        "-created_at": "-created_at",
+        "created_at": "created_at",
+        "name": "name",
+        "-name": "-name",
+    }
+    sort_order = valid_sorts.get(sort_by, "-created_at")
+    places = places.order_by(sort_order).distinct()
+
+    # Get all categories for filter dropdown
+    categories = Category.objects.filter(is_active=True).order_by("name")
+
+    # Get counts for each status
+    total_count = Place.objects.count()
+    approved_count = Place.objects.filter(is_approved=True, is_active=True).count()
+    pending_count = Place.objects.filter(is_approved=False, is_active=True).count()
+    rejected_count = Place.objects.filter(is_active=False).count()
+
+    context = {
+        "places": places,
+        "categories": categories,
+        "status_filter": status_filter,
+        "category_filter": category_filter,
+        "current_sort": sort_by,
+        "total_count": total_count,
+        "approved_count": approved_count,
+        "pending_count": pending_count,
+        "rejected_count": rejected_count,
+    }
+    return render(request, "explore/admin/backlog.html", context)
+
+
+# Review Views
+
+
+@login_required
+def review_create_view(request, place_pk):
+    """Create a new review for a place"""
+    place = get_object_or_404(Place, pk=place_pk, is_approved=True, is_active=True)
+
+    # Check if user already reviewed this place
+    existing_review = PlaceReview.objects.filter(place=place, user=request.user).first()
+    if existing_review:
+        messages.warning(
+            request, "Você já avaliou este lugar. Edite sua avaliação existente."
+        )
+        return redirect("explore:place_detail", pk=place.pk)
+
+    if request.method == "POST":
+        form = PlaceReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.place = place
+            review.user = request.user
+            review.save()
+            messages.success(request, "Avaliação enviada com sucesso!")
+            return redirect("explore:place_detail", pk=place.pk)
+    else:
+        form = PlaceReviewForm()
+
+    context = {"form": form, "place": place}
+    return render(request, "explore/review_form.html", context)
+
+
+@login_required
+def review_edit_view(request, pk):
+    """Edit an existing review"""
+    review = get_object_or_404(PlaceReview, pk=pk)
+
+    # Check permissions: owner or admin can edit
+    if review.user != request.user and request.user.user_type != "ADMIN":
+        messages.error(request, "Você não tem permissão para editar esta avaliação.")
+        return redirect("explore:place_detail", pk=review.place.pk)
+
+    if request.method == "POST":
+        form = PlaceReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Avaliação atualizada com sucesso!")
+            return redirect("explore:place_detail", pk=review.place.pk)
+    else:
+        form = PlaceReviewForm(instance=review)
+
+    context = {"form": form, "place": review.place, "review": review}
+    return render(request, "explore/review_form.html", context)
+
+
+@login_required
+def review_delete_view(request, pk):
+    """Delete a review"""
+    review = get_object_or_404(PlaceReview, pk=pk)
+
+    # Check permissions: owner or admin can delete
+    if review.user != request.user and request.user.user_type != "ADMIN":
+        messages.error(request, "Você não tem permissão para excluir esta avaliação.")
+        return redirect("explore:place_detail", pk=review.place.pk)
+
+    place_pk = review.place.pk
+    if request.method == "POST":
+        review.delete()
+        messages.success(request, "Avaliação excluída com sucesso!")
+        return redirect("explore:place_detail", pk=place_pk)
+
+    context = {"review": review}
+    return render(request, "explore/review_delete_confirm.html", context)
