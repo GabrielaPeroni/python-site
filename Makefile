@@ -31,7 +31,7 @@ help:
 	@echo Comandos de Configuracao:
 	@echo   make venv                - Criar ambiente virtual
 	@echo   make install             - Instalar Poetry se nao estiver presente
-	@echo   make env                 - Criar arquivo .env do .env.example
+	@echo   make env                 - Criar arquivo .env com variaveis default
 	@echo   make deps                - Instalar dependencias do projeto
 	@echo   make pre-commit-install  - Instalar hooks do pre-commit
 	@echo   make setup               - Configuracao completa: venv, dependencias, migrate e pre-commit
@@ -84,15 +84,30 @@ endif
 env: ## Criar arquivo .env
 ifeq ($(OS),Windows_NT)
 	@if not exist .env ( \
-		echo Criando arquivo .env... $(SEP) \
-		$(COPY) .env.example .env $(SEP) \
+		echo Criando arquivo .env... && \
+		(echo # Django Settings)> .env && \
+		(echo SECRET_KEY=django-insecure-example-key-for-development-only-change-in-production)>> .env && \
+		(echo DEBUG=True)>> .env && \
+		(echo ALLOWED_HOSTS=localhost,127.0.0.1)>> .env && \
+		(echo.>> .env) && \
+		(echo # Database Settings - SQLite ^(for development^))>> .env && \
+		(echo DB_ENGINE=django.db.backends.sqlite3)>> .env && \
+		(echo DB_NAME=db.sqlite3)>> .env \
 	)
 else
 	@test -f .env || ( \
-		echo Criando arquivo .env... $(SEP) \
-		$(COPY) .env.example .env $(SEP) \
+		echo "Criando arquivo .env..." && \
+		echo "# Django Settings" > .env && \
+		echo "SECRET_KEY=django-insecure-example-key-for-development-only-change-in-production" >> .env && \
+		echo "DEBUG=True" >> .env && \
+		echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env && \
+		echo "" >> .env && \
+		echo "# Database Settings - SQLite (for development)" >> .env && \
+		echo "DB_ENGINE=django.db.backends.sqlite3" >> .env && \
+		echo "DB_NAME=db.sqlite3" >> .env \
 	)
 endif
+
 
 
 check-poetry: ## Verificar se Poetry esta instalado
