@@ -4,7 +4,6 @@
 {% block title %}Cadastro - MaricaCity{% endblock %}
 
 {% block content %}
-<!-- Navigation Bar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background: linear-gradient(to right, #374151, #1f2937) !important;">
   <div class="container-fluid px-4">
     <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
@@ -14,10 +13,10 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
+          <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
+          <a class="nav-link text-uppercase" href="{% url 'core:about' %}">Sobre</a>
         </li>
         <li class="nav-item">
           <a class="btn btn-outline-light btn-sm text-uppercase ms-2" href="{% url 'accounts:login' %}">Entrar</a>
@@ -108,13 +107,11 @@
           </div>
         </form>
 
-        <!-- Divider -->
         <div class="position-relative my-4">
           <hr class="text-muted">
           <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">ou</span>
         </div>
 
-        <!-- Google Sign In -->
         <div class="text-center">
           <div
             id="g_id_onload"

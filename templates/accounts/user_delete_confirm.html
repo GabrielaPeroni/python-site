@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/admin.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+  {% include 'includes/admin_navbar.html' %}
+
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card shadow-lg">
+          <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Exclusão
+            </h4>
+          </div>
+          <div class="card-body p-4">
+            <div class="text-center mb-4">
+              <div class="user-avatar-lg mx-auto mb-3">
+                <i class="bi bi-person-circle"></i>
+              </div>
+              <h5 class="mb-1">{{ user_to_delete.username }}</h5>
+              <p class="text-muted mb-0">{{ user_to_delete.email }}</p>
+              <span class="badge bg-{{ user_to_delete.user_type }} mt-2">
+                {{ user_to_delete.get_user_type_display }}
+              </span>
+            </div>
+
+            <div class="alert alert-warning" role="alert">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              <strong>Atenção!</strong> Esta ação não pode ser desfeita.
+            </div>
+
+            <p class="mb-3">Você está prestes a excluir permanentemente este usuário. Isso irá:</p>
+            <ul class="mb-4">
+              <li>Remover o usuário do sistema</li>
+              <li>Excluir todos os lugares criados por este usuário</li>
+              <li>Excluir todas as avaliações feitas por este usuário</li>
+              <li>Remover todas as interações e favoritos</li>
+            </ul>
+
+            <p class="text-danger fw-bold">Tem certeza que deseja continuar?</p>
+
+            <form method="post" class="d-flex gap-2">
+              {% csrf_token %}
+              <a href="{% url 'accounts:user_management' %}" class="btn btn-secondary flex-fill">
+                <i class="bi bi-x-circle me-1"></i>Cancelar
+              </a>
+              <button type="submit" class="btn btn-danger flex-fill">
+                <i class="bi bi-trash me-1"></i>Sim, Excluir Usuário
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.user-avatar-lg {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: #6c757d;
+}
+
+.user-avatar-sm {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #6c757d;
+}
+</style>
+{% endblock %}

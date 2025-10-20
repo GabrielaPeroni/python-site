@@ -8,52 +8,64 @@
 {% endblock %}
 
 {% block content %}
-<!-- Hero Banner Section with Embedded Navigation -->
-<div class="position-relative bg-dark text-white overflow-hidden d-flex flex-column hero-gradient" style="min-height: 90vh;">
-  <!-- Background overlay -->
+<div id="heroSection" class="position-relative bg-dark text-white overflow-hidden d-flex flex-column hero-gradient" style="min-height: 90vh;">
   <div class="position-absolute top-0 start-0 w-100 h-100 bg-black opacity-25"></div>
 
-  <!-- Navigation Bar (embedded in hero) -->
-  <nav class="navbar navbar-expand-lg navbar-dark position-relative hero-nav">
+  <nav id="navbarLanding" class="navbar navbar-expand-lg navbar-dark position-relative hero-nav">
     <div class="container-fluid px-4">
       <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <button id="navbarToggleLanding" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'core:about' %}">Sobre</a>
+          </li>
           {% if user.is_authenticated %}
-            {% if user.can_create_places %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'explore:favorites' %}">Favoritos</a>
-            </li>
-            {% if user.can_moderate %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'explore:approval_queue' %}">Admin</a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-              <span class="nav-link text-white-50">{{ user.username }}</span>
-            </li>
-            <li class="nav-item">
-              <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
+            <li class="nav-item dropdown">
+              <button class="btn btn-outline-light text-uppercase user-menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+              </button>
+              <div class="dropdown-menu dropdown-menu-end shadow-lg user-dashboard-menu">
+                <div class="user-dashboard-header">
+                  <div class="d-flex align-items-center mb-2">
+                    <div class="user-avatar me-2">
+                      <i class="bi bi-person-circle"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold">{{ user.username }}</div>
+                      <small class="text-muted">{{ user.email|default:"Usuário" }}</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="dropdown-divider my-2"></div>
+                <a class="dropdown-item user-menu-item" href="{% url 'explore:favorites' %}">
+                  <i class="bi bi-heart-fill text-danger me-2"></i>
+                  <span>Meus Favoritos</span>
+                </a>
+                {% if user.can_create_places %}
+                <a class="dropdown-item user-menu-item" href="{% url 'explore:place_create' %}">
+                  <i class="bi bi-plus-circle-fill text-success me-2"></i>
+                  <span>Adicionar Lugar</span>
+                </a>
+                {% endif %}
+                <div class="dropdown-divider my-2"></div>
+                <a class="dropdown-item user-menu-item text-danger" href="{% url 'accounts:logout' %}">
+                  <i class="bi bi-box-arrow-right me-2"></i>
+                  <span>Sair</span>
+                </a>
+              </div>
             </li>
           {% else %}
             <li class="nav-item dropdown">
-              <button class="btn btn-outline-light btn-sm text-uppercase" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <button id="loginDropdownBtn" class="btn btn-outline-light text-uppercase" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Entrar
               </button>
-              <div class="dropdown-menu dropdown-menu-end p-4 shadow-lg dropdown-menu-login">
+              <div id="loginDropdownMenu" class="dropdown-menu dropdown-menu-end p-4 shadow-lg dropdown-menu-login">
                 <h5 class="fw-bold mb-3">Entre na sua conta</h5>
                 <form method="post" action="{% url 'accounts:login' %}" id="landingLoginForm">
                   {% csrf_token %}
@@ -66,7 +78,7 @@
                     <input type="password" class="form-control" id="landingPassword" name="password" required>
                   </div>
                   <div class="d-grid mb-3">
-                    <button type="submit" class="btn btn-dark">Entrar</button>
+                    <button id="landingLoginSubmitBtn" type="submit" class="btn btn-dark">Entrar</button>
                   </div>
                 </form>
                 <div class="text-center border-top pt-3">
@@ -83,34 +95,32 @@
     </div>
   </nav>
 
-  <!-- Hero Content -->
   <div class="position-relative text-center d-flex align-items-center justify-content-center flex-grow-1 hero-overlay">
     <div class="container">
       <div class="d-inline-block bg-black bg-opacity-50 px-5 py-5 rounded hero-content">
         <div class="border-top border-bottom border-white border-2 py-3 px-4 mb-4">
-          <h1 class="display-3 fw-bold text-uppercase">MARICACITY</h1>
+          <h1 id="heroTitle" class="display-3 fw-bold text-uppercase">MARICACITY</h1>
         </div>
-        <p class="fs-5 text-uppercase mb-2">Este é <strong>MaricaCity</strong>, uma plataforma</p>
-        <p class="fs-5 text-uppercase mb-2">gratuita para explorar</p>
-        <p class="fs-5 text-uppercase mb-4">o melhor de <strong>Maricá</strong></p>
+        <p id="heroSubtitle1" class="fs-5 text-uppercase mb-2">Este é <strong>MaricaCity</strong>, uma plataforma</p>
+        <p id="heroSubtitle2" class="fs-5 text-uppercase mb-2">gratuita para explorar</p>
+        <p id="heroSubtitle3" class="fs-5 text-uppercase mb-4">o melhor de <strong>Maricá</strong></p>
         <div class="mt-4">
-          <a href="#featured" class="btn btn-outline-light btn-lg text-uppercase">Saiba Mais</a>
+          <a id="heroCtaBtn" href="#featured" class="btn btn-outline-light btn-lg text-uppercase">Saiba Mais</a>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Trending Places Section -->
 {% if trending_places %}
-<section class="bg-white py-5">
+<section id="trendingSection" class="bg-white py-5">
   <div class="container">
     <div class="text-center mb-5">
-      <h2 class="display-5 fw-bold text-uppercase">Em Alta <span class="text-secondary">Agora</span></h2>
-      <p class="lead text-muted">Destinos populares este mês</p>
+      <h2 id="trendingHeading" class="display-5 fw-bold text-uppercase">Em Alta <span class="text-secondary">Agora</span></h2>
+      <p id="trendingSubheading" class="lead text-muted">Destinos populares este mês</p>
     </div>
 
-    <div class="row g-4">
+    <div id="trendingPlaceGrid" class="row g-4">
       {% for place in trending_places %}
       <div class="col-12 col-sm-6 col-md-4 col-lg-3">
         <div class="card border h-100 card-hover">
@@ -124,7 +134,6 @@
           <div class="card-body">
             <h5 class="card-title fw-bold text-uppercase">{{ place.name }}</h5>
 
-            <!-- Rating Display -->
             {% if place.average_rating %}
             <div class="d-flex align-items-center gap-2 mb-2">
               <span class="text-warning small">
@@ -153,25 +162,22 @@
 </section>
 {% endif %}
 
-<!-- Featured Places Section with Shoelace Carousel -->
-<section class="bg-light py-5" id="featured">
+<section id="featuredSection" class="bg-light py-5">
   {% if featured_places %}
   <div class="container">
     <div class="row align-items-center">
-      <!-- Left: Text Content -->
       <div class="col-12 col-lg-4 mb-4 mb-lg-0">
-        <p class="text-uppercase text-muted small mb-2 featured-heading-subtitle">ONDE IR</p>
-        <h2 class="fw-bold mb-3 featured-heading">Escolha sua própria jornada.</h2>
-        <p class="text-muted mb-4">
+        <p id="featuredSectionSubtitle" class="text-uppercase text-muted small mb-2 featured-heading-subtitle">ONDE IR</p>
+        <h2 id="featuredSectionHeading" class="fw-bold mb-3 featured-heading">Escolha sua própria jornada.</h2>
+        <p id="featuredSectionDescription" class="text-muted mb-4">
           Explore os lugares mais incríveis de Maricá. De praias paradisíacas a experiências culturais únicas,
           há um lugar em Maricá para todos! Descubra o que torna cada um deles único.
         </p>
-        <a href="{% url 'explore:explore' %}" class="btn btn-outline-dark rounded-pill px-4">Veja mais</a>
+        <a id="featuredSectionCta" href="{% url 'explore:explore' %}" class="btn btn-outline-dark rounded-pill px-4">Veja mais</a>
       </div>
 
-      <!-- Right: Swiper Container -->
       <div class="col-12 col-lg-8">
-        <div class="swiper featured-swiper">
+        <div id="featuredSwiper" class="swiper featured-swiper">
           <div class="swiper-wrapper">
             {% for place in featured_places %}
             <div class="swiper-slide swiper-slide-featured">
@@ -233,8 +239,7 @@
   {% endif %}
 </section>
 
-<!-- Categories Overview Section -->
-<section class="bg-white py-5">
+<section id="categoriesSection" class="bg-white py-5">
   <div class="container">
     <div class="text-center mb-5">
       <h2 class="display-5 fw-bold text-uppercase">Explorar por Categoria</h2>
@@ -257,7 +262,6 @@
           </div>
           {% endfor %}
         {% else %}
-          <!-- Default categories placeholder -->
           <div class="col-6 col-md-4 col-lg-3">
             <div class="card border-2 h-100 text-center p-4 card-hover">
               <div class="display-3 mb-3">🍽️</div>
@@ -288,9 +292,8 @@
   </div>
 </section>
 
-<!-- Join CTA Section -->
 {% if not user.is_authenticated %}
-<section class="bg-dark text-white py-5">
+<section id="ctaSection" class="bg-dark text-white py-5">
   <div class="container text-center">
     <h2 class="display-5 fw-bold text-uppercase mb-3">Junte-se à Nossa Comunidade</h2>
     <p class="lead mb-4">Descubra lugares incríveis ou compartilhe seus locais favoritos com outros</p>

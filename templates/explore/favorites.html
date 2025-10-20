@@ -1,52 +1,16 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Meus Favoritos - MaricaCity{% endblock %}
 
-{% block content %}
-<!-- Page Header with Navigation -->
-<div class="bg-dark text-white" style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid px-4">
-      <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
-          </li>
-          {% if user.is_authenticated %}
-            {% if user.can_create_places %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase active border-bottom border-2" href="{% url 'explore:favorites' %}">Favoritos</a>
-            </li>
-            {% if user.can_moderate %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'explore:approval_queue' %}">Admin</a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-              <span class="nav-link text-white-50">{{ user.username }}</span>
-            </li>
-            <li class="nav-item">
-              <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
-            </li>
-          {% endif %}
-        </ul>
-      </div>
-    </div>
-  </nav>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/explore.css' %}">
+{% endblock %}
 
-  <!-- Header Content -->
+{% block content %}
+<div class="bg-dark text-white page-header-gradient">
+  {% include 'includes/navbar.html' with login_form_id='favoritesLoginForm' username_field_id='favoritesUsername' password_field_id='favoritesPassword' %}
+
   <div class="container py-4">
     <div class="text-center">
       <h1 class="h3 fw-bold text-uppercase mb-2">
@@ -114,73 +78,8 @@
   </div>
   {% endif %}
 </div>
+{% endblock %}
 
-<script>
-// Handle favorite button clicks
-document.addEventListener('DOMContentLoaded', function() {
-  const favoriteButtons = document.querySelectorAll('.favorite-btn');
-
-  favoriteButtons.forEach(button => {
-    button.addEventListener('click', async function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const placeId = this.dataset.placeId;
-      const isFavorited = this.dataset.favorited === 'true';
-
-      try {
-        const response = await fetch(`/explore/place/${placeId}/favorite/toggle/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          // Remove the card with animation
-          const card = this.closest('.col-12');
-          card.style.opacity = '0';
-          card.style.transform = 'scale(0.9)';
-          setTimeout(() => {
-            card.remove();
-
-            // Check if no more favorites
-            if (document.querySelectorAll('.favorite-btn').length === 0) {
-              location.reload();
-            }
-          }, 300);
-        }
-      } catch (error) {
-        console.error('Error toggling favorite:', error);
-        alert('Erro ao remover dos favoritos. Tente novamente.');
-      }
-    });
-  });
-});
-
-// Get CSRF token from cookie
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
-</script>
-
-<style>
-.col-12 {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-</style>
+{% block extra_js %}
+<script src="{% static 'js/favorites.js' %}"></script>
 {% endblock %}

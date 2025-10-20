@@ -1,78 +1,16 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Fila de Aprovação - MaricaCity{% endblock %}
 
-{% block content %}
-<!-- Page Header with Navigation -->
-<div class="bg-dark text-white" style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid px-4">
-      <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
-          </li>
-          {% if user.is_authenticated %}
-            {% if user.can_create_places %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
-            </li>
-            {% endif %}
-            {% if user.can_moderate %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase active border-bottom border-white border-2" href="{% url 'explore:approval_queue' %}">Admin</a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-              <span class="nav-link text-white-50">{{ user.username }}</span>
-            </li>
-            <li class="nav-item">
-              <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
-            </li>
-          {% else %}
-            <li class="nav-item dropdown">
-              <button class="btn btn-outline-light btn-sm text-uppercase" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Entrar
-              </button>
-              <div class="dropdown-menu dropdown-menu-end p-4 shadow-lg" style="width: 320px;">
-                <h5 class="fw-bold mb-3">Entre na sua conta</h5>
-                <form method="post" action="{% url 'accounts:login' %}">
-                  {% csrf_token %}
-                  <div class="mb-3">
-                    <label for="admin-username" class="form-label fw-semibold small text-uppercase">Nome de usuário</label>
-                    <input type="text" class="form-control" id="admin-username" name="username" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="admin-password" class="form-label fw-semibold small text-uppercase">Senha</label>
-                    <input type="password" class="form-control" id="admin-password" name="password" required>
-                  </div>
-                  <div class="d-grid mb-3">
-                    <button type="submit" class="btn btn-dark">Entrar</button>
-                  </div>
-                </form>
-                <div class="text-center border-top pt-3">
-                  <p class="text-muted small mb-0">
-                    Não tem uma conta?
-                    <a href="{% url 'accounts:register' %}" class="text-decoration-none fw-semibold">Cadastre-se agora</a>
-                  </p>
-                </div>
-              </div>
-            </li>
-          {% endif %}
-        </ul>
-      </div>
-    </div>
-  </nav>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/admin.css' %}">
+{% endblock %}
 
-  <!-- Header Content -->
+{% block content %}
+<div class="bg-dark text-white" style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
+  {% include 'includes/admin_navbar.html' %}
+
   <div class="container py-4">
     <div class="d-flex align-items-center justify-content-between">
       <div>
@@ -92,7 +30,6 @@
 
 <div class="container py-4">
   <div class="row">
-    <!-- Admin Sidebar -->
     <div class="col-md-3 col-lg-2">
       <div class="card border-0 shadow-sm mb-4 sticky-top" style="top: 20px;">
         <div class="card-body p-0">
@@ -108,17 +45,14 @@
       </div>
     </div>
 
-    <!-- Main Content -->
     <div class="col-md-9 col-lg-10">
 
-  <!-- Pending Places List -->
   {% if pending_places %}
   <div class="row g-4">
     {% for place in pending_places %}
     <div class="col-12">
       <div class="card border-2 shadow-sm hover-shadow">
         <div class="row g-0">
-          <!-- Image Section -->
           <div class="col-md-4">
             {% if place.primary_image %}
             <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="img-fluid rounded-start h-100 w-100" style="object-fit: cover; min-height: 250px;" loading="lazy">
@@ -129,14 +63,11 @@
             {% endif %}
           </div>
 
-          <!-- Content Section -->
           <div class="col-md-8">
             <div class="card-body p-4">
-              <!-- Header -->
               <div class="mb-3">
                 <h2 class="h4 fw-bold text-uppercase mb-2">{{ place.name }}</h2>
 
-                <!-- Categories -->
                 {% if place.categories.exists %}
                 <div class="d-flex flex-wrap gap-2 mb-3">
                   {% for category in place.categories.all %}
@@ -147,35 +78,29 @@
                 </div>
                 {% endif %}
 
-                <!-- Creator Info -->
                 <p class="text-muted small mb-0">
                   Criado por <span class="fw-bold text-dark">{{ place.created_by.username }}</span>
                   • {{ place.created_at|date:"d M, Y" }}
                 </p>
               </div>
 
-              <!-- Description -->
               <div class="mb-3">
                 <p class="text-muted mb-0" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
                   {{ place.description }}
                 </p>
               </div>
 
-              <!-- Address -->
               <div class="mb-4">
                 <p class="text-muted small mb-0">
                   <i class="bi bi-geo-alt-fill me-1"></i><span class="fw-semibold">Localização:</span> {{ place.address }}
                 </p>
               </div>
 
-              <!-- Action Buttons -->
               <div class="d-flex flex-wrap gap-2 pt-3 border-top">
-                <!-- View Details -->
                 <a href="{% url 'explore:place_detail' place.pk %}" class="btn btn-outline-secondary text-uppercase">
                   <i class="bi bi-eye me-2"></i>Ver Detalhes
                 </a>
 
-                <!-- Approve Button -->
                 <form method="post" action="{% url 'explore:approve_place' place.pk %}" class="d-inline">
                   {% csrf_token %}
                   <button type="submit" class="btn btn-success text-uppercase">
@@ -183,7 +108,6 @@
                   </button>
                 </form>
 
-                <!-- Reject Button -->
                 <a href="{% url 'explore:reject_place' place.pk %}" class="btn btn-danger text-uppercase">
                   <i class="bi bi-x-circle me-2"></i>Rejeitar
                 </a>
@@ -196,7 +120,6 @@
     {% endfor %}
   </div>
   {% else %}
-  <!-- Empty State -->
   <div class="card border-2 shadow-sm">
     <div class="card-body text-center py-5">
       <div class="display-1 mb-4">✅</div>
@@ -211,13 +134,4 @@
     </div>
   </div>
 </div>
-
-<style>
-  .hover-shadow {
-    transition: box-shadow 0.3s ease;
-  }
-  .hover-shadow:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-  }
-</style>
 {% endblock %}

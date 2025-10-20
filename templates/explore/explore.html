@@ -8,9 +8,8 @@
 {% endblock %}
 
 {% block content %}
-<!-- Page Header with Navigation -->
 <div class="bg-dark text-white page-header-gradient">
-  <!-- Navigation Bar -->
+
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid px-4">
       <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
@@ -20,30 +19,45 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link text-uppercase active border-bottom border-2" href="{% url 'explore:explore' %}">Explorar</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'core:about' %}">Sobre</a>
+          </li>
           {% if user.is_authenticated %}
-            {% if user.can_create_places %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'explore:favorites' %}">Favoritos</a>
-            </li>
-            {% if user.can_moderate %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'explore:approval_queue' %}">Admin</a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-              <span class="nav-link text-white-50">{{ user.username }}</span>
-            </li>
-            <li class="nav-item">
-              <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
+            <li class="nav-item dropdown">
+              <button class="btn btn-outline-light btn-sm text-uppercase user-menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+              </button>
+              <div class="dropdown-menu dropdown-menu-end shadow-lg user-dashboard-menu">
+                <div class="user-dashboard-header">
+                  <div class="d-flex align-items-center mb-2">
+                    <div class="user-avatar me-2">
+                      <i class="bi bi-person-circle"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold">{{ user.username }}</div>
+                      <small class="text-muted">{{ user.email|default:"Usuário" }}</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="dropdown-divider my-2"></div>
+                <a class="dropdown-item user-menu-item" href="{% url 'explore:favorites' %}">
+                  <i class="bi bi-heart-fill text-danger me-2"></i>
+                  <span>Meus Favoritos</span>
+                </a>
+                {% if user.can_create_places %}
+                <a class="dropdown-item user-menu-item" href="{% url 'explore:place_create' %}">
+                  <i class="bi bi-plus-circle-fill text-success me-2"></i>
+                  <span>Adicionar Lugar</span>
+                </a>
+                {% endif %}
+                <div class="dropdown-divider my-2"></div>
+                <a class="dropdown-item user-menu-item text-danger" href="{% url 'accounts:logout' %}">
+                  <i class="bi bi-box-arrow-right me-2"></i>
+                  <span>Sair</span>
+                </a>
+              </div>
             </li>
           {% else %}
             <li class="nav-item dropdown">
@@ -80,7 +94,6 @@
     </div>
   </nav>
 
-  <!-- Header Content -->
   <div class="container py-4">
     <div class="text-center">
       <h1 class="h3 fw-bold text-uppercase mb-2">
@@ -93,9 +106,16 @@
 
 <div class="container py-5">
   <div class="row">
-    <!-- Category Sidebar Navigation -->
     <div class="col-md-3 col-lg-2">
       <div class="card border-0 shadow-sm mb-4 sidebar-sticky">
+        <div class="card-body p-3">
+          <h6 class="fw-bold text-uppercase small mb-3">Ordenar Por</h6>
+          <select id="sidebarSort" onchange="window.location.href='?sort='+this.value{% if request.GET.q %}+'&q={{ request.GET.q }}'{% endif %}" class="form-select form-select-sm mb-3">
+            <option value="-created_at" {% if current_sort == "-created_at" %}selected{% endif %}>Mais Recentes</option>
+            <option value="name" {% if current_sort == "name" %}selected{% endif %}>Nome (A-Z)</option>
+            <option value="-name" {% if current_sort == "-name" %}selected{% endif %}>Nome (Z-A)</option>
+          </select>
+        </div>
         <div class="card-body p-0">
           <div class="list-group list-group-flush">
             <a href="{% url 'explore:explore' %}" class="list-group-item list-group-item-action active border-0 py-3">
@@ -114,44 +134,33 @@
       </div>
     </div>
 
-    <!-- Main Content Area -->
     <div class="col-md-9 col-lg-10">
 
-  <!-- Search Bar -->
   <div class="mb-4">
     <form method="get" action="{% url 'explore:explore' %}">
-      <div class="input-group input-group-lg">
+      <div class="input-group">
         <span class="input-group-text bg-white border-end-0">
           <i class="bi bi-search"></i>
         </span>
         <input type="search" name="q" class="form-control border-start-0 ps-0" placeholder="Buscar lugares por nome, descrição ou categoria..." value="{{ request.GET.q }}" aria-label="Buscar lugares">
         {% if request.GET.q %}
-        <a href="{% url 'explore:explore' %}" class="btn btn-outline-secondary">
-          <i class="bi bi-x-lg"></i> Limpar
-        </a>
+        <button type="button" onclick="window.location.href='{% url 'explore:explore' %}'" class="btn btn-outline-secondary">
+          <i class="bi bi-x-lg"></i>
+        </button>
         {% endif %}
       </div>
     </form>
   </div>
 
-  <!-- All Places Section with Sorting -->
   <section>
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="display-6 fw-bold text-uppercase mb-0">
+    <div class="mb-4">
+      <h2 class="h4 fw-bold text-uppercase mb-0">
         {% if request.GET.q %}
           Resultados para "{{ request.GET.q }}"
         {% else %}
           Todos os Lugares
         {% endif %}
       </h2>
-      <div class="d-flex align-items-center gap-2">
-        <label for="sort" class="text-muted small mb-0">Ordenar por:</label>
-        <select id="sort" onchange="window.location.href='?sort='+this.value{% if request.GET.q %}+'&q={{ request.GET.q }}'{% endif %}" class="form-select form-select-sm">
-          <option value="-created_at" {% if current_sort == "-created_at" %}selected{% endif %}>Mais Recentes</option>
-          <option value="name" {% if current_sort == "name" %}selected{% endif %}>Nome (A-Z)</option>
-          <option value="-name" {% if current_sort == "-name" %}selected{% endif %}>Nome (Z-A)</option>
-        </select>
-      </div>
     </div>
 
     {% if all_places %}
@@ -194,7 +203,6 @@
     {% endif %}
   </section>
 
-  <!-- Floating Add Button for Creation Users -->
   {% if user.is_authenticated and user.can_create_places %}
   <a href="{% url 'explore:place_create' %}"
      class="btn btn-dark rounded-circle position-fixed bottom-0 end-0 m-4 shadow-lg floating-add-button"

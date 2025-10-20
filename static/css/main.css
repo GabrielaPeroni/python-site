@@ -75,17 +75,32 @@ h6 {
 a {
   text-decoration: none;
   color: inherit;
-  transition: color var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 a:hover {
   color: var(--secondary-color);
 }
 
+/* Link animations */
+a.nav-link {
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+a.nav-link:hover {
+  transform: translateY(-1px);
+}
+
 img {
   max-width: 100%;
   height: auto;
   display: block;
+  transition: transform var(--transition-normal);
+}
+
+img:hover {
+  transform: scale(1.02);
 }
 
 /* Utility Classes */
@@ -163,6 +178,79 @@ img {
   animation: fadeIn var(--transition-slow) ease-out;
 }
 
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bounce-on-hover:hover {
+  animation: bounce 0.6s ease;
+}
+
+.pulse-on-hover:hover {
+  animation: pulse 0.5s ease;
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.5s ease-out;
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
 /* Responsive Typography */
 @media (max-width: 768px) {
   h1 {
@@ -182,21 +270,48 @@ img {
 .btn-primary {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
+  transition: all var(--transition-normal);
 }
 
 .btn-primary:hover {
   background-color: var(--secondary-color);
   border-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .btn-outline-dark {
   border-width: 2px;
   font-weight: 600;
+  transition: all var(--transition-normal);
 }
 
 .btn-outline-dark:hover {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-outline-dark:active {
+  transform: translateY(0);
+}
+
+/* General button animations */
+.btn {
+  transition: all var(--transition-fast);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: scale(0.98);
 }
 
 /* Card Styling */
@@ -209,4 +324,181 @@ img {
 
 .card:hover {
   box-shadow: var(--shadow-md);
+}
+
+/* Navbar Alignment Fix - Accounts for 1px border on buttons */
+.navbar-nav .btn {
+  padding: 7px 12px !important;
+  line-height: 1.6 !important;
+}
+
+/* Floating Admin Button */
+.floating-admin-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  text-decoration: none;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all var(--transition-normal);
+  z-index: 1000;
+  opacity: 0.85;
+}
+
+.floating-admin-btn:hover {
+  opacity: 1;
+  transform: scale(1.05) translateY(-2px);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.3);
+  color: white;
+}
+
+.floating-admin-btn:active {
+  transform: scale(0.98);
+}
+
+.floating-admin-btn i {
+  animation: slowSpin 8s linear infinite;
+}
+
+.floating-admin-btn:hover i {
+  animation: slowSpin 2s linear infinite;
+}
+
+@keyframes slowSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .floating-admin-btn {
+    width: 48px;
+    height: 48px;
+    bottom: 16px;
+    right: 16px;
+    font-size: 20px;
+  }
+}
+
+/* User Dashboard Menu */
+.user-dashboard-menu {
+  min-width: 280px;
+  border: none;
+  border-radius: var(--border-radius-md);
+  padding: 0;
+  overflow: hidden;
+}
+
+.user-dashboard-header {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  color: white;
+  padding: 1rem;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.user-dashboard-header .text-muted {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 0.75rem;
+}
+
+.user-menu-item {
+  padding: 0.75rem 1rem;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.user-menu-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(4px);
+}
+
+.user-menu-item i {
+  font-size: 1.1rem;
+  width: 24px;
+}
+
+.user-menu-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Badge animations */
+.badge {
+  transition: all var(--transition-fast);
+}
+
+.badge:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Icon animations */
+.bi {
+  transition: transform var(--transition-fast);
+}
+
+a:hover .bi,
+button:hover .bi {
+  transform: scale(1.15);
+}
+
+/* Category card animations */
+.card-hover {
+  transition:
+    transform var(--transition-normal),
+    box-shadow var(--transition-normal),
+    background-color var(--transition-fast);
+}
+
+.card-hover:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-lg);
+  background-color: rgba(248, 249, 250, 0.5);
+}
+
+.card-hover:active {
+  transform: translateY(-4px) scale(1.01);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Input focus animations */
+.form-control:focus,
+.form-select:focus {
+  transform: scale(1.01);
+  transition: all var(--transition-fast);
+}
+
+/* Dropdown animations */
+.dropdown-menu {
+  animation: fadeInUp 0.3s ease-out;
 }

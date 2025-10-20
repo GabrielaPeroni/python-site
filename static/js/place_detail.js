@@ -165,23 +165,31 @@ function confirmDeleteReview() {
 
 /**
  * Initialize favorite button functionality
- * @param {string} placeId - Place ID
+ * Auto-initializes on DOMContentLoaded
  */
-function initializeFavoriteButton(placeId) {
+function initializeFavoriteButton() {
   const favoriteBtn = document.getElementById('favoriteBtn');
   if (!favoriteBtn) return;
+
+  const placeId = favoriteBtn.dataset.placeId;
+  if (!placeId) return;
 
   // Add transition
   favoriteBtn.style.transition = 'transform 0.2s ease';
 
-  favoriteBtn.addEventListener('click', async function () {
+  favoriteBtn.addEventListener('click', async function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
     const isFavorited = this.dataset.favorited === 'true';
 
     try {
+      const csrfToken = getCookie('csrftoken');
+
       const response = await fetch(`/explore/place/${placeId}/favorite/toggle/`, {
         method: 'POST',
         headers: {
-          'X-CSRFToken': getCookie('csrftoken'),
+          'X-CSRFToken': csrfToken,
           'Content-Type': 'application/json',
         },
       });
@@ -216,10 +224,14 @@ function initializeFavoriteButton(placeId) {
   });
 }
 
+// Auto-initialize on page load
+document.addEventListener('DOMContentLoaded', function () {
+  initializeFavoriteButton();
+});
+
 // Export functions for global use
 window.resetReviewForm = resetReviewForm;
 window.editReview = editReview;
 window.submitReview = submitReview;
 window.deleteReview = deleteReview;
 window.confirmDeleteReview = confirmDeleteReview;
-window.initializeFavoriteButton = initializeFavoriteButton;

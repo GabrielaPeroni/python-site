@@ -3,76 +3,14 @@
 
 {% block title %}{{ title }} - MaricaCity{% endblock %}
 
-{% block content %}
-<!-- Navigation Bar -->
-<div class="bg-dark text-white" style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid px-4">
-      <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link text-uppercase" href="{% url 'core:landing' %}">Início</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
-          </li>
-          {% if user.is_authenticated %}
-            {% if user.can_create_places %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase active border-bottom border-white border-2" href="{% url 'explore:place_create' %}">Adicionar Lugar</a>
-            </li>
-            {% endif %}
-            {% if user.can_moderate %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'explore:approval_queue' %}">Admin</a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-              <span class="nav-link text-white-50">{{ user.username }}</span>
-            </li>
-            <li class="nav-item">
-              <a class="btn btn-outline-light btn-sm text-uppercase" href="{% url 'accounts:logout' %}">Sair</a>
-            </li>
-          {% else %}
-            <li class="nav-item dropdown">
-              <button class="btn btn-outline-light btn-sm text-uppercase" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Entrar
-              </button>
-              <div class="dropdown-menu dropdown-menu-end p-4 shadow-lg" style="width: 320px;">
-                <h5 class="fw-bold mb-3">Entre na sua conta</h5>
-                <form method="post" action="{% url 'accounts:login' %}">
-                  {% csrf_token %}
-                  <div class="mb-3">
-                    <label for="form-username" class="form-label fw-semibold small text-uppercase">Nome de usuário</label>
-                    <input type="text" class="form-control" id="form-username" name="username" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="form-password" class="form-label fw-semibold small text-uppercase">Senha</label>
-                    <input type="password" class="form-control" id="form-password" name="password" required>
-                  </div>
-                  <div class="d-grid mb-3">
-                    <button type="submit" class="btn btn-dark">Entrar</button>
-                  </div>
-                </form>
-                <div class="text-center border-top pt-3">
-                  <p class="text-muted small mb-0">
-                    Não tem uma conta?
-                    <a href="{% url 'accounts:register' %}" class="text-decoration-none fw-semibold">Cadastre-se agora</a>
-                  </p>
-                </div>
-              </div>
-            </li>
-          {% endif %}
-        </ul>
-      </div>
-    </div>
-  </nav>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/place_form.css' %}">
+{% endblock %}
 
-  <!-- Header Content -->
+{% block content %}
+<div class="bg-dark text-white page-header-gradient">
+  {% include 'includes/navbar.html' with login_form_id='placeFormLoginForm' username_field_id='placeFormUsername' password_field_id='placeFormPassword' %}
+
   <div class="container py-4">
     <div class="text-center">
       <h1 class="h3 fw-bold text-uppercase mb-2">
@@ -87,7 +25,6 @@
 
 <div class="bg-light py-5">
   <div class="container" style="max-width: 900px;">
-    <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'core:landing' %}" class="text-decoration-none text-dark">Início</a></li>
@@ -96,12 +33,10 @@
       </ol>
     </nav>
 
-    <!-- Form -->
     <div class="card shadow">
       <form method="post" enctype="multipart/form-data" id="place-form">
         {% csrf_token %}
 
-        <!-- Display form errors -->
         {% if form.non_field_errors %}
         <div class="alert alert-danger m-4" role="alert">
           <div class="d-flex align-items-start">
@@ -114,13 +49,11 @@
         </div>
         {% endif %}
 
-        <!-- Place Information Section -->
         <div class="card-body p-5">
           <h2 class="h5 fw-bold mb-4 text-uppercase">
             <i class="bi bi-info-circle me-2"></i>Informações Básicas
           </h2>
 
-          <!-- Name Field -->
           <div class="mb-5">
             <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold text-uppercase small mb-2">
               Nome do Lugar <span class="text-danger">*</span>
@@ -134,7 +67,6 @@
             <div class="form-text mt-2">Ex: Praia de Maricá, Restaurante do João, etc.</div>
           </div>
 
-          <!-- Description Field -->
           <div class="mb-5">
             <label for="{{ form.description.id_for_label }}" class="form-label fw-semibold text-uppercase small mb-2">
               Descrição <span class="text-danger">*</span>
@@ -148,7 +80,6 @@
             <div class="form-text mt-2">Conte o que torna este lugar especial e único</div>
           </div>
 
-          <!-- Address Field -->
           <div class="mb-5">
             <label for="{{ form.address.id_for_label }}" class="form-label fw-semibold text-uppercase small mb-2">
               Endereço <span class="text-danger">*</span>
@@ -162,7 +93,6 @@
             <div class="form-text mt-2">Endereço completo do local para facilitar a localização</div>
           </div>
 
-          <!-- Categories Field -->
           <div class="mb-0">
             <label class="form-label fw-semibold text-uppercase small mb-3">
               Categorias <span class="text-danger">*</span>
@@ -192,28 +122,24 @@
 
         <hr class="m-0">
 
-        <!-- Images Section -->
         <div class="card-body p-5">
           <div class="mb-4">
             <h2 class="h5 fw-bold text-uppercase mb-2">
               <i class="bi bi-camera me-2"></i>Fotos do Lugar
             </h2>
-            <p class="text-muted">Adicione até 10 fotos. A primeira imagem será destacada automaticamente.</p>
+            <p class="text-muted">Adicione até 3 fotos. A primeira imagem será destacada automaticamente.</p>
           </div>
 
           {{ formset.management_form }}
 
-          <!-- Display formset errors -->
           {% if formset.non_form_errors %}
           <div class="alert alert-danger mb-4" role="alert">
             {{ formset.non_form_errors }}
           </div>
           {% endif %}
 
-          <!-- Image Preview Grid -->
           <div id="image-preview-grid" class="row g-3 mb-4"></div>
 
-          <!-- Upload Button -->
           <div class="mb-4">
             <button type="button" id="add-image-btn" class="btn btn-outline-dark w-100 py-3 rounded">
               <i class="bi bi-plus-circle me-2"></i>
@@ -221,7 +147,6 @@
             </button>
           </div>
 
-          <!-- Hidden formset container -->
           <div id="formset-container" class="d-none">
             {% for form_instance in formset %}
             <div class="formset-form" data-form-index="{{ forloop.counter0 }}">
@@ -238,7 +163,6 @@
 
         <hr class="m-0">
 
-        <!-- Form Actions -->
         <div class="card-body p-4 bg-light">
           <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
             <a href="{% if place %}{% url 'explore:place_detail' place.pk %}{% else %}{% url 'explore:explore' %}{% endif %}"
@@ -264,7 +188,6 @@
       </form>
     </div>
 
-    <!-- Help Text -->
     <div class="alert alert-info mt-4">
       <div class="d-flex align-items-start">
         <i class="bi bi-info-circle-fill me-3 fs-5"></i>
@@ -283,172 +206,6 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const previewGrid = document.getElementById('image-preview-grid');
-  const addImageBtn = document.getElementById('add-image-btn');
-  const formsetContainer = document.getElementById('formset-container');
-  const formsetForms = formsetContainer.querySelectorAll('.formset-form');
-  let imageCount = 0;
-  const MAX_IMAGES = 10;
-
-  // Initialize with existing images
-  formsetForms.forEach((formDiv, index) => {
-    const imageInput = formDiv.querySelector('input[type="file"]');
-    const deleteInput = formDiv.querySelector('input[name*="DELETE"]');
-    const imageField = formDiv.querySelector('input[name*="image"]');
-
-    if (imageField && imageField.value && !deleteInput.checked) {
-      imageCount++;
-      const existingImageUrl = imageField.dataset.url || imageField.value;
-      if (existingImageUrl) {
-        createPreviewCard(existingImageUrl, index, true);
-      }
-    }
-  });
-
-  addImageBtn.addEventListener('click', function() {
-    if (imageCount >= MAX_IMAGES) {
-      alert(`Você pode adicionar no máximo ${MAX_IMAGES} imagens.`);
-      return;
-    }
-
-    let targetFormIndex = -1;
-    formsetForms.forEach((formDiv, index) => {
-      if (targetFormIndex === -1) {
-        const deleteInput = formDiv.querySelector('input[name*="DELETE"]');
-        const imageInput = formDiv.querySelector('input[type="file"]');
-        if (!deleteInput.checked && !imageInput.files.length) {
-          targetFormIndex = index;
-        }
-      }
-    });
-
-    if (targetFormIndex === -1) {
-      alert('Não há mais espaço para novas imagens.');
-      return;
-    }
-
-    const formDiv = formsetForms[targetFormIndex];
-    const imageInput = formDiv.querySelector('input[type="file"]');
-    imageInput.click();
-
-    imageInput.onchange = function(e) {
-      const file = e.target.files[0];
-      if (file && file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          createPreviewCard(event.target.result, targetFormIndex, false);
-          imageCount++;
-          updateButtonState();
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-  });
-
-  function createPreviewCard(imageSrc, formIndex, isExisting) {
-    const col = document.createElement('div');
-    col.className = 'col-6 col-md-4';
-    col.dataset.formIndex = formIndex;
-
-    col.innerHTML = `
-      <div class="card position-relative">
-        <img src="${imageSrc}" class="card-img-top" style="height: 150px; object-fit: cover;" loading="lazy">
-        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 remove-image" data-form-index="${formIndex}">
-          <i class="bi bi-trash"></i>
-        </button>
-        ${formIndex === 0 ? '<span class="badge bg-primary position-absolute top-0 start-0 m-2">Principal</span>' : ''}
-      </div>
-    `;
-
-    previewGrid.appendChild(col);
-
-    const removeBtn = col.querySelector('.remove-image');
-    removeBtn.addEventListener('click', function() {
-      removeImage(formIndex, col);
-    });
-  }
-
-  function removeImage(formIndex, cardElement) {
-    const formDiv = formsetForms[formIndex];
-    const deleteInput = formDiv.querySelector('input[name*="DELETE"]');
-    const imageInput = formDiv.querySelector('input[type="file"]');
-
-    if (deleteInput) {
-      deleteInput.checked = true;
-    }
-
-    if (imageInput) {
-      imageInput.value = '';
-    }
-
-    cardElement.remove();
-    imageCount--;
-    updateButtonState();
-  }
-
-  function updateButtonState() {
-    if (imageCount >= MAX_IMAGES) {
-      addImageBtn.disabled = true;
-      addImageBtn.classList.add('disabled');
-      addImageBtn.querySelector('span').textContent = 'Limite de fotos atingido';
-    } else {
-      addImageBtn.disabled = false;
-      addImageBtn.classList.remove('disabled');
-      addImageBtn.querySelector('span').textContent = 'Adicionar Fotos';
-    }
-  }
-
-  updateButtonState();
-
-  // Set display order and primary automatically
-  document.getElementById('place-form').addEventListener('submit', function(e) {
-    const previewCards = previewGrid.querySelectorAll('[data-form-index]');
-    previewCards.forEach((card, index) => {
-      const formIndex = card.dataset.formIndex;
-      const formDiv = formsetForms[formIndex];
-      const orderInput = formDiv.querySelector('input[name*="display_order"]');
-      const primaryInput = formDiv.querySelector('input[name*="is_primary"]');
-
-      if (orderInput) orderInput.value = index;
-      if (primaryInput) primaryInput.checked = (index === 0);
-    });
-  });
-});
-</script>
-
-<style>
-  .form-control, .form-select {
-    border-radius: 0.375rem;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    border: 2px solid #e5e7eb;
-    transition: all 0.2s ease;
-  }
-
-  .form-control:focus, .form-select:focus {
-    border-color: #374151;
-    box-shadow: 0 0 0 0.2rem rgba(55, 65, 81, 0.1);
-  }
-
-  textarea.form-control {
-    min-height: 150px;
-  }
-
-  .hover-bg-light:hover {
-    background-color: #f3f4f6;
-  }
-
-  .form-check-input:checked {
-    background-color: #374151;
-    border-color: #374151;
-  }
-
-  .form-label {
-    color: #374151;
-    letter-spacing: 0.05em;
-  }
-</style>
+{% block extra_js %}
+<script src="{% static 'js/place_form.js' %}"></script>
 {% endblock %}

@@ -44,13 +44,30 @@
 }
 
 /* Place Detail Specific */
+.place-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 .place-detail-image {
-  height: 500px;
+  height: 400px;
   object-fit: cover;
 }
 
 .place-detail-placeholder {
-  height: 500px;
+  height: 400px;
+}
+
+.place-detail-title {
+  font-size: 2.5rem;
+}
+
+.place-detail-section {
+  font-size: 0.95rem;
+}
+
+.place-detail-section h2 {
+  font-size: 1.5rem;
 }
 
 .favorite-heart-icon {
@@ -59,6 +76,8 @@
   top: 20px;
   right: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  z-index: 10;
 }
 
 /* Rating Stars */
@@ -75,6 +94,28 @@
 }
 
 .rating-star-input:checked ~ .rating-star-label {
+  color: #ffc107;
+}
+
+/* Star Rating Container (for review forms) */
+.star-rating-container .form-check-input {
+  display: none;
+}
+
+.star-rating-container .star-label {
+  cursor: pointer;
+  font-size: 2rem;
+  color: #ddd;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.star-rating-container .star-label:hover,
+.star-rating-container .star-label:hover ~ .star-label {
+  color: #ffc107;
+}
+
+.star-rating-container .form-check-input:checked ~ .star-label {
   color: #ffc107;
 }
 
@@ -107,11 +148,15 @@
 @media (max-width: 768px) {
   .place-detail-image,
   .place-detail-placeholder {
-    height: 300px;
+    height: 250px;
   }
 
   .favorite-heart-icon {
     width: 40px;
     height: 40px;
+  }
+
+  .place-detail-title {
+    font-size: 2rem;
   }
 }

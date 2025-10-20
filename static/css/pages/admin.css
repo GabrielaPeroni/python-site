@@ -1,0 +1,175 @@
+/* ==========================================================================
+   Admin Pages Styles
+   Styles for approval queue, backlog, and other admin pages
+   ========================================================================== */
+
+/* Hover Effects */
+.hover-shadow {
+  transition: box-shadow 0.3s ease;
+}
+
+.hover-shadow:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Admin Navigation */
+.admin-nav {
+  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+}
+
+/* Place Cards */
+.admin-place-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-place-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Status Badges */
+.status-badge-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge-approved {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Filter Sidebar */
+.filter-sidebar {
+  position: sticky;
+  top: 20px;
+}
+
+/* Stats Cards */
+.stats-card {
+  border-left: 4px solid var(--primary-color);
+  transition: transform 0.2s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+}
+
+/* User Management Styles */
+.admin-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+}
+
+.admin-title {
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.stat-card {
+  background: white;
+  border-radius: var(--border-radius-md);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  height: 100%;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  color: white;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.stat-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.user-avatar-sm {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #6c757d;
+  flex-shrink: 0;
+}
+
+.table > :not(caption) > * > * {
+  padding: 1rem 0.75rem;
+}
+
+.table tbody tr {
+  transition: all var(--transition-fast);
+}
+
+.table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+  transform: scale(1.01);
+}
+
+.user-type-select {
+  min-width: 140px;
+  transition: all var(--transition-fast);
+}
+
+.user-type-select:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.badge {
+  padding: 0.4rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.btn-group .btn {
+  transition: all var(--transition-fast);
+}
+
+.btn-group .btn:hover {
+  transform: scale(1.1);
+  z-index: 1;
+}

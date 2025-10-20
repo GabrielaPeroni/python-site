@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/admin.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+  {% include 'includes/admin_navbar.html' %}
+
+  <div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="admin-title">
+        <i class="bi bi-people-fill me-2"></i>Gerenciamento de Usuários
+      </h1>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <form method="get" class="row g-3">
+          {% csrf_token %}
+          <div class="col-md-3">
+            <label for="userTypeFilter" class="form-label">Tipo de Usuário</label>
+            <select class="form-select" id="userTypeFilter" name="user_type">
+              <option value="">Todos os tipos</option>
+              {% for value, label in user_type_choices %}
+                <option value="{{ value }}" {% if user_type_filter == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="statusFilter" class="form-label">Status</label>
+            <select class="form-select" id="statusFilter" name="status">
+              <option value="">Todos os status</option>
+              <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Ativo</option>
+              <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inativo</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="searchQuery" class="form-label">Pesquisar</label>
+            <input type="text" class="form-control" id="searchQuery" name="q" value="{{ search_query }}" placeholder="Nome, email, username...">
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="bi bi-search me-1"></i>Filtrar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Usuário</th>
+                <th>Tipo</th>
+                <th>Status</th>
+                <th>Membro desde</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user_item in users %}
+              <tr id="user-row-{{ user_item.id }}">
+                <td>
+                  <div class="fw-bold">{{ user_item.username }}</div>
+                  <small class="text-muted">{{ user_item.email|default:"-" }}</small>
+                </td>
+                <td>
+                  <select class="form-select form-select-sm user-type-select"
+                          data-user-id="{{ user_item.id }}"
+                          {% if user_item == user %}disabled{% endif %}>
+                    {% for value, label in user_type_choices %}
+                      <option value="{{ value }}" {% if user_item.user_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <span class="badge status-badge-{{ user_item.id }} {% if user_item.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                    {% if user_item.is_active %}Ativo{% else %}Inativo{% endif %}
+                  </span>
+                </td>
+                <td>
+                  <small class="text-muted">{{ user_item.created_at|date:"d/m/Y" }}</small>
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <button type="button"
+                            class="btn btn-sm btn-outline-primary toggle-status-btn"
+                            data-user-id="{{ user_item.id }}"
+                            {% if user_item == user %}disabled title="Você não pode modificar sua própria conta"{% endif %}>
+                      <i class="bi bi-{% if user_item.is_active %}x-circle{% else %}check-circle{% endif %}"></i>
+                    </button>
+                    <a href="{% url 'accounts:user_delete' user_item.id %}"
+                       class="btn btn-sm btn-outline-danger"
+                       {% if user_item == user %}onclick="return false;" style="opacity: 0.5; cursor: not-allowed;" title="Você não pode excluir sua própria conta"{% endif %}>
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center py-4">
+                  <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                  <p class="text-muted mt-2 mb-0">Nenhum usuário encontrado</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/components/user_management.js' %}"></script>
+{% endblock %}

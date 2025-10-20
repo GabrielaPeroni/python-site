@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sobre o Projeto - MaricaCity{% endblock %}
+
+{% block content %}
+{% include 'includes/navbar.html' with active_page='about' navbar_class='bg-dark' navbar_style='background: linear-gradient(to right, #374151, #1f2937) !important;' login_form_id='aboutLoginForm' username_field_id='aboutUsername' password_field_id='aboutPassword' %}
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-uppercase mb-3">Sobre o MaricaCity</h1>
+        <p class="lead text-muted">Conectando pessoas aos melhores lugares de Maricá</p>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4 p-md-5">
+          <h2 class="h4 fw-bold text-uppercase mb-4">Nossa Missão</h2>
+          <p class="text-muted lh-lg mb-4">
+            O MaricaCity é uma plataforma comunitária dedicada a ajudar moradores e visitantes a descobrir
+            os lugares mais incríveis que Maricá tem a oferecer. Desde praias paradisíacas até restaurantes
+            autênticos, nossa missão é conectar pessoas aos melhores destinos da cidade.
+          </p>
+
+          <h2 class="h4 fw-bold text-uppercase mb-4">Como Funciona</h2>
+          <p class="text-muted lh-lg mb-4">
+            Nossa comunidade compartilha suas experiências e descobertas, criando um guia colaborativo e
+            sempre atualizado. Cada lugar é cuidadosamente avaliado pela comunidade, garantindo que você
+            tenha as melhores recomendações.
+          </p>
+
+          <h2 class="h4 fw-bold text-uppercase mb-4">Faça Parte</h2>
+          <p class="text-muted lh-lg mb-0">
+            Cadastre-se gratuitamente e comece a explorar, avaliar e compartilhar seus lugares favoritos.
+            Juntos, estamos construindo o melhor guia turístico de Maricá!
+          </p>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <a href="{% url 'explore:explore' %}" class="btn btn-dark btn-lg text-uppercase px-5">
+          <i class="bi bi-compass me-2"></i>Começar a Explorar
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
