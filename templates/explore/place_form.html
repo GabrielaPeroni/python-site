@@ -85,12 +85,16 @@
               Endereço <span class="text-danger">*</span>
             </label>
             {{ form.address }}
+            {{ form.latitude }}
+            {{ form.longitude }}
             {% if form.address.errors %}
             <div class="text-danger small mt-2">
               <i class="bi bi-exclamation-circle me-1"></i>{{ form.address.errors.0 }}
             </div>
             {% endif %}
-            <div class="form-text mt-2">Endereço completo do local para facilitar a localização</div>
+            <div class="form-text mt-2">
+              <i class="bi bi-pin-map me-1"></i>Comece a digitar e selecione o endereço da lista para capturar a localização automaticamente
+            </div>
           </div>
 
           <div class="mb-0">
@@ -208,4 +212,6 @@
 
 {% block extra_js %}
 <script src="{% static 'js/place_form.js' %}"></script>
+<script src="{% static 'js/components/address_autocomplete.js' %}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places&callback=initAutocomplete&loading=async" async defer></script>
 {% endblock %}

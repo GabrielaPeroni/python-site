@@ -11,6 +11,8 @@ class PlaceForm(forms.ModelForm):
             "name",
             "description",
             "address",
+            "latitude",
+            "longitude",
             "categories",
         ]
         widgets = {
@@ -30,10 +32,12 @@ class PlaceForm(forms.ModelForm):
             "address": forms.Textarea(
                 attrs={
                     "class": "form-control",
-                    "placeholder": "Endereço completo",
+                    "placeholder": "Comece a digitar o endereço...",
                     "rows": 3,
                 }
             ),
+            "latitude": forms.HiddenInput(),
+            "longitude": forms.HiddenInput(),
             "categories": forms.CheckboxSelectMultiple(
                 attrs={"class": "form-check-input"}
             ),

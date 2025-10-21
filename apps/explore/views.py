@@ -4,6 +4,8 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
+from django_ratelimit.decorators import ratelimit
+
 from .forms import PlaceForm, PlaceImageFormSet, PlaceReviewForm
 from .models import Category, Favorite, Place, PlaceApproval, PlaceReview
 
@@ -137,6 +139,8 @@ def place_detail_view(request, pk):
     # Get favorites count
     favorites_count = place.favorited_by.count()
 
+    from django.conf import settings
+
     context = {
         "place": place,
         "related_places": related_places,
@@ -145,11 +149,13 @@ def place_detail_view(request, pk):
         "user_review": user_review,
         "is_favorited": is_favorited,
         "favorites_count": favorites_count,
+        "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY,
     }
     return render(request, "explore/place_detail.html", context)
 
 
 @login_required
+@ratelimit(key="user", rate="5/h", method="POST", block=True)
 def place_create_view(request):
     """Create a new place (creation-users and admin only)"""
 
@@ -200,16 +206,20 @@ def place_create_view(request):
         form = PlaceForm()
         formset = PlaceImageFormSet()
 
+    from django.conf import settings
+
     context = {
         "form": form,
         "formset": formset,
         "title": "Adicionar Novo Lugar",
         "submit_text": "Enviar para Aprovação",
+        "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY,
     }
     return render(request, "explore/place_form.html", context)
 
 
 @login_required
+@ratelimit(key="user", rate="10/h", method="POST", block=True)
 def place_update_view(request, pk):
     """Update an existing place (owner or admin only)"""
 
@@ -255,12 +265,15 @@ def place_update_view(request, pk):
         form = PlaceForm(instance=place)
         formset = PlaceImageFormSet(instance=place)
 
+    from django.conf import settings
+
     context = {
         "form": form,
         "formset": formset,
         "place": place,
         "title": f"Editar {place.name}",
         "submit_text": "Salvar Alterações",
+        "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY,
     }
     return render(request, "explore/place_form.html", context)
 

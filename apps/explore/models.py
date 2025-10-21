@@ -52,6 +52,22 @@ class Place(models.Model):
 
     address = models.TextField(help_text="Full address of the place")
 
+    # Location coordinates
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Latitude coordinate",
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Longitude coordinate",
+    )
+
     # Relationships
     categories = models.ManyToManyField(
         Category,

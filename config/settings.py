@@ -25,10 +25,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Third-party apps
+    "django_ratelimit",
     # Local apps
     "apps.core",
     "apps.accounts",
     "apps.explore",
+    "apps.news",
 ]
 
 MIDDLEWARE = [
@@ -94,6 +97,15 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Cache configuration for rate limiting
+# NOTE: For production, use Redis or Memcached for proper rate limiting across multiple processes
+# For development/single-process deployments, LocMemCache is acceptable
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "ratelimit-cache",
+    }
+}
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -121,3 +133,15 @@ GOOGLE_OAUTH_CLIENT_ID = config(
     "GOOGLE_OAUTH_CLIENT_ID",
     default="1062198658291-pojte2j0736qudd9ajcv1snsngqa9eak.apps.googleusercontent.com",
 )
+
+# Google Maps API
+GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
+
+# Rate Limiting (to prevent API abuse)
+RATELIMIT_ENABLE = config("RATELIMIT_ENABLE", default=True, cast=bool)
+RATELIMIT_USE_CACHE = "default"  # Use default cache for rate limiting
+RATELIMIT_VIEW = "apps.explore.ratelimit_handlers.ratelimited_error"
+
+# Silence django-ratelimit warnings for LocMemCache in development
+# For production with multiple processes, switch to Redis or Memcached
+SILENCED_SYSTEM_CHECKS = ["django_ratelimit.E003", "django_ratelimit.W001"]

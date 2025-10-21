@@ -9,6 +9,10 @@
 
 {% block extra_js %}
 <script src="{% static 'js/place_detail.js' %}"></script>
+<script src="{% static 'js/components/place_map.js' %}"></script>
+{% if place.latitude and place.longitude %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&callback=initPlaceMap&loading=async" async defer></script>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -91,9 +95,23 @@
 
           <div class="mb-4">
             <h2 class="fs-4 fw-bold text-uppercase mb-3">Localização</h2>
-            <p class="text-muted lh-lg">
+            <p class="text-muted lh-lg mb-3">
               <i class="bi bi-geo-alt-fill me-2"></i>{{ place.address }}
             </p>
+
+            {% if place.latitude and place.longitude %}
+            <div id="place-map"
+                 data-latitude="{{ place.latitude }}"
+                 data-longitude="{{ place.longitude }}"
+                 data-place-name="{{ place.name }}"
+                 style="height: 300px; border-radius: 8px; border: 2px solid #dee2e6;">
+            </div>
+            {% else %}
+            <div class="alert alert-info mb-0">
+              <i class="bi bi-info-circle me-2"></i>
+              Mapa não disponível - coordenadas não cadastradas
+            </div>
+            {% endif %}
           </div>
 
           {% if can_edit %}

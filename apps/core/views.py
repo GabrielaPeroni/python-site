@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
@@ -33,6 +34,7 @@ def landing_view(request):
         "featured_places": featured_places,
         "trending_places": trending_places,
         "categories": categories,
+        "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY,
     }
     return render(request, "core/landing.html", context)
 

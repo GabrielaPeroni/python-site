@@ -1,11 +1,13 @@
 from django.urls import path
 
-from . import views
+from . import api, views
 
 app_name = "explore"
 
 urlpatterns = [
     path("", views.explore_view, name="explore"),
+    # API endpoints
+    path("api/map-data/", api.map_data_api, name="map_data_api"),
     path("category/<slug:slug>/", views.category_detail_view, name="category_detail"),
     path("place/<int:pk>/", views.place_detail_view, name="place_detail"),
     path("place/create/", views.place_create_view, name="place_create"),

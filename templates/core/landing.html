@@ -4,113 +4,190 @@
 {% block title %}MaricaCity - Descubra o Turismo Local{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 <link rel="stylesheet" href="{% static 'css/pages/landing.css' %}">
 {% endblock %}
 
 {% block content %}
-<div id="heroSection" class="position-relative bg-dark text-white overflow-hidden d-flex flex-column hero-gradient" style="min-height: 90vh;">
-  <div class="position-absolute top-0 start-0 w-100 h-100 bg-black opacity-25"></div>
+<!-- Hero Carousel Section -->
+<section id="heroSection" class="hero-section">
+  <!-- Swiper Container -->
+  <div class="swiper hero-swiper">
+    <div class="swiper-wrapper">
 
-  <nav id="navbarLanding" class="navbar navbar-expand-lg navbar-dark position-relative hero-nav">
-    <div class="container-fluid px-4">
-      <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
-      <button id="navbarToggleLanding" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link text-uppercase" href="{% url 'explore:explore' %}">Explorar</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-uppercase" href="{% url 'core:about' %}">Sobre</a>
-          </li>
-          {% if user.is_authenticated %}
-            <li class="nav-item dropdown">
-              <button class="btn btn-outline-light text-uppercase user-menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-person-circle me-1"></i>{{ user.username }}
-              </button>
-              <div class="dropdown-menu dropdown-menu-end shadow-lg user-dashboard-menu">
-                <div class="user-dashboard-header">
-                  <div class="d-flex align-items-center mb-2">
-                    <div class="user-avatar me-2">
-                      <i class="bi bi-person-circle"></i>
-                    </div>
-                    <div>
-                      <div class="fw-bold">{{ user.username }}</div>
-                      <small class="text-muted">{{ user.email|default:"Usuário" }}</small>
-                    </div>
-                  </div>
-                </div>
-                <div class="dropdown-divider my-2"></div>
-                <a class="dropdown-item user-menu-item" href="{% url 'explore:favorites' %}">
-                  <i class="bi bi-heart-fill text-danger me-2"></i>
-                  <span>Meus Favoritos</span>
-                </a>
-                {% if user.can_create_places %}
-                <a class="dropdown-item user-menu-item" href="{% url 'explore:place_create' %}">
-                  <i class="bi bi-plus-circle-fill text-success me-2"></i>
-                  <span>Adicionar Lugar</span>
-                </a>
-                {% endif %}
-                <div class="dropdown-divider my-2"></div>
-                <a class="dropdown-item user-menu-item text-danger" href="{% url 'accounts:logout' %}">
-                  <i class="bi bi-box-arrow-right me-2"></i>
-                  <span>Sair</span>
-                </a>
-              </div>
-            </li>
-          {% else %}
-            <li class="nav-item dropdown">
-              <button id="loginDropdownBtn" class="btn btn-outline-light text-uppercase" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Entrar
-              </button>
-              <div id="loginDropdownMenu" class="dropdown-menu dropdown-menu-end p-4 shadow-lg dropdown-menu-login">
-                <h5 class="fw-bold mb-3">Entre na sua conta</h5>
-                <form method="post" action="{% url 'accounts:login' %}" id="landingLoginForm">
-                  {% csrf_token %}
-                  <div class="mb-3">
-                    <label for="landingUsername" class="form-label fw-semibold small text-uppercase">Usuário</label>
-                    <input type="text" class="form-control" id="landingUsername" name="username" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="landingPassword" class="form-label fw-semibold small text-uppercase">Senha</label>
-                    <input type="password" class="form-control" id="landingPassword" name="password" required>
-                  </div>
-                  <div class="d-grid mb-3">
-                    <button id="landingLoginSubmitBtn" type="submit" class="btn btn-dark">Entrar</button>
-                  </div>
-                </form>
-                <div class="text-center border-top pt-3">
-                  <p class="text-muted small mb-0">
-                    Não tem uma conta?
-                    <a href="{% url 'accounts:register' %}" class="text-decoration-none fw-semibold">Cadastre-se agora</a>
-                  </p>
-                </div>
-              </div>
-            </li>
-          {% endif %}
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <div class="position-relative text-center d-flex align-items-center justify-content-center flex-grow-1 hero-overlay">
-    <div class="container">
-      <div class="d-inline-block bg-black bg-opacity-50 px-5 py-5 rounded hero-content">
-        <div class="border-top border-bottom border-white border-2 py-3 px-4 mb-4">
-          <h1 id="heroTitle" class="display-3 fw-bold text-uppercase">MARICACITY</h1>
+      <!-- Slide 1 -->
+      <div class="swiper-slide">
+        <!-- Background Image Container -->
+        <div class="hero-bg-container">
+          <img src="{% static 'images/hero/hero.jpg' %}" alt="Maricá" class="hero-bg-image">
+          <div class="hero-bg-overlay"></div>
         </div>
-        <p id="heroSubtitle1" class="fs-5 text-uppercase mb-2">Este é <strong>MaricaCity</strong>, uma plataforma</p>
-        <p id="heroSubtitle2" class="fs-5 text-uppercase mb-2">gratuita para explorar</p>
-        <p id="heroSubtitle3" class="fs-5 text-uppercase mb-4">o melhor de <strong>Maricá</strong></p>
-        <div class="mt-4">
-          <a id="heroCtaBtn" href="#featured" class="btn btn-outline-light btn-lg text-uppercase">Saiba Mais</a>
+
+        <!-- Navbar Container -->
+        <div class="hero-navbar-container">
+          <nav class="navbar navbar-expand-lg navbar-dark hero-navbar">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="{% url 'core:landing' %}">MaricaCity</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'explore:explore' %}">Lugares para ir</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'news:news_list' %}">O que fazer</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:about' %}">Planeje sua viagem</a>
+                  </li>
+                  {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                      <button class="btn btn-link nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> {{ user.username }}
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'explore:favorites' %}">Meus Favoritos</a></li>
+                        {% if user.can_create_places %}
+                        <li><a class="dropdown-item" href="{% url 'explore:place_create' %}">Adicionar Lugar</a></li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Sair</a></li>
+                      </ul>
+                    </li>
+                  {% else %}
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'accounts:login' %}"><i class="bi bi-globe"></i> ENG</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'accounts:login' %}"><i class="bi bi-search"></i></a>
+                    </li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </div>
+
+        <!-- Content Container (Grid Layout) -->
+        <div class="hero-content-container">
+          <div class="container-fluid">
+            <div class="row h-100">
+              <div class="col-lg-6 d-flex flex-column justify-content-center">
+                <!-- Text Content -->
+                <div class="hero-text-content">
+                  <h1 class="hero-heading">Descubra as Maravilhas de Maricá</h1>
+                  <p class="hero-text">Explore a beleza de praias intocadas, lagoas cristalinas e uma cultura vibrante.</p>
+                  <p class="hero-text">Embarque em uma jornada repleta de cultura, aventura e memórias inesquecíveis.</p>
+                  <a href="{% url 'explore:explore' %}" class="hero-cta-btn">
+                    Começar a Explorar <i class="bi bi-arrow-right"></i>
+                  </a>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="hero-controls">
+                  <button class="hero-arrow-btn swiper-button-prev-custom">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                  <div class="hero-pagination-custom swiper-pagination"></div>
+                  <button class="hero-arrow-btn swiper-button-next-custom">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- Slide 2 -->
+      <div class="swiper-slide">
+        <div class="hero-bg-container">
+          <img src="{% static 'images/hero/hero.jpg' %}" alt="Maricá" class="hero-bg-image">
+          <div class="hero-bg-overlay"></div>
+        </div>
+
+        <div class="hero-navbar-container">
+          <nav class="navbar navbar-expand-lg navbar-dark hero-navbar">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="{% url 'core:landing' %}">MaricaCity</a>
+            </div>
+          </nav>
+        </div>
+
+        <div class="hero-content-container">
+          <div class="container-fluid">
+            <div class="row h-100">
+              <div class="col-lg-6 d-flex flex-column justify-content-center">
+                <div class="hero-text-content">
+                  <h1 class="hero-heading">Viva Experiências Únicas</h1>
+                  <p class="hero-text">Descubra eventos locais, gastronomia autêntica e lugares escondidos.</p>
+                  <p class="hero-text">Maricá oferece experiências que vão além do comum.</p>
+                  <a href="{% url 'news:news_list' %}" class="hero-cta-btn">
+                    Ver Eventos <i class="bi bi-arrow-right"></i>
+                  </a>
+                </div>
+                <div class="hero-controls">
+                  <button class="hero-arrow-btn swiper-button-prev-custom">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                  <div class="hero-pagination-custom swiper-pagination"></div>
+                  <button class="hero-arrow-btn swiper-button-next-custom">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3 -->
+      <div class="swiper-slide">
+        <div class="hero-bg-container">
+          <img src="{% static 'images/hero/hero.jpg' %}" alt="Maricá" class="hero-bg-image">
+          <div class="hero-bg-overlay"></div>
+        </div>
+
+        <div class="hero-navbar-container">
+          <nav class="navbar navbar-expand-lg navbar-dark hero-navbar">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="{% url 'core:landing' %}">MaricaCity</a>
+            </div>
+          </nav>
+        </div>
+
+        <div class="hero-content-container">
+          <div class="container-fluid">
+            <div class="row h-100">
+              <div class="col-lg-6 d-flex flex-column justify-content-center">
+                <div class="hero-text-content">
+                  <h1 class="hero-heading">Compartilhe Seus Lugares Favoritos</h1>
+                  <p class="hero-text">Contribua com a comunidade e ajude outros a descobrirem Maricá.</p>
+                  <p class="hero-text">Adicione lugares especiais e conte sua história.</p>
+                  <a href="{% url 'explore:place_create' %}" class="hero-cta-btn">
+                    Adicionar Lugar <i class="bi bi-arrow-right"></i>
+                  </a>
+                </div>
+                <div class="hero-controls">
+                  <button class="hero-arrow-btn swiper-button-prev-custom">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                  <div class="hero-pagination-custom swiper-pagination"></div>
+                  <button class="hero-arrow-btn swiper-button-next-custom">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
-</div>
+</section>
 
 {% if trending_places %}
 <section id="trendingSection" class="bg-white py-5">
@@ -292,6 +369,36 @@
   </div>
 </section>
 
+<section id="mapSection" class="py-5">
+  <div class="container">
+    <div class="text-center mb-4">
+      <p class="text-uppercase text-muted small mb-2">EXPLORE NO MAPA</p>
+      <h2 class="fw-bold mb-3">Navegue pelos Lugares de Maricá</h2>
+      <p class="text-muted mb-4">
+        Descubra <span id="map-place-count" class="fw-bold">todos</span> os lugares cadastrados no mapa interativo
+      </p>
+    </div>
+
+    <div id="landing-map" style="width: 100%; height: 500px; border-radius: 12px; border: 2px solid #dee2e6; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+      <div class="d-flex align-items-center justify-content-center h-100">
+        <div class="text-center">
+          <div class="spinner-border text-dark mb-3" role="status">
+            <span class="visually-hidden">Carregando mapa...</span>
+          </div>
+          <p class="text-muted">Carregando mapa interativo...</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <p class="text-muted small mb-0">
+        <i class="bi bi-info-circle me-1"></i>
+        Clique nos marcadores para ver detalhes de cada lugar
+      </p>
+    </div>
+  </div>
+</section>
+
 {% if not user.is_authenticated %}
 <section id="ctaSection" class="bg-dark text-white py-5">
   <div class="container text-center">
@@ -307,5 +414,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="{% static 'js/landing.js' %}"></script>
+<script src="{% static 'js/landing_map.js' %}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&callback=initLandingMap&loading=async" async defer></script>
 {% endblock %}

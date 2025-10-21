@@ -22,6 +22,9 @@
             <a class="nav-link text-uppercase active border-bottom border-2" href="{% url 'explore:explore' %}">Explorar</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link text-uppercase" href="{% url 'news:news_list' %}">Notícias</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link text-uppercase" href="{% url 'core:about' %}">Sobre</a>
           </li>
           {% if user.is_authenticated %}

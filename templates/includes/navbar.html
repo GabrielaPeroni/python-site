@@ -12,6 +12,9 @@
           <a class="nav-link text-uppercase {% if active_page == 'explore' %}active border-bottom border-2{% endif %}" href="{% url 'explore:explore' %}">Explorar</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link text-uppercase {% if active_page == 'news' %}active border-bottom border-2{% endif %}" href="{% url 'news:news_list' %}">Notícias</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link text-uppercase {% if active_page == 'about' %}active border-bottom border-2{% endif %}" href="{% url 'core:about' %}">Sobre</a>
         </li>
 
