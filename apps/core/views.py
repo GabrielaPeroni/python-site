@@ -35,6 +35,7 @@ def landing_view(request):
         "trending_places": trending_places,
         "categories": categories,
         "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY,
+        "google_client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
     }
     return render(request, "core/landing.html", context)
 

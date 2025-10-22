@@ -196,69 +196,175 @@
   }
 }
 
-/* Hero Section */
+/* Hero Section - Updated to Match landing_1.png Design */
 .hero-section {
   position: relative;
-  background: linear-gradient(135deg, #4a4a4a 0%, #2a2a2a 50%, #1a1a1a 100%);
-  min-height: 500px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
+  height: 100vh;
+  width: 100%;
   overflow: hidden;
 }
 
-.hero-section::before {
-  content: '';
+/* Swiper Container */
+.hero-swiper {
+  width: 100%;
+  height: 100%;
+}
+
+/* Background Image Container */
+.hero-bg-container {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.hero-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.4);
   z-index: 1;
 }
 
-.hero-content {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  padding: 3rem 2rem;
+/* Navbar Container */
+.hero-navbar-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
 }
 
-.hero-box {
-  display: inline-block;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 3rem 4rem;
-  border-radius: var(--border-radius-md);
-}
-
-.hero-title-wrapper {
-  border-top: 2px solid white;
-  border-bottom: 2px solid white;
+.hero-navbar {
+  background: rgba(52, 41, 33, 0.95);
+  backdrop-filter: blur(10px);
   padding: 1rem 2rem;
-  margin-bottom: 2rem;
 }
 
-.hero-title {
+/* Content Container with Grid Layout */
+.hero-content-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  padding-top: 80px; /* Account for navbar */
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+
+/* Hero Text Content - Left Aligned */
+.hero-text-content {
+  max-width: 700px;
+  padding: 2rem 3rem;
+  text-align: left;
+}
+
+.hero-heading {
+  font-family: 'Merriweather', 'Georgia', serif;
   font-size: 4rem;
-  font-weight: 900;
-  letter-spacing: 0.5rem;
-  text-transform: uppercase;
-  margin: 0;
+  font-weight: 400;
+  color: white;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
 }
 
-.hero-subtitle {
-  font-size: 1.25rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  line-height: 1.8;
+.hero-text {
+  font-size: 1.125rem;
+  color: white;
+  line-height: 1.6;
   margin-bottom: 0.5rem;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);
 }
 
-.hero-subtitle strong {
-  font-weight: 700;
+.hero-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  background: rgba(52, 41, 33, 0.9);
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-.hero-cta {
-  margin-top: 2.5rem;
+.hero-cta-btn:hover {
+  background: rgba(52, 41, 33, 1);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Navigation Controls - Bottom Left Position */
+.hero-controls {
+  position: absolute;
+  bottom: 3rem;
+  left: 3rem;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.hero-arrow-btn {
+  width: 45px;
+  height: 45px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 1.25rem;
+}
+
+.hero-arrow-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: white;
+}
+
+.hero-pagination-custom {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  position: static !important; /* Override swiper's absolute positioning */
+}
+
+.hero-pagination-custom .swiper-pagination-bullet {
+  width: 40px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 2px;
+  opacity: 1;
+  transition: all 0.3s ease;
+  margin: 0 !important; /* Override swiper margins */
+}
+
+.hero-pagination-custom .swiper-pagination-bullet-active {
+  background: white;
+  width: 60px;
 }
 
 /* Trending Section */
@@ -455,6 +561,52 @@
   z-index: 10;
 }
 
+/* Login Dropdown Styles */
+.login-dropdown {
+  min-width: 340px;
+  max-width: 400px;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.login-dropdown form {
+  margin: 0;
+}
+
+.login-dropdown .form-control-sm {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.login-dropdown .btn-dark {
+  background: rgba(52, 41, 33, 0.95);
+  border: none;
+  padding: 0.5rem 1rem;
+}
+
+.login-dropdown .btn-dark:hover {
+  background: rgba(52, 41, 33, 1);
+}
+
+/* Ensure Google Sign-In button has space */
+.login-dropdown .text-center {
+  min-height: 50px;
+  padding-bottom: 1rem;
+}
+
+/* Style for Google button container */
+.login-dropdown .g_id_signin {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
 .dropdown-menu-login {
   width: 320px;
 }
@@ -493,19 +645,77 @@
   height: 200px;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 2.5rem;
-    letter-spacing: 0.3rem;
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .hero-heading {
+    font-size: 3.5rem;
   }
 
-  .hero-box {
+  .hero-text-content {
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 992px) {
+  .hero-heading {
+    font-size: 3rem;
+  }
+
+  .hero-text {
+    font-size: 1rem;
+  }
+
+  .hero-text-content {
+    max-width: 550px;
     padding: 2rem;
   }
 
-  .hero-subtitle {
+  .hero-controls {
+    bottom: 2.5rem;
+    left: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-heading {
+    font-size: 2.5rem;
+  }
+
+  .hero-text {
+    font-size: 0.95rem;
+  }
+
+  .hero-text-content {
+    max-width: 100%;
+    padding: 1.5rem;
+  }
+
+  .hero-cta-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .hero-controls {
+    bottom: 2rem;
+    left: 1.5rem;
+  }
+
+  .hero-arrow-btn {
+    width: 40px;
+    height: 40px;
     font-size: 1rem;
+  }
+
+  .hero-pagination-custom .swiper-pagination-bullet {
+    width: 30px;
+  }
+
+  .hero-pagination-custom .swiper-pagination-bullet-active {
+    width: 45px;
+  }
+
+  .hero-navbar {
+    padding: 0.75rem 1rem;
   }
 
   .section-title h2 {
@@ -518,5 +728,39 @@
 
   .featured-heading {
     font-size: 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-heading {
+    font-size: 2rem;
+  }
+
+  .hero-text {
+    font-size: 0.875rem;
+  }
+
+  .hero-text-content {
+    padding: 1rem;
+  }
+
+  .hero-controls {
+    gap: 0.5rem;
+    bottom: 1.5rem;
+    left: 1rem;
+  }
+
+  .hero-arrow-btn {
+    width: 35px;
+    height: 35px;
+  }
+
+  .hero-pagination-custom .swiper-pagination-bullet {
+    width: 25px;
+    height: 2px;
+  }
+
+  .hero-pagination-custom .swiper-pagination-bullet-active {
+    width: 35px;
   }
 }

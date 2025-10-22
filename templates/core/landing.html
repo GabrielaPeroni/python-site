@@ -4,6 +4,9 @@
 {% block title %}MaricaCity - Descubra o Turismo Local{% endblock %}
 
 {% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 <link rel="stylesheet" href="{% static 'css/pages/landing.css' %}">
 {% endblock %}
@@ -11,20 +14,8 @@
 {% block content %}
 <!-- Hero Carousel Section -->
 <section id="heroSection" class="hero-section">
-  <!-- Swiper Container -->
-  <div class="swiper hero-swiper">
-    <div class="swiper-wrapper">
-
-      <!-- Slide 1 -->
-      <div class="swiper-slide">
-        <!-- Background Image Container -->
-        <div class="hero-bg-container">
-          <img src="{% static 'images/hero/hero.jpg' %}" alt="Maricá" class="hero-bg-image">
-          <div class="hero-bg-overlay"></div>
-        </div>
-
-        <!-- Navbar Container -->
-        <div class="hero-navbar-container">
+  <!-- Navbar Container (Outside slides) -->
+  <div class="hero-navbar-container">
           <nav class="navbar navbar-expand-lg navbar-dark hero-navbar">
             <div class="container-fluid">
               <a class="navbar-brand" href="{% url 'core:landing' %}">MaricaCity</a>
@@ -34,13 +25,13 @@
               <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'explore:explore' %}">Lugares para ir</a>
+                    <a class="nav-link" href="{% url 'explore:explore' %}">Explorar</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'news:news_list' %}">O que fazer</a>
+                    <a class="nav-link" href="{% url 'news:news_list' %}">Notícias</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'core:about' %}">Planeje sua viagem</a>
+                    <a class="nav-link" href="{% url 'core:about' %}">Sobre</a>
                   </li>
                   {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
@@ -57,17 +48,79 @@
                       </ul>
                     </li>
                   {% else %}
-                    <li class="nav-item">
-                      <a class="nav-link" href="{% url 'accounts:login' %}"><i class="bi bi-globe"></i> ENG</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="{% url 'accounts:login' %}"><i class="bi bi-search"></i></a>
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Entrar
+                      </a>
+                      <div class="dropdown-menu dropdown-menu-end login-dropdown" aria-labelledby="loginDropdown">
+                        <div class="px-4 py-3">
+                          <h6 class="fw-bold mb-3">Entre na sua conta</h6>
+
+                          <form method="post" action="{% url 'accounts:login' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'core:landing' %}">
+
+                            <div class="mb-3">
+                              <label for="id_username_dropdown" class="form-label small fw-semibold">Nome de usuário</label>
+                              <input type="text" name="username" class="form-control form-control-sm" id="id_username_dropdown" required>
+                            </div>
+
+                            <div class="mb-3">
+                              <label for="id_password_dropdown" class="form-label small fw-semibold">Senha</label>
+                              <input type="password" name="password" class="form-control form-control-sm" id="id_password_dropdown" required>
+                            </div>
+
+                            <p class="text-muted small mb-3">
+                              Não tem uma conta?
+                              <a href="{% url 'accounts:register' %}" class="text-decoration-none">Cadastre-se</a>
+                            </p>
+
+                            <div class="d-grid">
+                              <button type="submit" class="btn btn-dark btn-sm">Entrar</button>
+                            </div>
+                          </form>
+
+                          <div class="position-relative my-3">
+                            <hr class="text-muted">
+                            <span class="position-absolute top-50 start-50 translate-middle bg-white px-2 text-muted small">ou</span>
+                          </div>
+
+                          <div class="text-center mb-2">
+                            <div id="g_id_onload_dropdown"
+                                 data-client_id="{{ google_client_id }}"
+                                 data-callback="handleCredentialResponse"
+                                 data-auto_prompt="false">
+                            </div>
+                            <div id="google-signin-button-dropdown"
+                                 class="g_id_signin"
+                                 data-type="standard"
+                                 data-theme="outline"
+                                 data-size="medium"
+                                 data-text="signin_with"
+                                 data-shape="rectangular"
+                                 data-logo_alignment="left">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </li>
                   {% endif %}
                 </ul>
               </div>
             </div>
           </nav>
+  </div>
+
+  <!-- Swiper Container -->
+  <div class="swiper hero-swiper">
+    <div class="swiper-wrapper">
+
+      <!-- Slide 1 -->
+      <div class="swiper-slide">
+        <!-- Background Image Container -->
+        <div class="hero-bg-container">
+          <img src="{% static 'images/hero/hero.jpg' %}" alt="Maricá" class="hero-bg-image">
+          <div class="hero-bg-overlay"></div>
         </div>
 
         <!-- Content Container (Grid Layout) -->
@@ -78,22 +131,10 @@
                 <!-- Text Content -->
                 <div class="hero-text-content">
                   <h1 class="hero-heading">Descubra as Maravilhas de Maricá</h1>
-                  <p class="hero-text">Explore a beleza de praias intocadas, lagoas cristalinas e uma cultura vibrante.</p>
-                  <p class="hero-text">Embarque em uma jornada repleta de cultura, aventura e memórias inesquecíveis.</p>
+                  <p class="hero-text">Explore a beleza de praias intocadas, lagoas cristalinas e uma cultura vibrante. Embarque em uma jornada repleta de aventura e memórias inesquecíveis.</p>
                   <a href="{% url 'explore:explore' %}" class="hero-cta-btn">
                     Começar a Explorar <i class="bi bi-arrow-right"></i>
                   </a>
-                </div>
-
-                <!-- Navigation Controls -->
-                <div class="hero-controls">
-                  <button class="hero-arrow-btn swiper-button-prev-custom">
-                    <i class="bi bi-chevron-left"></i>
-                  </button>
-                  <div class="hero-pagination-custom swiper-pagination"></div>
-                  <button class="hero-arrow-btn swiper-button-next-custom">
-                    <i class="bi bi-chevron-right"></i>
-                  </button>
                 </div>
               </div>
             </div>
@@ -108,34 +149,16 @@
           <div class="hero-bg-overlay"></div>
         </div>
 
-        <div class="hero-navbar-container">
-          <nav class="navbar navbar-expand-lg navbar-dark hero-navbar">
-            <div class="container-fluid">
-              <a class="navbar-brand" href="{% url 'core:landing' %}">MaricaCity</a>
-            </div>
-          </nav>
-        </div>
-
         <div class="hero-content-container">
           <div class="container-fluid">
             <div class="row h-100">
               <div class="col-lg-6 d-flex flex-column justify-content-center">
                 <div class="hero-text-content">
                   <h1 class="hero-heading">Viva Experiências Únicas</h1>
-                  <p class="hero-text">Descubra eventos locais, gastronomia autêntica e lugares escondidos.</p>
-                  <p class="hero-text">Maricá oferece experiências que vão além do comum.</p>
+                  <p class="hero-text">Descubra eventos locais, gastronomia autêntica e lugares escondidos. Maricá oferece experiências que vão além do comum.</p>
                   <a href="{% url 'news:news_list' %}" class="hero-cta-btn">
                     Ver Eventos <i class="bi bi-arrow-right"></i>
                   </a>
-                </div>
-                <div class="hero-controls">
-                  <button class="hero-arrow-btn swiper-button-prev-custom">
-                    <i class="bi bi-chevron-left"></i>
-                  </button>
-                  <div class="hero-pagination-custom swiper-pagination"></div>
-                  <button class="hero-arrow-btn swiper-button-next-custom">
-                    <i class="bi bi-chevron-right"></i>
-                  </button>
                 </div>
               </div>
             </div>
@@ -150,34 +173,16 @@
           <div class="hero-bg-overlay"></div>
         </div>
 
-        <div class="hero-navbar-container">
-          <nav class="navbar navbar-expand-lg navbar-dark hero-navbar">
-            <div class="container-fluid">
-              <a class="navbar-brand" href="{% url 'core:landing' %}">MaricaCity</a>
-            </div>
-          </nav>
-        </div>
-
         <div class="hero-content-container">
           <div class="container-fluid">
             <div class="row h-100">
               <div class="col-lg-6 d-flex flex-column justify-content-center">
                 <div class="hero-text-content">
                   <h1 class="hero-heading">Compartilhe Seus Lugares Favoritos</h1>
-                  <p class="hero-text">Contribua com a comunidade e ajude outros a descobrirem Maricá.</p>
-                  <p class="hero-text">Adicione lugares especiais e conte sua história.</p>
+                  <p class="hero-text">Contribua com a comunidade e ajude outros a descobrirem Maricá. Adicione lugares especiais e conte sua história.</p>
                   <a href="{% url 'explore:place_create' %}" class="hero-cta-btn">
                     Adicionar Lugar <i class="bi bi-arrow-right"></i>
                   </a>
-                </div>
-                <div class="hero-controls">
-                  <button class="hero-arrow-btn swiper-button-prev-custom">
-                    <i class="bi bi-chevron-left"></i>
-                  </button>
-                  <div class="hero-pagination-custom swiper-pagination"></div>
-                  <button class="hero-arrow-btn swiper-button-next-custom">
-                    <i class="bi bi-chevron-right"></i>
-                  </button>
                 </div>
               </div>
             </div>
@@ -185,6 +190,17 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- Navigation Controls (Outside slides so they appear on all) -->
+    <div class="hero-controls">
+      <button class="hero-arrow-btn swiper-button-prev-custom">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <div class="hero-pagination-custom swiper-pagination"></div>
+      <button class="hero-arrow-btn swiper-button-next-custom">
+        <i class="bi bi-chevron-right"></i>
+      </button>
     </div>
   </div>
 </section>
@@ -418,4 +434,8 @@
 <script src="{% static 'js/landing.js' %}"></script>
 <script src="{% static 'js/landing_map.js' %}"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&callback=initLandingMap&loading=async" async defer></script>
+{% if not user.is_authenticated %}
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="{% static 'js/google_auth.js' %}"></script>
+{% endif %}
 {% endblock %}
