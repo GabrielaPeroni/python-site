@@ -48,62 +48,7 @@
                       </ul>
                     </li>
                   {% else %}
-                    <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Entrar
-                      </a>
-                      <div class="dropdown-menu dropdown-menu-end login-dropdown" aria-labelledby="loginDropdown">
-                        <div class="px-4 py-3">
-                          <h6 class="fw-bold mb-3">Entre na sua conta</h6>
-
-                          <form method="post" action="{% url 'accounts:login' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{% url 'core:landing' %}">
-
-                            <div class="mb-3">
-                              <label for="id_username_dropdown" class="form-label small fw-semibold">Nome de usuário</label>
-                              <input type="text" name="username" class="form-control form-control-sm" id="id_username_dropdown" required>
-                            </div>
-
-                            <div class="mb-3">
-                              <label for="id_password_dropdown" class="form-label small fw-semibold">Senha</label>
-                              <input type="password" name="password" class="form-control form-control-sm" id="id_password_dropdown" required>
-                            </div>
-
-                            <p class="text-muted small mb-3">
-                              Não tem uma conta?
-                              <a href="{% url 'accounts:register' %}" class="text-decoration-none">Cadastre-se</a>
-                            </p>
-
-                            <div class="d-grid">
-                              <button type="submit" class="btn btn-dark btn-sm">Entrar</button>
-                            </div>
-                          </form>
-
-                          <div class="position-relative my-3">
-                            <hr class="text-muted">
-                            <span class="position-absolute top-50 start-50 translate-middle bg-white px-2 text-muted small">ou</span>
-                          </div>
-
-                          <div class="text-center mb-2">
-                            <div id="g_id_onload_dropdown"
-                                 data-client_id="{{ google_client_id }}"
-                                 data-callback="handleCredentialResponse"
-                                 data-auto_prompt="false">
-                            </div>
-                            <div id="google-signin-button-dropdown"
-                                 class="g_id_signin"
-                                 data-type="standard"
-                                 data-theme="outline"
-                                 data-size="medium"
-                                 data-text="signin_with"
-                                 data-shape="rectangular"
-                                 data-logo_alignment="left">
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
+                    {% include 'includes/login_dropdown.html' with dropdown_id='landing' %}
                   {% endif %}
                 </ul>
               </div>
@@ -444,8 +389,5 @@
 <script src="{% static 'js/landing.js' %}"></script>
 <script src="{% static 'js/landing_map.js' %}"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&callback=initLandingMap&loading=async" async defer></script>
-{% if not user.is_authenticated %}
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="{% static 'js/google_auth.js' %}"></script>
-{% endif %}
+{# Google auth is now handled in the global login modal in base.html #}
 {% endblock %}

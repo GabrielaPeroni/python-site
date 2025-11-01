@@ -56,6 +56,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.core.context_processors.google_oauth",
             ],
         },
     },
@@ -124,7 +125,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 
 # Authentication settings
-LOGIN_URL = "accounts:login"
+# Redirect to landing page where login modal is available
+LOGIN_URL = "core:landing"
 LOGIN_REDIRECT_URL = "core:landing"
 LOGOUT_REDIRECT_URL = "core:landing"
 

@@ -84,12 +84,6 @@ class AuthenticationViewTests(TestCase):
             password="testpass123",
         )
 
-    def test_login_page_loads(self):
-        """Test login page loads successfully"""
-        response = self.client.get(reverse("accounts:login"))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "accounts/login.html")
-
     def test_register_page_loads(self):
         """Test registration page loads successfully"""
         response = self.client.get(reverse("accounts:register"))
@@ -97,20 +91,26 @@ class AuthenticationViewTests(TestCase):
         self.assertTemplateUsed(response, "accounts/register.html")
 
     def test_user_can_login(self):
-        """Test user can login with correct credentials"""
+        """Test user can login with correct credentials via AJAX"""
         response = self.client.post(
             reverse("accounts:login"),
             {"username": "testuser", "password": "testpass123"},
         )
-        self.assertEqual(response.status_code, 302)  # Redirect after login
+        self.assertEqual(response.status_code, 200)  # JSON response
+        data = response.json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["username"], "testuser")
 
     def test_user_cannot_login_with_wrong_password(self):
-        """Test user cannot login with wrong password"""
+        """Test user cannot login with wrong password via AJAX"""
         response = self.client.post(
             reverse("accounts:login"),
             {"username": "testuser", "password": "wrongpassword"},
         )
-        self.assertEqual(response.status_code, 200)  # Stay on login page
+        self.assertEqual(response.status_code, 401)  # Unauthorized
+        data = response.json()
+        self.assertFalse(data["success"])
+        self.assertIn("error", data)
 
     def test_user_registration(self):
         """Test new user can register"""
@@ -161,46 +161,24 @@ class AuthenticationViewTests(TestCase):
         response = self.client.get(reverse("accounts:logout"))
         self.assertEqual(response.status_code, 302)
 
-    def test_authenticated_user_redirected_from_login(self):
-        """Test authenticated users are redirected from login page"""
-        self.client.login(username="testuser", password="testpass123")
+    def test_login_endpoint_rejects_get_requests(self):
+        """Test that login endpoint only accepts POST (AJAX only)"""
         response = self.client.get(reverse("accounts:login"))
-        self.assertEqual(response.status_code, 302)
-
-    def test_quick_login_form_submission(self):
-        """Test quick login via modal form"""
-        response = self.client.post(
-            reverse("accounts:login"),
-            {"username": "testuser", "password": "testpass123"},
-            HTTP_REFERER="/explore/",
-        )
-        self.assertEqual(response.status_code, 302)
-        # Verify user is logged in
-        user = response.wsgi_request.user
-        self.assertTrue(user.is_authenticated)
-        self.assertEqual(user.username, "testuser")
-
-    def test_quick_login_form_with_invalid_credentials(self):
-        """Test quick login with invalid credentials"""
-        response = self.client.post(
-            reverse("accounts:login"),
-            {"username": "testuser", "password": "wrongpassword"},
-        )
-        self.assertEqual(response.status_code, 200)
-        # User should not be logged in
-        user = response.wsgi_request.user
-        self.assertFalse(user.is_authenticated)
+        self.assertEqual(response.status_code, 405)  # Method not allowed
+        data = response.json()
+        self.assertFalse(data["success"])
 
     def test_login_dropdown_present_on_pages(self):
-        """Test that login dropdown HTML is present on pages"""
+        """Test that login dropdown is present on pages"""
         # Test on landing page
         response = self.client.get(reverse("core:landing"))
-        self.assertContains(response, 'id="loginDropdown"')
         self.assertContains(response, "Entre na sua conta")
+        self.assertContains(response, 'data-bs-toggle="dropdown"')
 
-        # Test on explore page - uses includes/navbar.html
+        # Test on explore page
         response = self.client.get(reverse("explore:explore"))
         self.assertContains(response, "Entre na sua conta")
+        self.assertContains(response, 'data-bs-toggle="dropdown"')
 
     def test_login_button_present_for_anonymous_users(self):
         """Test login button appears for anonymous users"""
@@ -212,17 +190,10 @@ class AuthenticationViewTests(TestCase):
         """Test login button doesn't appear for authenticated users"""
         self.client.login(username="testuser", password="testpass123")
         response = self.client.get(reverse("core:landing"))
-        # Should show Sair instead of Entrar in the dropdown
+        # Should show Sair instead of Entrar
         self.assertContains(response, "Sair")
-        # Should not show the login dropdown trigger
-        self.assertNotContains(response, 'id="loginDropdown"')
         # Should show username
         self.assertContains(response, "testuser")
-
-    def test_google_client_id_in_context(self):
-        """Test that Google OAuth client ID is passed to login page"""
-        response = self.client.get(reverse("accounts:login"))
-        self.assertIn("google_client_id", response.context)
 
     def test_google_client_id_in_register_context(self):
         """Test that Google OAuth client ID is passed to register page"""

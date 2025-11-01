@@ -313,7 +313,8 @@ class PlaceCreateViewTests(TestCase):
     def test_place_create_view_requires_login(self):
         """Test place creation requires authentication"""
         response = self.client.get(reverse("explore:place_create"))
-        self.assertRedirects(response, "/accounts/login/?next=/explore/place/create/")
+        # Should redirect to landing page where login modal is available
+        self.assertRedirects(response, "/?next=/explore/place/create/")
 
     def test_all_logged_in_users_can_create_places(self):
         """Test all authenticated users can access place creation"""
@@ -423,9 +424,8 @@ class PlaceUpdateViewTests(TestCase):
         response = self.client.get(
             reverse("explore:place_edit", kwargs={"pk": self.place.pk})
         )
-        self.assertRedirects(
-            response, f"/accounts/login/?next=/explore/place/{self.place.pk}/edit/"
-        )
+        # Should redirect to landing page where login modal is available
+        self.assertRedirects(response, f"/?next=/explore/place/{self.place.pk}/edit/")
 
     def test_creator_can_edit_own_place(self):
         """Test place creator can edit their own place"""
@@ -514,9 +514,8 @@ class PlaceDeleteViewTests(TestCase):
         response = self.client.get(
             reverse("explore:place_delete", kwargs={"pk": self.place.pk})
         )
-        self.assertRedirects(
-            response, f"/accounts/login/?next=/explore/place/{self.place.pk}/delete/"
-        )
+        # Should redirect to landing page where login modal is available
+        self.assertRedirects(response, f"/?next=/explore/place/{self.place.pk}/delete/")
 
     def test_place_delete_confirmation_page(self):
         """Test place deletion confirmation page loads"""

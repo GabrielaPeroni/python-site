@@ -1,0 +1,38 @@
+{% load static %}
+<!-- Reusable Login Dropdown Component -->
+<li class="nav-item dropdown">
+  <button class="btn btn-outline-light {{ btn_size|default:'btn-sm' }} text-uppercase" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Entrar
+  </button>
+  <div class="dropdown-menu dropdown-menu-end p-4 shadow-lg" style="min-width: 320px;">
+    <h5 class="fw-bold mb-3">Entre na sua conta</h5>
+    <form method="post" action="{% url 'accounts:login' %}" class="login-dropdown-form">
+      {% csrf_token %}
+      <div class="mb-2">
+        <label for="dropdownUsername{{ dropdown_id|default:'' }}" class="form-label fw-semibold small mb-1">Nome de usuário</label>
+        <input type="text" class="form-control" id="dropdownUsername{{ dropdown_id|default:'' }}" name="username" required>
+      </div>
+      <div class="mb-2">
+        <label for="dropdownPassword{{ dropdown_id|default:'' }}" class="form-label fw-semibold small mb-1">Senha</label>
+        <input type="password" class="form-control" id="dropdownPassword{{ dropdown_id|default:'' }}" name="password" required>
+      </div>
+      <p class="text-muted small mb-3">
+        Não tem uma conta?
+        <a href="{% url 'accounts:register' %}" class="text-decoration-none fw-semibold">Cadastre-se agora</a>
+      </p>
+
+      <div class="d-grid mb-3">
+        <button type="submit" class="btn btn-dark btn-lg">Entrar</button>
+      </div>
+    </form>
+
+    <div class="position-relative my-3">
+      <hr class="text-muted">
+      <span class="position-absolute top-50 start-50 translate-middle bg-white px-2 text-muted small">ou</span>
+    </div>
+
+    <div class="text-center mb-3">
+      <div id="google-signin-button"></div>
+    </div>
+  </div>
+</li>

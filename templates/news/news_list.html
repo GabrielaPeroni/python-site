@@ -57,9 +57,7 @@
               </div>
             </li>
           {% else %}
-            <li class="nav-item">
-              <a class="nav-link text-uppercase" href="{% url 'accounts:login' %}">Entrar</a>
-            </li>
+            {% include 'includes/login_dropdown.html' with dropdown_id='news' %}
           {% endif %}
         </ul>
       </div>

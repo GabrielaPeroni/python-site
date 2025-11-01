@@ -6,7 +6,7 @@ from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import UserLoginForm, UserRegistrationForm
+from .forms import UserRegistrationForm
 from .models import User
 
 
@@ -34,27 +34,54 @@ def register_view(request):
 
 
 def login_view(request):
-    if request.user.is_authenticated:
-        return redirect("core:landing")
-
+    """
+    AJAX login endpoint for modal-based authentication
+    Returns JSON response with success/error messages
+    """
     if request.method == "POST":
-        form = UserLoginForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get("username")
-            password = form.cleaned_data.get("password")
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                messages.success(request, f"Bem-vindo de volta, {username}!")
-                return redirect("core:landing")
-    else:
-        form = UserLoginForm()
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "")
 
-    context = {
-        "form": form,
-        "google_client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
-    }
-    return render(request, "accounts/login.html", context)
+        if not username or not password:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Por favor, preencha todos os campos.",
+                },
+                status=400,
+            )
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            if not user.is_active:
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "Sua conta foi desativada. Entre em contato com o administrador.",
+                    },
+                    status=403,
+                )
+
+            login(request, user)
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": f"Bem-vindo de volta, {user.username}!",
+                    "username": user.username,
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Nome de usuário ou senha incorretos.",
+                },
+                status=401,
+            )
+
+    # GET request - not allowed for AJAX endpoint
+    return JsonResponse({"success": False, "error": "Método não permitido"}, status=405)
 
 
 @login_required
