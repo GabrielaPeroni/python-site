@@ -73,7 +73,7 @@ def user_management_view(request):
         return redirect("core:landing")
 
     # Get filter parameters
-    user_type_filter = request.GET.get("user_type", "")
+    role_filter = request.GET.get("role", "")  # Changed from user_type to role
     status_filter = request.GET.get("status", "")
     search_query = request.GET.get("q", "")
 
@@ -84,8 +84,10 @@ def user_management_view(request):
     ).select_related()
 
     # Apply filters
-    if user_type_filter:
-        users = users.filter(user_type=user_type_filter)
+    if role_filter == "staff":
+        users = users.filter(is_staff=True)
+    elif role_filter == "regular":
+        users = users.filter(is_staff=False)
 
     if status_filter == "active":
         users = users.filter(is_active=True)
@@ -103,28 +105,25 @@ def user_management_view(request):
     # Get statistics
     total_users = User.objects.count()
     active_users = User.objects.filter(is_active=True).count()
-    explore_users = User.objects.filter(user_type=User.UserType.EXPLORE).count()
-    creation_users = User.objects.filter(user_type=User.UserType.CREATION).count()
-    admin_users = User.objects.filter(user_type=User.UserType.ADMIN).count()
+    staff_users = User.objects.filter(is_staff=True).count()
+    regular_users = User.objects.filter(is_staff=False).count()
 
     context = {
         "users": users.order_by("-created_at"),
         "total_users": total_users,
         "active_users": active_users,
-        "explore_users": explore_users,
-        "creation_users": creation_users,
-        "admin_users": admin_users,
-        "user_type_filter": user_type_filter,
+        "staff_users": staff_users,
+        "regular_users": regular_users,
+        "role_filter": role_filter,
         "status_filter": status_filter,
         "search_query": search_query,
-        "user_type_choices": User.UserType.choices,
     }
     return render(request, "accounts/user_management.html", context)
 
 
 @login_required
 def user_update_type_view(request, user_id):
-    """Update user type"""
+    """Toggle user staff status"""
     if not request.user.can_moderate:
         return JsonResponse({"success": False, "error": "Sem permissão"}, status=403)
 
@@ -134,35 +133,32 @@ def user_update_type_view(request, user_id):
         )
 
     user = get_object_or_404(User, id=user_id)
-    new_type = request.POST.get("user_type")
 
-    if new_type not in dict(User.UserType.choices):
-        return JsonResponse(
-            {"success": False, "error": "Tipo de usuário inválido"}, status=400
-        )
-
-    # Prevent changing own user type
+    # Prevent changing own staff status
     if user == request.user:
         return JsonResponse(
             {
                 "success": False,
-                "error": "Você não pode alterar seu próprio tipo de usuário",
+                "error": "Você não pode alterar seu próprio status",
             },
             status=400,
         )
 
-    user.user_type = new_type
+    # Toggle staff status
+    user.is_staff = not user.is_staff
     user.save()
 
+    role_display = "Staff" if user.is_staff else "Regular"
     messages.success(
         request,
-        f"Tipo de usuário de {user.username} alterado para {user.get_user_type_display()}.",
+        f"Status de {user.username} alterado para {role_display}.",
     )
     return JsonResponse(
         {
             "success": True,
-            "message": "Tipo de usuário atualizado",
-            "user_type_display": user.get_user_type_display(),
+            "message": "Status de usuário atualizado",
+            "role_display": role_display,
+            "is_staff": user.is_staff,
         }
     )
 

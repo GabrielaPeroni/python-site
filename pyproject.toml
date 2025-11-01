@@ -36,6 +36,7 @@ mypy = "^1.8.0"
 django-stubs = "^4.2.7"
 
 # Tool configurations
+coverage = "^7.11.0"
 [tool.black]
 line-length = 88
 target-version = ['py310']
@@ -106,7 +107,7 @@ ignore_errors = true
 django_settings_module = "config.settings"
 
 [tool.coverage.run]
-source = "."
+source = ["."]
 omit = [
     "*/migrations/*",
     "*/venv/*",

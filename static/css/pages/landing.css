@@ -160,7 +160,7 @@
   opacity: 1;
   background: white;
   width: 30px;
-  border-radius: 5px;
+  border-radius: 0;
 }
 
 /* Responsive Hero Styles */
@@ -301,7 +301,7 @@
   color: white;
   background: rgba(52, 41, 33, 0.9);
   border: none;
-  border-radius: 4px;
+  border-radius: 0;
   text-decoration: none;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
@@ -330,7 +330,7 @@
   height: 45px;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 4px;
+  border-radius: 0;
   color: white;
   cursor: pointer;
   display: flex;
@@ -356,7 +356,7 @@
   width: 40px;
   height: 3px;
   background: rgba(255, 255, 255, 0.5);
-  border-radius: 2px;
+  border-radius: 0;
   opacity: 1;
   transition: all 0.3s ease;
   margin: 0 !important; /* Override swiper margins */

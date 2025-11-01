@@ -88,7 +88,15 @@
               {% endfor %}
             </div>
             {% endif %}
-            <a href="{% url 'explore:place_detail' place.pk %}" class="btn btn-dark btn-sm text-uppercase w-100">Ver Detalhes →</a>
+            <div class="d-flex gap-2">
+              <a href="{% url 'explore:place_detail' place.pk %}" class="btn btn-dark btn-sm text-uppercase flex-grow-1">Ver Detalhes →</a>
+              <button class="btn btn-outline-danger btn-sm favorite-btn"
+                      data-place-id="{{ place.pk }}"
+                      title="Adicionar aos favoritos"
+                      aria-label="Adicionar aos favoritos">
+                <i class="bi bi-heart"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>

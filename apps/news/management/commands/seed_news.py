@@ -31,10 +31,8 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS("Categories created"))
 
-        # Get or create an admin user for authorship
-        admin_user = User.objects.filter(user_type=User.UserType.ADMIN).first()
-        if not admin_user:
-            admin_user = User.objects.filter(is_staff=True).first()
+        # Get or create a staff user for authorship
+        admin_user = User.objects.filter(is_staff=True).first()
         if not admin_user:
             admin_user = User.objects.first()
 

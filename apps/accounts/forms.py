@@ -15,17 +15,9 @@ class UserRegistrationForm(UserCreationForm):
         ),
     )
 
-    user_type = forms.ChoiceField(
-        choices=[
-            (User.UserType.EXPLORE, "Usuário Explorador - Navegar e descobrir lugares"),
-            (User.UserType.CREATION, "Usuário Criador - Adicionar e gerenciar lugares"),
-        ],
-        widget=forms.RadioSelect(attrs={"class": "form-check-input"}),
-    )
-
     class Meta:
         model = User
-        fields = ("username", "email", "user_type", "password1", "password2")
+        fields = ("username", "email", "password1", "password2")
         widgets = {
             "username": forms.TextInput(
                 attrs={

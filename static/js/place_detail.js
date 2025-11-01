@@ -164,70 +164,10 @@ function confirmDeleteReview() {
 }
 
 /**
- * Initialize favorite button functionality
- * Auto-initializes on DOMContentLoaded
+ * Note: Favorite button functionality is now handled by favorites-ui.js
+ * which uses localStorage for all users and optionally syncs with backend
+ * for logged-in users. The unified system is loaded in base.html.
  */
-function initializeFavoriteButton() {
-  const favoriteBtn = document.getElementById('favoriteBtn');
-  if (!favoriteBtn) return;
-
-  const placeId = favoriteBtn.dataset.placeId;
-  if (!placeId) return;
-
-  // Add transition
-  favoriteBtn.style.transition = 'transform 0.2s ease';
-
-  favoriteBtn.addEventListener('click', async function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const isFavorited = this.dataset.favorited === 'true';
-
-    try {
-      const csrfToken = getCookie('csrftoken');
-
-      const response = await fetch(`/explore/place/${placeId}/favorite/toggle/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': csrfToken,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Update button state
-        this.dataset.favorited = data.is_favorited;
-        const icon = this.querySelector('i');
-
-        if (data.is_favorited) {
-          icon.classList.remove('bi-heart');
-          icon.classList.add('bi-heart-fill', 'text-danger');
-          this.title = 'Remover dos favoritos';
-        } else {
-          icon.classList.remove('bi-heart-fill', 'text-danger');
-          icon.classList.add('bi-heart');
-          this.title = 'Adicionar aos favoritos';
-        }
-
-        // Add animation
-        this.style.transform = 'scale(1.2)';
-        setTimeout(() => {
-          this.style.transform = 'scale(1)';
-        }, 200);
-      }
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-      alert('Erro ao atualizar favorito. Tente novamente.');
-    }
-  });
-}
-
-// Auto-initialize on page load
-document.addEventListener('DOMContentLoaded', function () {
-  initializeFavoriteButton();
-});
 
 // Export functions for global use
 window.resetReviewForm = resetReviewForm;

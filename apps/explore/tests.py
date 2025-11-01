@@ -70,7 +70,7 @@ class PlaceModelTests(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(
-            username="creator", password="pass123", user_type="CREATION"
+            username="creator", password="pass123", is_staff=False
         )
         self.category = Category.objects.create(name="Restaurants", slug="restaurants")
 
@@ -155,10 +155,10 @@ class PlaceApprovalModelTests(TestCase):
 
     def setUp(self):
         self.creator = User.objects.create_user(
-            username="creator", password="pass123", user_type="CREATION"
+            username="creator", password="pass123", is_staff=False
         )
         self.admin = User.objects.create_user(
-            username="admin", password="pass123", user_type="ADMIN"
+            username="admin", password="pass123", is_staff=True
         )
         self.place = Place.objects.create(
             name="Test Place",
@@ -207,7 +207,7 @@ class ExploreViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(
-            username="creator", password="pass123", user_type="CREATION"
+            username="creator", password="pass123", is_staff=False
         )
         self.category = Category.objects.create(
             name="Restaurants", slug="restaurants", icon="🍽️"
@@ -300,13 +300,13 @@ class PlaceCreateViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.creation_user = User.objects.create_user(
-            username="creator", password="pass123", user_type="CREATION"
+            username="creator", password="pass123", is_staff=False
         )
         self.explore_user = User.objects.create_user(
-            username="explorer", password="pass123", user_type="EXPLORE"
+            username="explorer", password="pass123", is_staff=False
         )
         self.admin_user = User.objects.create_user(
-            username="admin", password="pass123", user_type="ADMIN"
+            username="admin", password="pass123", is_staff=True
         )
         self.category = Category.objects.create(name="Restaurants", slug="restaurants")
 
@@ -315,14 +315,15 @@ class PlaceCreateViewTests(TestCase):
         response = self.client.get(reverse("explore:place_create"))
         self.assertRedirects(response, "/accounts/login/?next=/explore/place/create/")
 
-    def test_explore_user_cannot_create_places(self):
-        """Test explore users cannot access place creation"""
+    def test_all_logged_in_users_can_create_places(self):
+        """Test all authenticated users can access place creation"""
+        # Test with regular user
         self.client.login(username="explorer", password="pass123")
         response = self.client.get(reverse("explore:place_create"))
-        self.assertRedirects(response, reverse("explore:explore"))
+        self.assertEqual(response.status_code, 200)
 
-    def test_creation_user_can_access_place_create_form(self):
-        """Test creation users can access place creation form"""
+        # Test with another user
+        self.client.logout()
         self.client.login(username="creator", password="pass123")
         response = self.client.get(reverse("explore:place_create"))
         self.assertEqual(response.status_code, 200)
@@ -398,13 +399,13 @@ class PlaceUpdateViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.creation_user = User.objects.create_user(
-            username="creator", password="pass123", user_type="CREATION"
+            username="creator", password="pass123", is_staff=False
         )
         self.other_user = User.objects.create_user(
-            username="other", password="pass123", user_type="CREATION"
+            username="other", password="pass123", is_staff=False
         )
         self.admin_user = User.objects.create_user(
-            username="admin", password="pass123", user_type="ADMIN"
+            username="admin", password="pass123", is_staff=True
         )
         self.category = Category.objects.create(name="Restaurants", slug="restaurants")
 
@@ -492,13 +493,13 @@ class PlaceDeleteViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.creation_user = User.objects.create_user(
-            username="creator", password="pass123", user_type="CREATION"
+            username="creator", password="pass123", is_staff=False
         )
         self.other_user = User.objects.create_user(
-            username="other", password="pass123", user_type="CREATION"
+            username="other", password="pass123", is_staff=False
         )
         self.admin_user = User.objects.create_user(
-            username="admin", password="pass123", user_type="ADMIN"
+            username="admin", password="pass123", is_staff=True
         )
 
         self.place = Place.objects.create(
@@ -569,13 +570,13 @@ class PlaceDetailViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.creation_user = User.objects.create_user(
-            username="creator", password="pass123", user_type="CREATION"
+            username="creator", password="pass123", is_staff=False
         )
         self.admin_user = User.objects.create_user(
-            username="admin", password="pass123", user_type="ADMIN"
+            username="admin", password="pass123", is_staff=True
         )
         self.explore_user = User.objects.create_user(
-            username="explorer", password="pass123", user_type="EXPLORE"
+            username="explorer", password="pass123", is_staff=False
         )
 
         self.approved_place = Place.objects.create(
@@ -730,10 +731,10 @@ class PlaceReviewModelTests(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(
-            username="reviewer", password="pass123", user_type="EXPLORE"
+            username="reviewer", password="pass123", is_staff=False
         )
         self.creator = User.objects.create_user(
-            username="creator", password="pass123", user_type="CREATION"
+            username="creator", password="pass123", is_staff=False
         )
         self.place = Place.objects.create(
             name="Test Place",
@@ -828,13 +829,13 @@ class PlaceReviewViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(
-            username="reviewer", password="pass123", user_type="EXPLORE"
+            username="reviewer", password="pass123", is_staff=False
         )
         self.creator = User.objects.create_user(
-            username="creator", password="pass123", user_type="CREATION"
+            username="creator", password="pass123", is_staff=False
         )
         self.admin = User.objects.create_user(
-            username="admin", password="pass123", user_type="ADMIN"
+            username="admin", password="pass123", is_staff=True
         )
         self.place = Place.objects.create(
             name="Test Place",
@@ -938,7 +939,7 @@ class PlaceReviewViewTests(TestCase):
     def test_user_cannot_edit_others_review(self):
         """Test user cannot edit another user's review"""
         other_user = User.objects.create_user(
-            username="other", password="pass123", user_type="EXPLORE"
+            username="other", password="pass123", is_staff=False
         )
         review = PlaceReview.objects.create(
             place=self.place,
@@ -1068,3 +1069,219 @@ class PlaceReviewViewTests(TestCase):
 
         # Should not create review
         self.assertEqual(PlaceReview.objects.count(), 0)
+
+
+# ============================================================================
+# API TESTS
+# ============================================================================
+
+
+class MapDataAPITests(TestCase):
+    """Test suite for map data API endpoint"""
+
+    def setUp(self):
+        """Set up test data"""
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username="testuser", password="testpass123", is_staff=False
+        )
+        self.category = Category.objects.create(
+            name="Restaurant", slug="restaurant", icon="🍽️"
+        )
+
+        # Create approved place with coordinates
+        self.approved_place = Place.objects.create(
+            name="Approved Place",
+            description="This is a test place with coordinates",
+            address="123 Test St",
+            latitude=-22.9068,
+            longitude=-43.1729,
+            created_by=self.user,
+            is_approved=True,
+            is_active=True,
+        )
+        self.approved_place.categories.add(self.category)
+
+        # Create place without coordinates (should not appear)
+        self.no_coords_place = Place.objects.create(
+            name="No Coords Place",
+            description="Place without coordinates",
+            address="456 Test Ave",
+            created_by=self.user,
+            is_approved=True,
+            is_active=True,
+        )
+
+        # Create unapproved place (should not appear)
+        self.unapproved_place = Place.objects.create(
+            name="Unapproved Place",
+            description="Unapproved place",
+            address="789 Test Blvd",
+            latitude=-22.9068,
+            longitude=-43.1729,
+            created_by=self.user,
+            is_approved=False,
+            is_active=True,
+        )
+
+        # Create inactive place (should not appear)
+        self.inactive_place = Place.objects.create(
+            name="Inactive Place",
+            description="Inactive place",
+            address="321 Test Rd",
+            latitude=-22.9068,
+            longitude=-43.1729,
+            created_by=self.user,
+            is_approved=True,
+            is_active=False,
+        )
+
+        self.url = reverse("explore:map_data_api")
+
+    def test_api_returns_json(self):
+        """Test that API returns valid JSON response"""
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/json")
+
+    def test_api_returns_only_approved_places(self):
+        """Test that API only returns approved, active places with coordinates"""
+        response = self.client.get(self.url)
+        data = response.json()
+
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(len(data["places"]), 1)
+        self.assertEqual(data["places"][0]["name"], "Approved Place")
+
+    def test_api_response_structure(self):
+        """Test that API response has correct structure"""
+        response = self.client.get(self.url)
+        data = response.json()
+
+        self.assertIn("places", data)
+        self.assertIn("count", data)
+
+        place_data = data["places"][0]
+        required_fields = [
+            "id",
+            "name",
+            "description",
+            "latitude",
+            "longitude",
+            "image_url",
+            "category",
+            "category_icon",
+            "url",
+            "rating",
+            "review_count",
+        ]
+        for field in required_fields:
+            self.assertIn(field, place_data)
+
+    def test_api_coordinates_are_floats(self):
+        """Test that coordinates are returned as floats"""
+        response = self.client.get(self.url)
+        data = response.json()
+
+        place_data = data["places"][0]
+        self.assertIsInstance(place_data["latitude"], float)
+        self.assertIsInstance(place_data["longitude"], float)
+        self.assertEqual(place_data["latitude"], -22.9068)
+        self.assertEqual(place_data["longitude"], -43.1729)
+
+    def test_api_truncates_long_descriptions(self):
+        """Test that long descriptions are truncated to 100 chars"""
+        # Create place with long description
+        long_desc = "A" * 150
+        long_place = Place.objects.create(
+            name="Long Description Place",
+            description=long_desc,
+            address="111 Long St",
+            latitude=-22.9068,
+            longitude=-43.1729,
+            created_by=self.user,
+            is_approved=True,
+            is_active=True,
+        )
+
+        response = self.client.get(self.url)
+        data = response.json()
+
+        # Find the long place in response
+        long_place_data = next(p for p in data["places"] if p["id"] == long_place.id)
+        self.assertEqual(len(long_place_data["description"]), 103)  # 100 + '...'
+        self.assertTrue(long_place_data["description"].endswith("..."))
+
+    def test_api_includes_category_info(self):
+        """Test that category name and icon are included"""
+        response = self.client.get(self.url)
+        data = response.json()
+
+        place_data = data["places"][0]
+        self.assertEqual(place_data["category"], "Restaurant")
+        self.assertEqual(place_data["category_icon"], "🍽️")
+
+    def test_api_handles_place_without_category(self):
+        """Test that API handles places without categories"""
+        # Remove category from place
+        self.approved_place.categories.clear()
+
+        response = self.client.get(self.url)
+        data = response.json()
+
+        place_data = data["places"][0]
+        self.assertEqual(place_data["category"], "Outros")
+        self.assertEqual(place_data["category_icon"], "📍")
+
+    def test_api_includes_rating_and_review_count(self):
+        """Test that rating and review count are included"""
+        # Add review to place
+        PlaceReview.objects.create(
+            place=self.approved_place, user=self.user, rating=4, comment="Good place"
+        )
+
+        response = self.client.get(self.url)
+        data = response.json()
+
+        place_data = data["places"][0]
+        self.assertEqual(place_data["rating"], 4.0)
+        self.assertEqual(place_data["review_count"], 1)
+
+    def test_api_handles_place_without_reviews(self):
+        """Test that API handles places without reviews"""
+        response = self.client.get(self.url)
+        data = response.json()
+
+        place_data = data["places"][0]
+        self.assertIsNone(place_data["rating"])
+        self.assertEqual(place_data["review_count"], 0)
+
+    def test_api_only_accepts_get(self):
+        """Test that API only accepts GET requests"""
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 405)  # Method not allowed
+
+        response = self.client.put(self.url)
+        self.assertEqual(response.status_code, 405)
+
+    def test_api_orders_by_created_date(self):
+        """Test that places are ordered by creation date (newest first)"""
+        # Create another approved place
+        newer_place = Place.objects.create(
+            name="Newer Place",
+            description="Newer place",
+            address="999 New St",
+            latitude=-22.9068,
+            longitude=-43.1729,
+            created_by=self.user,
+            is_approved=True,
+            is_active=True,
+        )
+
+        response = self.client.get(self.url)
+        data = response.json()
+
+        # Newer place should be first
+        self.assertEqual(data["count"], 2)
+        self.assertEqual(data["places"][0]["name"], "Newer Place")
+        self.assertEqual(data["places"][1]["name"], "Approved Place")

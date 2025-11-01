@@ -238,13 +238,23 @@
             {% endif %}
 
             <p class="card-text text-muted small">{{ place.description|truncatewords:15 }}</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <a href="{% url 'explore:place_detail' place.pk %}" class="text-dark text-decoration-none fw-bold small">Saiba Mais →</a>
-              {% if place.categories.exists %}
-                {% for category in place.categories.all|slice:":1" %}
-                <span class="badge bg-light text-dark">{{ category.name }}</span>
-                {% endfor %}
-              {% endif %}
+
+            {% if place.categories.exists %}
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              {% for category in place.categories.all|slice:":2" %}
+              <span class="badge bg-light text-dark small">{{ category.icon }} {{ category.name }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="d-flex gap-2">
+              <a href="{% url 'explore:place_detail' place.pk %}" class="btn btn-dark btn-sm text-uppercase flex-grow-1">Ver Detalhes →</a>
+              <button class="btn btn-outline-danger btn-sm favorite-btn"
+                      data-place-id="{{ place.pk }}"
+                      title="Adicionar aos favoritos"
+                      aria-label="Adicionar aos favoritos">
+                <i class="bi bi-heart"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -430,7 +440,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<!-- Swiper is already loaded globally in base.html -->
 <script src="{% static 'js/landing.js' %}"></script>
 <script src="{% static 'js/landing_map.js' %}"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&callback=initLandingMap&loading=async" async defer></script>

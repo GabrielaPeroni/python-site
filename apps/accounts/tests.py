@@ -14,11 +14,9 @@ class UserModelTests(TestCase):
             username="testuser",
             email="test@example.com",
             password="testpass123",
-            user_type="EXPLORE",
         )
         self.assertEqual(user.username, "testuser")
         self.assertEqual(user.email, "test@example.com")
-        self.assertEqual(user.user_type, "EXPLORE")
         self.assertTrue(user.check_password("testpass123"))
         self.assertTrue(user.is_active)
         self.assertFalse(user.is_staff)
@@ -30,57 +28,49 @@ class UserModelTests(TestCase):
             username="admin",
             email="admin@example.com",
             password="admin123",
-            user_type="ADMIN",
         )
         self.assertTrue(admin.is_staff)
         self.assertTrue(admin.is_superuser)
-        self.assertEqual(admin.user_type, "ADMIN")
-
-    def test_user_type_choices(self):
-        """Test all user type choices"""
-        explore_user = User.objects.create_user(
-            username="explorer", password="pass123", user_type="EXPLORE"
-        )
-        self.assertEqual(explore_user.user_type, "EXPLORE")
-
-        creation_user = User.objects.create_user(
-            username="creator", password="pass123", user_type="CREATION"
-        )
-        self.assertEqual(creation_user.user_type, "CREATION")
-
-        admin_user = User.objects.create_user(
-            username="adminuser", password="pass123", user_type="ADMIN"
-        )
-        self.assertEqual(admin_user.user_type, "ADMIN")
 
     def test_user_string_representation(self):
         """Test the string representation of user"""
-        user = User.objects.create_user(
-            username="testuser", password="pass123", user_type="EXPLORE"
-        )
-        self.assertEqual(str(user), "testuser (Explore User)")
+        user = User.objects.create_user(username="testuser", password="pass123")
+        self.assertEqual(str(user), "testuser")
 
     def test_user_permissions_properties(self):
         """Test custom permission properties"""
-        explore_user = User.objects.create_user(
-            username="explorer", password="pass123", user_type="EXPLORE"
+        regular_user = User.objects.create_user(
+            username="regular", password="pass123", is_staff=False
         )
-        creation_user = User.objects.create_user(
-            username="creator", password="pass123", user_type="CREATION"
-        )
-        admin_user = User.objects.create_user(
-            username="admin", password="pass123", user_type="ADMIN"
+        staff_user = User.objects.create_user(
+            username="staff", password="pass123", is_staff=True
         )
 
-        # Test can_create_places
-        self.assertFalse(explore_user.can_create_places)
-        self.assertTrue(creation_user.can_create_places)
-        self.assertTrue(admin_user.can_create_places)
+        # Test can_create_places - all authenticated users can create
+        self.assertTrue(regular_user.can_create_places)
+        self.assertTrue(staff_user.can_create_places)
 
-        # Test can_moderate
-        self.assertFalse(explore_user.can_moderate)
-        self.assertFalse(creation_user.can_moderate)
-        self.assertTrue(admin_user.can_moderate)
+        # Test can_moderate - only staff users can moderate
+        self.assertFalse(regular_user.can_moderate)
+        self.assertTrue(staff_user.can_moderate)
+
+    def test_all_logged_in_users_can_create_places(self):
+        """Test that all logged-in users can create places"""
+        regular_user = User.objects.create_user(
+            username="regular", password="pass123", is_staff=False
+        )
+        self.assertTrue(regular_user.can_create_places)
+
+    def test_only_staff_can_moderate(self):
+        """Test that only staff users can moderate"""
+        regular_user = User.objects.create_user(
+            username="regular", password="pass123", is_staff=False
+        )
+        staff_user = User.objects.create_user(
+            username="staff", password="pass123", is_staff=True
+        )
+        self.assertFalse(regular_user.can_moderate)
+        self.assertTrue(staff_user.can_moderate)
 
 
 class AuthenticationViewTests(TestCase):
@@ -92,7 +82,6 @@ class AuthenticationViewTests(TestCase):
             username="testuser",
             email="test@example.com",
             password="testpass123",
-            user_type="EXPLORE",
         )
 
     def test_login_page_loads(self):
@@ -130,7 +119,6 @@ class AuthenticationViewTests(TestCase):
             {
                 "username": "newuser",
                 "email": "new@example.com",
-                "user_type": "CREATION",
                 "password1": "newpass123!",
                 "password2": "newpass123!",
             },
@@ -141,7 +129,31 @@ class AuthenticationViewTests(TestCase):
         self.assertTrue(User.objects.filter(username="newuser").exists())
         new_user = User.objects.get(username="newuser")
         self.assertEqual(new_user.email, "new@example.com")
-        self.assertEqual(new_user.user_type, "CREATION")
+        self.assertFalse(new_user.is_staff)  # Regular user by default
+
+    def test_registration_form_no_user_type_field(self):
+        """Test that registration form does not show user type selection"""
+        response = self.client.get(reverse("accounts:register"))
+        self.assertEqual(response.status_code, 200)
+        # User type field should not be in the form
+        self.assertNotContains(response, 'name="user_type"')
+
+    def test_new_users_default_to_regular_account(self):
+        """Test that newly registered users are regular accounts (not staff)"""
+        response = self.client.post(
+            reverse("accounts:register"),
+            {
+                "username": "newuser",
+                "email": "new@example.com",
+                "password1": "newpass123!",
+                "password2": "newpass123!",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        new_user = User.objects.get(username="newuser")
+        self.assertFalse(new_user.is_staff)
+        self.assertTrue(new_user.can_create_places)
+        self.assertFalse(new_user.can_moderate)
 
     def test_logout(self):
         """Test user can logout"""
@@ -179,38 +191,31 @@ class AuthenticationViewTests(TestCase):
         user = response.wsgi_request.user
         self.assertFalse(user.is_authenticated)
 
-    def test_login_modal_present_on_pages(self):
-        """Test that login modal HTML is present on pages"""
+    def test_login_dropdown_present_on_pages(self):
+        """Test that login dropdown HTML is present on pages"""
         # Test on landing page
         response = self.client.get(reverse("core:landing"))
-        self.assertContains(response, 'id="loginModal"')
+        self.assertContains(response, 'id="loginDropdown"')
         self.assertContains(response, "Entre na sua conta")
 
-        # Test on explore page
+        # Test on explore page - uses includes/navbar.html
         response = self.client.get(reverse("explore:explore"))
-        self.assertContains(response, 'id="loginModal"')
+        self.assertContains(response, "Entre na sua conta")
 
     def test_login_button_present_for_anonymous_users(self):
         """Test login button appears for anonymous users"""
         response = self.client.get(reverse("core:landing"))
-        self.assertContains(response, 'data-bs-toggle="modal"')
-        self.assertContains(response, 'data-bs-target="#loginModal"')
+        self.assertContains(response, 'data-bs-toggle="dropdown"')
         self.assertContains(response, "Entrar")
 
     def test_login_button_not_present_for_authenticated_users(self):
         """Test login button doesn't appear for authenticated users"""
         self.client.login(username="testuser", password="testpass123")
         response = self.client.get(reverse("core:landing"))
-        # Should show Sair instead of Entrar
+        # Should show Sair instead of Entrar in the dropdown
         self.assertContains(response, "Sair")
-        # Should not show the Entrar button with modal trigger (only in nav, not in modal form)
-        # The modal form button is fine as it's hidden by default
-        content = response.content.decode("utf-8")
-        # Check that navigation doesn't have the login trigger button
-        self.assertNotIn(
-            'btn-outline-light btn-sm text-uppercase" data-bs-toggle="modal" data-bs-target="#loginModal" type="button">Entrar',
-            content,
-        )
+        # Should not show the login dropdown trigger
+        self.assertNotContains(response, 'id="loginDropdown"')
         # Should show username
         self.assertContains(response, "testuser")
 

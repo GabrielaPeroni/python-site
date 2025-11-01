@@ -23,15 +23,14 @@ class Command(BaseCommand):
                 username="admin",
                 email="admin@maricacity.com",
                 password="admin123",
-                user_type="ADMIN",
             )
 
-        # Creation user
+        # Creator user (regular user with is_staff=False)
         creator, created = User.objects.get_or_create(
             username="creator1",
             defaults={
                 "email": "creator@maricacity.com",
-                "user_type": "CREATION",
+                "is_staff": False,
                 "bio": "Local tourism enthusiast and content creator",
             },
         )
@@ -40,12 +39,12 @@ class Command(BaseCommand):
             creator.save()
             self.stdout.write(self.style.SUCCESS(f"Created user: {creator.username}"))
 
-        # Explore user
+        # Explorer user (regular user with is_staff=False)
         explorer, created = User.objects.get_or_create(
             username="explorer1",
             defaults={
                 "email": "explorer@maricacity.com",
-                "user_type": "EXPLORE",
+                "is_staff": False,
                 "bio": "Loves discovering new places in Marica",
             },
         )

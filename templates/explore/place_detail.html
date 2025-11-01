@@ -53,15 +53,13 @@
           </div>
         {% endif %}
 
-        {% if user.is_authenticated %}
-        <button class="btn btn-light rounded-circle position-absolute favorite-heart-icon"
+        <button class="btn btn-light rounded-circle position-absolute favorite-heart-icon favorite-btn"
                 id="favoriteBtn"
                 data-place-id="{{ place.pk }}"
-                data-favorited="{{ is_favorited|lower }}"
-                title="{% if is_favorited %}Remover dos favoritos{% else %}Adicionar aos favoritos{% endif %}">
-          <i class="bi {% if is_favorited %}bi-heart-fill text-danger{% else %}bi-heart{% endif %} fs-4"></i>
+                title="Adicionar aos favoritos"
+                aria-label="Adicionar aos favoritos">
+          <i class="bi bi-heart fs-4"></i>
         </button>
-        {% endif %}
       </div>
 
       <div class="card border-2">

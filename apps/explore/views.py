@@ -88,18 +88,16 @@ def category_detail_view(request, slug):
 def place_detail_view(request, pk):
     """Individual place detail page"""
 
-    # Get the place or 404 (only show approved and active places to non-admin users)
-    if request.user.is_authenticated and (
-        request.user.user_type == "ADMIN" or request.user.user_type == "CREATION"
-    ):
-        # Admins and creation users can view their own unapproved places
+    # Get the place or 404 (only show approved and active places to non-moderators)
+    if request.user.is_authenticated:
+        # All authenticated users can view their own unapproved places
         place = get_object_or_404(
             Place.objects.prefetch_related("images", "categories"), pk=pk
         )
-        # But creation users can only see their own places if unapproved
+        # But regular users can only see their own places if unapproved
         if (
             place.created_by != request.user
-            and request.user.user_type != "ADMIN"
+            and not request.user.can_moderate
             and not place.is_approved
         ):
             place = get_object_or_404(Place, pk=pk, is_approved=True, is_active=True)
@@ -120,7 +118,7 @@ def place_detail_view(request, pk):
     # Check if user can edit this place
     can_edit = False
     if request.user.is_authenticated:
-        if request.user.user_type == "ADMIN" or place.created_by == request.user:
+        if request.user.can_moderate or place.created_by == request.user:
             can_edit = True
 
     # Get all reviews for this place
@@ -498,8 +496,8 @@ def review_edit_view(request, pk):
     """Edit an existing review"""
     review = get_object_or_404(PlaceReview, pk=pk)
 
-    # Check permissions: owner or admin can edit
-    if review.user != request.user and request.user.user_type != "ADMIN":
+    # Check permissions: owner or moderator can edit
+    if review.user != request.user and not request.user.can_moderate:
         messages.error(request, "Você não tem permissão para editar esta avaliação.")
         return redirect("explore:place_detail", pk=review.place.pk)
 
@@ -521,8 +519,8 @@ def review_delete_view(request, pk):
     """Delete a review"""
     review = get_object_or_404(PlaceReview, pk=pk)
 
-    # Check permissions: owner or admin can delete
-    if review.user != request.user and request.user.user_type != "ADMIN":
+    # Check permissions: owner or moderator can delete
+    if review.user != request.user and not request.user.can_moderate:
         messages.error(request, "Você não tem permissão para excluir esta avaliação.")
         return redirect("explore:place_detail", pk=review.place.pk)
 
@@ -539,53 +537,156 @@ def review_delete_view(request, pk):
 # Favorite Views
 
 
-@login_required
 def toggle_favorite_view(request, pk):
-    """Toggle favorite status for a place (AJAX endpoint)"""
+    """
+    Toggle favorite status for a place (AJAX endpoint)
+    Works for both logged-in and anonymous users
+    - Logged-in users: syncs with backend database
+    - Anonymous users: client-side only (localStorage)
+    """
     if request.method != "POST":
         return JsonResponse({"error": "POST method required"}, status=405)
 
     place = get_object_or_404(Place, pk=pk, is_approved=True, is_active=True)
 
-    # Check if already favorited
-    favorite = Favorite.objects.filter(user=request.user, place=place).first()
+    # For logged-in users, sync with database
+    if request.user.is_authenticated:
+        favorite = Favorite.objects.filter(user=request.user, place=place).first()
 
-    if favorite:
-        # Remove favorite
-        favorite.delete()
-        is_favorited = False
-        message = "Lugar removido dos favoritos"
+        if favorite:
+            # Remove favorite
+            favorite.delete()
+            is_favorited = False
+            message = "Lugar removido dos favoritos"
+        else:
+            # Add favorite
+            Favorite.objects.create(user=request.user, place=place)
+            is_favorited = True
+            message = "Lugar adicionado aos favoritos"
+
+        # Get total favorites count for this place
+        favorites_count = place.favorited_by.count()
+
+        return JsonResponse(
+            {
+                "success": True,
+                "is_favorited": is_favorited,
+                "favorites_count": favorites_count,
+                "message": message,
+            }
+        )
     else:
-        # Add favorite
-        Favorite.objects.create(user=request.user, place=place)
-        is_favorited = True
-        message = "Lugar adicionado aos favoritos"
+        # For anonymous users, just confirm the action
+        # Actual toggle happens in client-side localStorage
+        return JsonResponse(
+            {
+                "success": True,
+                "message": "Favorito atualizado",
+            }
+        )
 
-    # Get total favorites count for this place
-    favorites_count = place.favorited_by.count()
+
+def favorites_list_view(request):
+    """
+    List all favorites for the current user
+    - Logged-in users: shows database favorites
+    - Anonymous users: page uses JavaScript to load from localStorage
+    """
+    if request.user.is_authenticated:
+        # Get favorites from database for logged-in users
+        favorites = (
+            Favorite.objects.filter(user=request.user)
+            .select_related("place", "place__created_by")
+            .prefetch_related("place__images", "place__categories")
+            .order_by("-created_at")
+        )
+
+        context = {
+            "favorites": favorites,
+            "favorites_count": favorites.count(),
+            "is_authenticated": True,
+        }
+    else:
+        # For anonymous users, page will use JavaScript to load from localStorage
+        context = {
+            "favorites": [],
+            "favorites_count": 0,
+            "is_authenticated": False,
+        }
+
+    return render(request, "explore/favorites.html", context)
+
+
+@login_required
+def sync_favorites_view(request):
+    """
+    Sync favorites from localStorage to backend (for logged-in users)
+    Merges local favorites with backend favorites
+    """
+    if request.method != "POST":
+        return JsonResponse({"error": "POST method required"}, status=405)
+
+    try:
+        import json
+
+        data = json.loads(request.body)
+        local_favorites = data.get("favorites", [])
+
+        # Get existing backend favorites
+        existing_favorites = set(
+            Favorite.objects.filter(user=request.user).values_list(
+                "place_id", flat=True
+            )
+        )
+
+        # Merge: add any new favorites from localStorage to backend
+        new_favorites = []
+        for place_id in local_favorites:
+            if place_id not in existing_favorites:
+                # Verify place exists and is approved
+                try:
+                    place = Place.objects.get(pk=place_id, is_approved=True)
+                    Favorite.objects.create(user=request.user, place=place)
+                    new_favorites.append(place_id)
+                except Place.DoesNotExist:
+                    continue
+
+        # Get all favorites (merged)
+        all_favorites = list(
+            Favorite.objects.filter(user=request.user).values_list(
+                "place_id", flat=True
+            )
+        )
+
+        return JsonResponse(
+            {
+                "success": True,
+                "favorites": all_favorites,
+                "added": len(new_favorites),
+                "message": f"{len(new_favorites)} favoritos sincronizados",
+            }
+        )
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+@login_required
+def favorites_api_list_view(request):
+    """
+    API endpoint to get list of favorite place IDs for logged-in user
+    Used by JavaScript to sync localStorage with backend on page load
+    """
+    favorites = list(
+        Favorite.objects.filter(user=request.user).values_list("place_id", flat=True)
+    )
 
     return JsonResponse(
         {
             "success": True,
-            "is_favorited": is_favorited,
-            "favorites_count": favorites_count,
-            "message": message,
+            "favorites": favorites,
+            "count": len(favorites),
         }
     )
-
-
-@login_required
-def favorites_list_view(request):
-    """List all favorites for the current user"""
-    favorites = (
-        Favorite.objects.filter(user=request.user)
-        .select_related("place", "place__created_by")
-        .prefetch_related("place__images", "place__categories")
-        .order_by("-created_at")
-    )
-
-    context = {
-        "favorites": favorites,
-        "favorites_count": favorites.count(),
-    }
-    return render(request, "explore/favorites.html", context)

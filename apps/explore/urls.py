@@ -8,6 +8,7 @@ urlpatterns = [
     path("", views.explore_view, name="explore"),
     # API endpoints
     path("api/map-data/", api.map_data_api, name="map_data_api"),
+    path("api/places-by-ids/", api.places_by_ids_api, name="places_by_ids_api"),
     path("category/<slug:slug>/", views.category_detail_view, name="category_detail"),
     path("place/<int:pk>/", views.place_detail_view, name="place_detail"),
     path("place/create/", views.place_create_view, name="place_create"),
@@ -35,4 +36,6 @@ urlpatterns = [
         name="toggle_favorite",
     ),
     path("favorites/", views.favorites_list_view, name="favorites"),
+    path("favorites/sync/", views.sync_favorites_view, name="sync_favorites"),
+    path("favorites/list/", views.favorites_api_list_view, name="favorites_api_list"),
 ]
