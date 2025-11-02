@@ -22,12 +22,11 @@
         <form method="get" class="row g-3">
           {% csrf_token %}
           <div class="col-md-3">
-            <label for="userTypeFilter" class="form-label">Tipo de Usuário</label>
-            <select class="form-select" id="userTypeFilter" name="user_type">
+            <label for="roleFilter" class="form-label">Tipo de Usuário</label>
+            <select class="form-select" id="roleFilter" name="role">
               <option value="">Todos os tipos</option>
-              {% for value, label in user_type_choices %}
-                <option value="{{ value }}" {% if user_type_filter == value %}selected{% endif %}>{{ label }}</option>
-              {% endfor %}
+              <option value="staff" {% if role_filter == 'staff' %}selected{% endif %}>Staff</option>
+              <option value="regular" {% if role_filter == 'regular' %}selected{% endif %}>Regular</option>
             </select>
           </div>
           <div class="col-md-3">
@@ -73,12 +72,11 @@
                   <small class="text-muted">{{ user_item.email|default:"-" }}</small>
                 </td>
                 <td>
-                  <select class="form-select form-select-sm user-type-select"
+                  <select class="form-select form-select-sm user-role-select"
                           data-user-id="{{ user_item.id }}"
                           {% if user_item == user %}disabled{% endif %}>
-                    {% for value, label in user_type_choices %}
-                      <option value="{{ value }}" {% if user_item.user_type == value %}selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
+                    <option value="staff" {% if user_item.is_staff %}selected{% endif %}>Staff</option>
+                    <option value="regular" {% if not user_item.is_staff %}selected{% endif %}>Regular</option>
                   </select>
                 </td>
                 <td>

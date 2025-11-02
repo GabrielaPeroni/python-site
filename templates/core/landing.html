@@ -279,7 +279,7 @@
       <p class="lead text-muted">Nenhum lugar disponível ainda. Volte em breve!</p>
       {% if user.is_authenticated and user.can_create_places %}
       <a href="{% url 'explore:place_create' %}" class="btn btn-dark btn-lg text-uppercase mt-3">
-        Adicione Seu Primeiro Lugar
+        Adicione um lugar
       </a>
       {% endif %}
     </div>
@@ -369,19 +369,6 @@
     </div>
   </div>
 </section>
-
-{% if not user.is_authenticated %}
-<section id="ctaSection" class="bg-dark text-white py-5">
-  <div class="container text-center">
-    <h2 class="display-5 fw-bold text-uppercase mb-3">Junte-se à Nossa Comunidade</h2>
-    <p class="lead mb-4">Descubra lugares incríveis ou compartilhe seus locais favoritos com outros</p>
-    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-      <a href="{% url 'accounts:register' %}" class="btn btn-outline-light btn-lg text-uppercase px-5">Cadastre-se Agora</a>
-      <a href="{% url 'accounts:login' %}" class="btn btn-light btn-lg text-uppercase px-5">Entrar</a>
-    </div>
-  </div>
-</section>
-{% endif %}
 {% endblock %}
 
 {% block extra_js %}

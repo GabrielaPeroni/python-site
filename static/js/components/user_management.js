@@ -6,20 +6,20 @@
 document.addEventListener('DOMContentLoaded', function () {
   const csrfToken = getCookie('csrftoken');
 
-  // Handle user type change
-  const userTypeSelects = document.querySelectorAll('.user-type-select');
-  userTypeSelects.forEach(select => {
+  // Handle user role change (toggle between staff and regular)
+  const userRoleSelects = document.querySelectorAll('.user-role-select');
+  userRoleSelects.forEach(select => {
     select.addEventListener('change', function () {
       const userId = this.dataset.userId;
-      const newType = this.value;
-      const originalType = this.querySelector('option[selected]')?.value;
+      const newRole = this.value;
+      const originalRole = this.querySelector('option[selected]')?.value;
 
       if (
         !confirm(
           'Tem certeza que deseja alterar o tipo deste usuário?\n\nIsso pode modificar as permissões do usuário no sistema.'
         )
       ) {
-        this.value = originalType;
+        this.value = originalRole;
         return;
       }
 
@@ -30,9 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
         method: 'POST',
         headers: {
           'X-CSRFToken': csrfToken,
-          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: `user_type=${newType}`,
       })
         .then(response => response.json())
         .then(data => {
@@ -40,17 +38,20 @@ document.addEventListener('DOMContentLoaded', function () {
             // Show success message
             showNotification('success', data.message);
 
-            // Update the selected option
+            // Update the selected option based on response
             const options = this.querySelectorAll('option');
             options.forEach(opt => {
               opt.removeAttribute('selected');
-              if (opt.value === newType) {
+              if (
+                (data.is_staff && opt.value === 'staff') ||
+                (!data.is_staff && opt.value === 'regular')
+              ) {
                 opt.setAttribute('selected', 'selected');
               }
             });
           } else {
-            // Revert to original type
-            this.value = originalType;
+            // Revert to original role
+            this.value = originalRole;
             showNotification(
               'error',
               data.error || 'Erro ao atualizar tipo de usuário'
@@ -59,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => {
           console.error('Error:', error);
-          this.value = originalType;
+          this.value = originalRole;
           showNotification('error', 'Erro ao processar solicitação');
         })
         .finally(() => {

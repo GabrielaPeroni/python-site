@@ -181,7 +181,7 @@
     <div class="text-center py-5">
       <p class="lead text-muted">Nenhum lugar disponível ainda. Seja o primeiro a adicionar um!</p>
       {% if user.is_authenticated and user.can_create_places %}
-      <a href="{% url 'explore:place_create' %}" class="btn btn-dark btn-lg text-uppercase mt-3">Adicionar Primeiro Lugar</a>
+      <a href="{% url 'explore:place_create' %}" class="btn btn-dark btn-lg text-uppercase mt-3">Adicionar um lugar</a>
       {% endif %}
     </div>
     {% endif %}

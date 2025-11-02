@@ -155,7 +155,7 @@ def place_detail_view(request, pk):
 @login_required
 @ratelimit(key="user", rate="5/h", method="POST", block=True)
 def place_create_view(request):
-    """Create a new place (creation-users and admin only)"""
+    """Create a new place (all authenticated users)"""
 
     # Check if user can create places
     if not request.user.can_create_places:
