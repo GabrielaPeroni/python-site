@@ -16,44 +16,7 @@
 <section id="heroSection" class="hero-section">
   <!-- Navbar Container (Outside slides) -->
   <div class="hero-navbar-container">
-          <nav class="navbar navbar-expand-lg navbar-dark hero-navbar">
-            <div class="container-fluid">
-              <a class="navbar-brand" href="{% url 'core:landing' %}">MaricaCity</a>
-              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-              </button>
-              <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                  <li class="nav-item">
-                    <a class="nav-link" href="{% url 'explore:explore' %}">Explorar</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="{% url 'news:news_list' %}">Notícias</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="{% url 'core:about' %}">Sobre</a>
-                  </li>
-                  {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                      <button class="btn btn-link nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle"></i> {{ user.username }}
-                      </button>
-                      <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{% url 'explore:favorites' %}">Meus Favoritos</a></li>
-                        {% if user.can_create_places %}
-                        <li><a class="dropdown-item" href="{% url 'explore:place_create' %}">Adicionar Lugar</a></li>
-                        {% endif %}
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Sair</a></li>
-                      </ul>
-                    </li>
-                  {% else %}
-                    {% include 'includes/login_dropdown.html' with dropdown_id='landing' %}
-                  {% endif %}
-                </ul>
-              </div>
-            </div>
-          </nav>
+    {% include 'includes/navbar.html' with navbar_class='hero-navbar' %}
   </div>
 
   <!-- Swiper Container -->
@@ -162,13 +125,15 @@
       {% for place in trending_places %}
       <div class="col-12 col-sm-6 col-md-4 col-lg-3">
         <div class="card border h-100 card-hover">
-          {% if place.primary_image %}
-          <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="card-img-top place-card-img" loading="lazy">
-          {% else %}
-          <div class="bg-dark text-white d-flex align-items-center justify-content-center place-card-placeholder">
-            <span class="display-4 fw-bold">{{ place.name|first }}</span>
-          </div>
-          {% endif %}
+          <a href="{% url 'explore:place_detail' place.pk %}" class="text-decoration-none">
+            {% if place.primary_image %}
+            <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="card-img-top place-card-img" loading="lazy">
+            {% else %}
+            <div class="bg-dark text-white d-flex align-items-center justify-content-center place-card-placeholder">
+              <span class="display-4 fw-bold">{{ place.name|first }}</span>
+            </div>
+            {% endif %}
+          </a>
           <div class="card-body">
             <h5 class="card-title fw-bold text-uppercase">{{ place.name }}</h5>
 

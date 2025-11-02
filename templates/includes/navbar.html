@@ -2,25 +2,25 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark {{ navbar_class|default:'' }}" {% if navbar_style %}style="{{ navbar_style }}"{% endif %}>
   <div class="container-fluid px-4">
-    <a class="navbar-brand fw-bold text-uppercase" href="{% url 'core:landing' %}">MaricaCity</a>
+    <a class="navbar-brand" href="{% url 'core:landing' %}">MaricaCity</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link text-uppercase {% if active_page == 'explore' %}active border-bottom border-2{% endif %}" href="{% url 'explore:explore' %}">Explorar</a>
+          <a class="nav-link {% if active_page == 'explore' %}active border-bottom border-2{% endif %}" href="{% url 'explore:explore' %}">Explorar</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-uppercase {% if active_page == 'news' %}active border-bottom border-2{% endif %}" href="{% url 'news:news_list' %}">Notícias</a>
+          <a class="nav-link {% if active_page == 'news' %}active border-bottom border-2{% endif %}" href="{% url 'news:news_list' %}">Notícias</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-uppercase {% if active_page == 'about' %}active border-bottom border-2{% endif %}" href="{% url 'core:about' %}">Sobre</a>
+          <a class="nav-link {% if active_page == 'about' %}active border-bottom border-2{% endif %}" href="{% url 'core:about' %}">Sobre</a>
         </li>
 
         {% if user.is_authenticated %}
           <li class="nav-item dropdown">
-            <button class="btn btn-outline-light {{ btn_size|default:'btn-sm' }} text-uppercase user-menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <button class="btn btn-link nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-person-circle me-1"></i>{{ user.username }}
             </button>
             <div class="dropdown-menu dropdown-menu-end shadow-lg user-dashboard-menu">

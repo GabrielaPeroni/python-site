@@ -1,0 +1,81 @@
+/* ==========================================================================
+   Page Header Component
+   Standardized headers for all internal pages
+   ========================================================================== */
+
+/* Navbar Styling - Match landing page spacing */
+.navbar {
+  padding: 1rem 2rem !important;
+}
+
+.page-header {
+  background: linear-gradient(to right, #374151, #1f2937);
+  color: white;
+  padding: 2rem 0;
+  margin-bottom: 0;
+}
+
+.page-header-gradient {
+  background: linear-gradient(to right, #374151, #1f2937);
+}
+
+.page-header .container {
+  position: relative;
+}
+
+.page-header h1 {
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.page-header p {
+  margin-bottom: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+
+.page-header i {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .page-header {
+    padding: 1.5rem 0;
+  }
+
+  .page-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .page-header p {
+    font-size: 0.875rem;
+  }
+}
+
+/* Breadcrumb styling in headers */
+.page-header .breadcrumb {
+  background: transparent;
+  margin-bottom: 0;
+  padding: 0.5rem 0;
+}
+
+.page-header .breadcrumb-item a {
+  color: white;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.page-header .breadcrumb-item a:hover {
+  opacity: 0.8;
+}
+
+.page-header .breadcrumb-item.active {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.page-header .breadcrumb-item + .breadcrumb-item::before {
+  color: rgba(255, 255, 255, 0.5);
+}

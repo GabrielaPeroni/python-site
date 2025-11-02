@@ -15,14 +15,12 @@ document.addEventListener('DOMContentLoaded', function () {
   formsetForms.forEach((formDiv, index) => {
     const imageInput = formDiv.querySelector('input[type="file"]');
     const deleteInput = formDiv.querySelector('input[name*="DELETE"]');
-    const imageField = formDiv.querySelector('input[name*="image"]');
+    const existingImageUrl = formDiv.dataset.existingImageUrl;
 
-    if (imageField && imageField.value && !deleteInput.checked) {
+    // Check if there's an existing image (from database) and it's not marked for deletion
+    if (existingImageUrl && !deleteInput.checked) {
       imageCount++;
-      const existingImageUrl = imageField.dataset.url || imageField.value;
-      if (existingImageUrl) {
-        createPreviewCard(existingImageUrl, index, true);
-      }
+      createPreviewCard(existingImageUrl, index, true);
     }
   });
 
@@ -39,7 +37,10 @@ document.addEventListener('DOMContentLoaded', function () {
       if (targetFormIndex === -1) {
         const deleteInput = formDiv.querySelector('input[name*="DELETE"]');
         const imageInput = formDiv.querySelector('input[type="file"]');
-        if (!deleteInput.checked && !imageInput.files.length) {
+        const existingImageUrl = formDiv.dataset.existingImageUrl;
+
+        // Available if not deleted, has no new file, and has no existing image
+        if (!deleteInput.checked && !imageInput.files.length && !existingImageUrl) {
           targetFormIndex = index;
         }
       }
@@ -119,6 +120,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (imageInput) {
       imageInput.value = '';
+    }
+
+    // Clear the existing image URL data attribute
+    if (formDiv.dataset.existingImageUrl) {
+      delete formDiv.dataset.existingImageUrl;
     }
 
     cardElement.remove();
