@@ -57,7 +57,7 @@ Thumbs.db
 .env.*.local
 
 # Claude
-claude_context/
+/claude_context
 /.claude
 
 # Others
