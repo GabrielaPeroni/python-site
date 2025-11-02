@@ -14,9 +14,6 @@ function decodeJWT(token) {
 
 function handleCredentialResponse(response) {
   const payload = decodeJWT(response.credential);
-  console.log('Signed in as:', payload.email);
-  console.log('Full name:', payload.name);
-  console.log('Profile image:', payload.picture);
 
   // Send token to backend for authentication
   fetch('/auth/google/', {
@@ -58,7 +55,6 @@ function initializeGoogleSDK() {
         callback: handleCredentialResponse,
       });
       googleInitialized = true;
-      console.log('Google Sign-In SDK initialized');
       renderGoogleButton();
     } catch (error) {
       console.error('Error initializing Google Sign-In SDK:', error);
@@ -87,7 +83,6 @@ function renderGoogleButton() {
         logo_alignment: 'left',
         width: 280,
       });
-      console.log('Google Sign-In button rendered successfully');
     } catch (error) {
       console.error('Error rendering Google Sign-In button:', error);
     }

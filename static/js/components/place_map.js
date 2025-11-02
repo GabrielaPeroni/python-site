@@ -11,7 +11,6 @@ function initPlaceMap() {
   const mapContainer = document.getElementById('place-map');
 
   if (!mapContainer) {
-    console.log('Map container not found');
     return;
   }
 
@@ -22,7 +21,6 @@ function initPlaceMap() {
 
   // Check if coordinates are valid
   if (isNaN(latitude) || isNaN(longitude)) {
-    console.log('Invalid coordinates, hiding map');
     mapContainer.parentElement.style.display = 'none';
     return;
   }
@@ -77,8 +75,6 @@ function initPlaceMap() {
     marker.setAnimation(google.maps.Animation.BOUNCE);
     setTimeout(() => marker.setAnimation(null), 750);
   });
-
-  console.log('Place map initialized successfully', { latitude, longitude, placeName });
 }
 
 // Initialize when Google Maps script is loaded

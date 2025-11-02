@@ -135,25 +135,7 @@ class Place(models.Model):
 
 
 class PlaceImage(models.Model):
-    class Meta:
-        ordering = ["display_order", "-uploaded_at"]
-        verbose_name = "Place Image"
-        verbose_name_plural = "Place Images"
-        indexes = [
-            models.Index(fields=["place", "display_order"]),
-            models.Index(fields=["place", "is_primary"]),
-        ]
-
-    def __str__(self):
-        return f"{self.place.name} - Image {self.id}"
-
-    def save(self, *args, **kwargs):
-        if self.is_primary:
-            # Set all other images for this place to non-primary
-            PlaceImage.objects.filter(place=self.place, is_primary=True).update(
-                is_primary=False
-            )
-        super().save(*args, **kwargs)
+    """Images for places"""
 
     place = models.ForeignKey(
         Place,
@@ -180,6 +162,26 @@ class PlaceImage(models.Model):
     uploaded_at = models.DateTimeField(
         auto_now_add=True, help_text="When the image was uploaded"
     )
+
+    class Meta:
+        ordering = ["display_order", "-uploaded_at"]
+        verbose_name = "Place Image"
+        verbose_name_plural = "Place Images"
+        indexes = [
+            models.Index(fields=["place", "display_order"]),
+            models.Index(fields=["place", "is_primary"]),
+        ]
+
+    def __str__(self):
+        return f"{self.place.name} - Image {self.id}"
+
+    def save(self, *args, **kwargs):
+        if self.is_primary:
+            # Set all other images for this place to non-primary
+            PlaceImage.objects.filter(place=self.place, is_primary=True).update(
+                is_primary=False
+            )
+        super().save(*args, **kwargs)
 
 
 class PlaceApproval(models.Model):

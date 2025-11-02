@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -137,8 +138,6 @@ def place_detail_view(request, pk):
     # Get favorites count
     favorites_count = place.favorited_by.count()
 
-    from django.conf import settings
-
     context = {
         "place": place,
         "related_places": related_places,
@@ -204,8 +203,6 @@ def place_create_view(request):
         form = PlaceForm()
         formset = PlaceImageFormSet()
 
-    from django.conf import settings
-
     context = {
         "form": form,
         "formset": formset,
@@ -262,8 +259,6 @@ def place_update_view(request, pk):
     else:
         form = PlaceForm(instance=place)
         formset = PlaceImageFormSet(instance=place)
-
-    from django.conf import settings
 
     context = {
         "form": form,

@@ -12,7 +12,6 @@ async function initLandingMap() {
   const mapContainer = document.getElementById('landing-map');
 
   if (!mapContainer) {
-    console.log('Landing map container not found');
     return;
   }
 
@@ -47,8 +46,6 @@ async function initLandingMap() {
 
       // Fit map to show all markers
       fitMapToMarkers();
-    } else {
-      console.log('No places with coordinates found');
     }
 
     // Update place count
@@ -77,8 +74,6 @@ function createMarkers(places) {
 
     markers.push(marker);
   });
-
-  console.log(`Created ${markers.length} markers on landing map`);
 }
 
 function showInfoWindow(marker) {

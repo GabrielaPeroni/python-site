@@ -77,8 +77,6 @@ function onPlaceChanged(place) {
 
     latitudeField.value = lat.toFixed(6);
     longitudeField.value = lng.toFixed(6);
-
-    console.log('Location captured:', { lat, lng, address: formattedAddress });
   }
 
   // Optional: Update city/state fields if they exist
@@ -89,17 +87,15 @@ function onPlaceChanged(place) {
 
 function updateAddressComponents(components) {
   // This function can be extended to auto-fill other fields like city, state, etc.
-  // For now, we just log the components
-  console.log('Address components:', components);
-
-  // Example: Extract city and state
+  // Example: Extract city and state if needed
   components.forEach(component => {
     const types = component.types;
+    // Can be used to populate city/state fields if form fields are added
     if (types.includes('locality')) {
-      console.log('City:', component.long_name);
+      // City: component.long_name
     }
     if (types.includes('administrative_area_level_1')) {
-      console.log('State:', component.short_name);
+      // State: component.short_name
     }
   });
 }

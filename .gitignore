@@ -41,6 +41,13 @@ db.sqlite3-journal
 /staticfiles
 /cache
 
+# Testing
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
 # IDE
 .vscode/
 .idea/

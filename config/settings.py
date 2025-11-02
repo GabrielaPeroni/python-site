@@ -5,13 +5,11 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config(
-    "SECRET_KEY",
-    default="django-insecure-x64nvbm$nzxe**_fk*s0hwtpxz23@9#l+o17sfbk)*10)59zwf",
-)
+# No default provided - must be set in .env file for security
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG", default=True, cast=bool)
+DEBUG = config("DEBUG", default=False, cast=bool)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
 
@@ -131,10 +129,8 @@ LOGIN_REDIRECT_URL = "core:landing"
 LOGOUT_REDIRECT_URL = "core:landing"
 
 # Google OAuth settings
-GOOGLE_OAUTH_CLIENT_ID = config(
-    "GOOGLE_OAUTH_CLIENT_ID",
-    default="1062198658291-pojte2j0736qudd9ajcv1snsngqa9eak.apps.googleusercontent.com",
-)
+# Must be set in .env file
+GOOGLE_OAUTH_CLIENT_ID = config("GOOGLE_OAUTH_CLIENT_ID")
 
 # Google Maps API
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")

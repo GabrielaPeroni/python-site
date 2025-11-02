@@ -7,9 +7,9 @@ O repositório original pode ser encontrado aqui: [Marica-City](https://github.c
 - A estrutura permite adicionar múltiplos apps e páginas facilmente.
 - Todas as dependências gerenciadas com Poetry e Makefile.
 
----
+Para mais detalhes sobre a implementação do CRUD, consulte [CRUD.md](./CRUD.md)
 
-## 🚀 Como rodar o projeto
+# 🚀 Como rodar o projeto
 
 ### Pre-requisitos
 
@@ -54,20 +54,6 @@ poetry run python manage.py createsuperuser
 
 ```bash
 poetry run python manage.py runserver
-```
-
-## 🧪 Testes
-
-### Rodar todos os testes:
-
-```bash
-make test
-```
-
-ou manualmente:
-
-```bash
-poetry run python manage.py test apps --verbosity=2
 ```
 
 ## 📜 Licença
