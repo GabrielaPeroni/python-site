@@ -38,7 +38,7 @@ async function initLandingMap() {
 
   // Fetch places data
   try {
-    const response = await fetch('/explorar/api/map-data/');
+    const response = await fetch('/explore/api/map-data/');
     const data = await response.json();
 
     if (data.places && data.places.length > 0) {

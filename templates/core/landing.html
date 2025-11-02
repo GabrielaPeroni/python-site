@@ -339,7 +339,7 @@
 {% block extra_js %}
 <!-- Swiper is already loaded globally in base.html -->
 <script src="{% static 'js/landing.js' %}"></script>
-<script src="{% static 'js/landing_map.js' %}"></script>
+<script src="{% static 'js/landing_map.js' %}?v=2"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&callback=initLandingMap&loading=async" async defer></script>
 {# Google auth is now handled in the global login modal in base.html #}
 {% endblock %}

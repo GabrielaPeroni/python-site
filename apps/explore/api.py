@@ -53,7 +53,7 @@ def map_data_api(request):
                 "image_url": image_url,
                 "category": category_name,
                 "category_icon": category_icon,
-                "url": f"/explorar/{place.id}/",
+                "url": f"/explore/place/{place.id}/",
                 "rating": float(place.average_rating) if place.average_rating else None,
                 "review_count": place.reviews.count(),
             }
@@ -115,7 +115,7 @@ def places_by_ids_api(request):
                 "description": place.description,
                 "image_url": image_url,
                 "categories": categories,
-                "url": f"/explorar/place/{place.id}/",
+                "url": f"/explore/place/{place.id}/",
                 "rating": float(place.average_rating) if place.average_rating else None,
                 "review_count": place.reviews.count(),
             }

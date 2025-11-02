@@ -480,23 +480,7 @@ button:hover .bi {
   transform: scale(1.15);
 }
 
-/* Category card animations */
-.card-hover {
-  transition:
-    transform var(--transition-normal),
-    box-shadow var(--transition-normal),
-    background-color var(--transition-fast);
-}
-
-.card-hover:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: var(--shadow-lg);
-  background-color: rgba(248, 249, 250, 0.5);
-}
-
-.card-hover:active {
-  transform: translateY(-4px) scale(1.01);
-}
+/* Category card animations - removed duplicate, using definition from line 122 */
 
 /* Smooth scroll behavior */
 html {

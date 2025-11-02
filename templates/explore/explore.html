@@ -10,39 +10,20 @@
 {% block content %}
 {% include 'includes/navbar.html' with active_page='explore' navbar_class='bg-dark' navbar_style='background: linear-gradient(to right, #374151, #1f2937) !important;' %}
 
-<div class="bg-dark text-white page-header-gradient">
-  <div class="container py-4">
-    <div class="text-center">
-      <h1 class="h3 fw-bold text-uppercase mb-2">
-        <i class="bi bi-compass me-2"></i>Explorar Maricá
-      </h1>
-      <p class="mb-0 text-white-50">Descubra todos os lugares incríveis que nossa cidade tem a oferecer</p>
-    </div>
-  </div>
-</div>
-
-<div class="container py-5">
+<div class="container py-4">
   <div class="row">
     <div class="col-md-3 col-lg-2">
-      <div class="card border-0 shadow-sm mb-4 sidebar-sticky">
-        <div class="card-body p-3">
-          <h6 class="fw-bold text-uppercase small mb-3">Ordenar Por</h6>
-          <select id="sidebarSort" onchange="window.location.href='?sort='+this.value{% if request.GET.q %}+'&q={{ request.GET.q }}'{% endif %}" class="form-select form-select-sm mb-3">
-            <option value="-created_at" {% if current_sort == "-created_at" %}selected{% endif %}>Mais Recentes</option>
-            <option value="name" {% if current_sort == "name" %}selected{% endif %}>Nome (A-Z)</option>
-            <option value="-name" {% if current_sort == "-name" %}selected{% endif %}>Nome (Z-A)</option>
-          </select>
-        </div>
-        <div class="card-body p-0">
-          <div class="list-group list-group-flush">
-            <a href="{% url 'explore:explore' %}" class="list-group-item list-group-item-action active border-0 py-3">
-              <i class="bi bi-grid me-2"></i>Todas as Categorias
+      <div class="sidebar-sticky">
+        <div class="mb-4">
+          <h6 class="fw-bold mb-3" style="font-size: 0.875rem; color: #6b7280;">Tipo</h6>
+          <div class="list-group list-group-flush border-0">
+            <a href="{% url 'explore:explore' %}" class="list-group-item list-group-item-action border-0 px-0 py-2 mb-2 pb-3 all-categories-link {% if not request.resolver_match.url_name == 'category_detail' %}active{% endif %}" style="background: transparent; border-bottom: 1px solid #e5e7eb !important;">
+              <i class="bi bi-grid-3x3-gap me-2"></i><span style="font-size: 0.875rem; font-weight: 600;">Todas as Categorias</span>
             </a>
             {% if categories %}
               {% for category in categories %}
-              <a href="{% url 'explore:category_detail' category.slug %}" class="list-group-item list-group-item-action border-0 py-3">
-                <span class="me-2">{% if category.icon %}{{ category.icon }}{% else %}📍{% endif %}</span>{{ category.name }}
-                <span class="badge bg-light text-dark float-end">{{ category.active_places_count }}</span>
+              <a href="{% url 'explore:category_detail' category.slug %}" class="list-group-item list-group-item-action border-0 px-0 py-2" style="background: transparent;">
+                <span style="font-size: 0.875rem;">{{ category.name }}</span>
               </a>
               {% endfor %}
             {% endif %}
@@ -52,69 +33,71 @@
     </div>
 
     <div class="col-md-9 col-lg-10">
-
-  <div class="mb-4">
-    <form method="get" action="{% url 'explore:explore' %}">
-      <div class="input-group">
-        <span class="input-group-text bg-white border-end-0">
-          <i class="bi bi-search"></i>
-        </span>
-        <input type="search" name="q" class="form-control border-start-0 ps-0" placeholder="Buscar lugares por nome, descrição ou categoria..." value="{{ request.GET.q }}" aria-label="Buscar lugares">
-        {% if request.GET.q %}
-        <button type="button" onclick="window.location.href='{% url 'explore:explore' %}'" class="btn btn-outline-secondary">
-          <i class="bi bi-x-lg"></i>
-        </button>
-        {% endif %}
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-normal mb-0" style="font-size: 1.5rem;">
+          {% if request.GET.q %}
+            Resultados para "{{ request.GET.q }}"
+          {% else %}
+            Explorar Lugares
+          {% endif %}
+        </h1>
       </div>
-    </form>
-  </div>
+
+      <div class="mb-4">
+        <form method="get" action="{% url 'explore:explore' %}">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search"></i>
+            </span>
+            <input type="search" name="q" class="form-control border-start-0 ps-0" placeholder="Buscar lugares..." value="{{ request.GET.q }}" aria-label="Buscar lugares">
+            {% if request.GET.q %}
+            <button type="button" onclick="window.location.href='{% url 'explore:explore' %}'" class="btn btn-outline-secondary">
+              <i class="bi bi-x-lg"></i>
+            </button>
+            {% endif %}
+          </div>
+        </form>
+      </div>
 
   <section>
-    <div class="mb-4">
-      <h2 class="h4 fw-bold text-uppercase mb-0">
-        {% if request.GET.q %}
-          Resultados para "{{ request.GET.q }}"
-        {% else %}
-          Todos os Lugares
-        {% endif %}
-      </h2>
-    </div>
 
     {% if all_places %}
     <div class="row g-4">
       {% for place in all_places %}
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card place-card h-100 card-hover">
-          {% if place.primary_image %}
-          <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="card-img-top place-card-img" loading="lazy">
-          {% else %}
-          <div class="bg-dark text-white d-flex align-items-center justify-content-center place-card-placeholder">
-            <span class="display-4 fw-bold">{{ place.name|first }}</span>
-          </div>
-          {% endif %}
-          <div class="card-body">
-            <h5 class="card-title fw-bold text-uppercase">{{ place.name }}</h5>
-            <p class="card-text text-muted">{{ place.description|truncatewords:25 }}</p>
-            {% if place.categories.exists %}
-            <div class="d-flex flex-wrap gap-2 mb-3">
-              {% for cat in place.categories.all|slice:":3" %}
-              <span class="badge rounded-pill bg-light text-dark">
-                {% if cat.icon %}{{ cat.icon }}{% endif %} {{ cat.name }}
-              </span>
-              {% endfor %}
-            </div>
-            {% endif %}
-            <div class="d-flex gap-2">
-              <a href="{% url 'explore:place_detail' place.pk %}" class="btn btn-dark btn-sm text-uppercase flex-grow-1">Ver Detalhes →</a>
-              <button class="btn btn-outline-danger btn-sm favorite-btn"
+        <a href="{% url 'explore:place_detail' place.pk %}" class="text-decoration-none">
+          <div class="card place-card h-100 border-0 shadow-sm">
+            <div class="position-relative place-card-image-wrapper">
+              {% if place.primary_image %}
+              <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="card-img-top place-card-img" loading="lazy">
+              {% else %}
+              <div class="bg-light text-muted d-flex align-items-center justify-content-center place-card-placeholder">
+                <span class="display-4 fw-bold">{{ place.name|first }}</span>
+              </div>
+              {% endif %}
+              <button class="btn btn-light btn-sm rounded-circle position-absolute favorite-btn-overlay favorite-btn"
                       data-place-id="{{ place.pk }}"
                       title="Adicionar aos favoritos"
-                      aria-label="Adicionar aos favoritos">
-                <i class="bi bi-heart"></i>
+                      aria-label="Adicionar aos favoritos"
+                      onclick="event.preventDefault(); event.stopPropagation();">
+                <i class="bi bi-bookmark"></i>
               </button>
             </div>
+            <div class="card-body p-3">
+              {% if place.categories.exists %}
+                {% with place.categories.first as first_category %}
+                <p class="text-muted mb-1" style="font-size: 0.75rem; font-weight: 500;">
+                  {{ first_category.name }}
+                </p>
+                {% endwith %}
+              {% endif %}
+              <h5 class="card-title fw-bold mb-2" style="font-size: 1rem; color: #111827;">{{ place.name }}</h5>
+              <p class="text-muted mb-0" style="font-size: 0.875rem;">
+                <i class="bi bi-geo-alt"></i> {{ place.address|truncatewords:5 }}
+              </p>
+            </div>
           </div>
-        </div>
+        </a>
       </div>
       {% endfor %}
     </div>

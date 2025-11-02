@@ -104,7 +104,7 @@
     } else {
       // Fetch place details for these IDs
       try {
-        const response = await fetch(`/explorar/api/places-by-ids/?ids=${favoritePlaceIds.join(',')}`);
+        const response = await fetch(`/explore/api/places-by-ids/?ids=${favoritePlaceIds.join(',')}`);
         const data = await response.json();
 
         if (data.places && data.places.length > 0) {
