@@ -149,6 +149,70 @@ function confirmDeleteReview() {
  * for logged-in users. The unified system is loaded in base.html.
  */
 
+/**
+ * Initialize Place Carousel
+ */
+function initPlaceCarousel() {
+  const carousel = document.querySelector('.place-carousel');
+  if (!carousel) return;
+
+  const items = carousel.querySelectorAll('.place-carousel-item');
+  const prevBtn = carousel.querySelector('.place-carousel-prev');
+  const nextBtn = carousel.querySelector('.place-carousel-next');
+  const dots = carousel.querySelectorAll('.place-carousel-dot');
+
+  if (items.length <= 1) return; // No need for carousel with single image
+
+  let currentIndex = 0;
+
+  function showSlide(index) {
+    // Remove active class from all items and dots
+    items.forEach(item => item.classList.remove('active'));
+    dots.forEach(dot => dot.classList.remove('active'));
+
+    // Add active class to current item and dot
+    items[index].classList.add('active');
+    dots[index].classList.add('active');
+    currentIndex = index;
+  }
+
+  function nextSlide() {
+    const newIndex = (currentIndex + 1) % items.length;
+    showSlide(newIndex);
+  }
+
+  function prevSlide() {
+    const newIndex = (currentIndex - 1 + items.length) % items.length;
+    showSlide(newIndex);
+  }
+
+  // Event listeners
+  if (prevBtn) {
+    prevBtn.addEventListener('click', prevSlide);
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', nextSlide);
+  }
+
+  dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => showSlide(index));
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') prevSlide();
+    if (e.key === 'ArrowRight') nextSlide();
+  });
+}
+
+// Initialize carousel when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPlaceCarousel);
+} else {
+  initPlaceCarousel();
+}
+
 // Export functions for global use
 window.resetReviewForm = resetReviewForm;
 window.editReview = editReview;
