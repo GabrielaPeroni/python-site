@@ -14,7 +14,7 @@
 
 .form-control:focus,
 .form-select:focus {
-  border-color: #374151;
+  border-color: #c1121f;
   box-shadow: 0 0 0 0.2rem rgba(55, 65, 81, 0.1);
 }
 
@@ -29,12 +29,12 @@ textarea.form-control {
 
 /* Checkboxes */
 .form-check-input:checked {
-  background-color: #374151;
-  border-color: #374151;
+  background-color: #c1121f;
+  border-color: #c1121f;
 }
 
 /* Labels */
 .form-label {
-  color: #374151;
+  color: #c1121f;
   letter-spacing: 0.05em;
 }

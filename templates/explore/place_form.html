@@ -8,33 +8,26 @@
 {% endblock %}
 
 {% block content %}
-{% include 'includes/navbar.html' with active_page='explore' navbar_class='bg-dark' navbar_style='background: linear-gradient(to right, #374151, #1f2937) !important;' %}
-
-<div class="bg-dark text-white page-header-gradient">
-
-  <div class="container py-4">
-    <div class="text-center">
-      <h1 class="h3 fw-bold text-uppercase mb-2">
-        <i class="bi bi-{% if place %}pencil{% else %}plus-circle{% endif %} me-2"></i>{{ title }}
-      </h1>
-      <p class="mb-0 text-white-50">
-        {% if place %}Atualize as informações do seu lugar{% else %}Compartilhe um lugar especial com nossa comunidade{% endif %}
-      </p>
-    </div>
-  </div>
-</div>
+{% include 'includes/navbar.html' with active_page='explore' navbar_class='bg-dark' navbar_style='background: linear-gradient(to right, #c1121f, #9c0303) !important;' %}
 
 <div class="bg-light py-5">
   <div class="container" style="max-width: 900px;">
-    <nav aria-label="breadcrumb" class="mb-4">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'core:landing' %}" class="text-decoration-none text-dark">Início</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'explore:explore' %}" class="text-decoration-none text-dark">Explorar</a></li>
-        <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
-      </ol>
-    </nav>
+    <div class="mb-4">
+      <a href="{% if place %}{% url 'explore:place_detail' place.pk %}{% else %}{% url 'explore:explore' %}{% endif %}" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i>
+        <span>Voltar</span>
+      </a>
+    </div>
 
-    <div class="card shadow">
+    <div class="card shadow rounded-4 overflow-hidden">
+      <div class="text-white text-center py-4 px-4" style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
+        <h1 class="h4 fw-bold text-uppercase mb-2">
+          <i class="bi bi-{% if place %}pencil{% else %}plus-circle{% endif %} me-2"></i>{{ title }}
+        </h1>
+        <p class="mb-0" style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+          {% if place %}Atualize as informações do seu lugar{% else %}Compartilhe um lugar especial com nossa comunidade{% endif %}
+        </p>
+      </div>
       <form method="post" enctype="multipart/form-data" id="place-form">
         {% csrf_token %}
 
@@ -193,7 +186,7 @@
       </form>
     </div>
 
-    <div class="alert alert-info mt-4">
+    <div class="alert alert-info mt-4 rounded-4">
       <div class="d-flex align-items-start">
         <i class="bi bi-info-circle-fill me-3 fs-5"></i>
         <div>

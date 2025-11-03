@@ -1,0 +1,121 @@
+{% load static %}
+
+<div class="admin-sidebar" id="adminSidebar">
+  <!-- Sidebar Header -->
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <i class="bi bi-grid"></i>
+    </div>
+    <div class="sidebar-title">
+      <h2>DASHBOARD</h2>
+      <span class="sidebar-subtitle">Admin Panel</span>
+    </div>
+  </div>
+
+  <!-- Desktop Collapse Button -->
+  <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Collapse sidebar">
+    <i class="bi bi-chevron-left"></i>
+  </button>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    <a href="{% url 'core:admin_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+      <i class="bi bi-speedometer2"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <a href="{% url 'explore:approval_queue' %}" class="nav-item {% if 'approval' in request.path %}active{% endif %}">
+      <i class="bi bi-file-earmark-text"></i>
+      <span>Requests</span>
+      {% if pending_places > 0 %}
+        <span class="nav-badge">{{ pending_places }}</span>
+      {% endif %}
+    </a>
+
+    <a href="{% url 'explore:backlog' %}" class="nav-item {% if 'backlog' in request.path %}active{% endif %}">
+      <i class="bi bi-archive"></i>
+      <span>Backlog</span>
+    </a>
+
+    <a href="{% url 'accounts:user_management' %}" class="nav-item {% if 'usuarios' in request.path %}active{% endif %}">
+      <i class="bi bi-people"></i>
+      <span>Users</span>
+    </a>
+
+    <a href="{% url 'core:admin_news_list' %}" class="nav-item {% if 'noticias' in request.path %}active{% endif %}">
+      <i class="bi bi-newspaper"></i>
+      <span>News</span>
+      {% if draft_news > 0 %}
+        <span class="nav-badge">{{ draft_news }}</span>
+      {% endif %}
+    </a>
+  </nav>
+
+  <!-- Sidebar Footer -->
+  <div class="sidebar-footer">
+    <a href="/admin/" class="nav-item" target="_blank">
+      <i class="bi bi-gear"></i>
+      <span>Settings</span>
+    </a>
+
+    <a href="{% url 'accounts:logout' %}" class="nav-item">
+      <i class="bi bi-box-arrow-left"></i>
+      <span>Log Out</span>
+    </a>
+  </div>
+</div>
+
+<!-- Overlay for mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('adminSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const collapseBtn = document.getElementById('sidebarCollapseBtn');
+    const adminContainer = document.querySelector('.admin-container');
+
+    // Restore sidebar state from localStorage
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (isCollapsed) {
+      sidebar.classList.add('collapsed');
+      if (adminContainer) {
+        adminContainer.classList.add('sidebar-collapsed');
+      }
+    }
+
+    // Desktop collapse functionality
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', function() {
+        const isCurrentlyCollapsed = sidebar.classList.toggle('collapsed');
+
+        if (adminContainer) {
+          adminContainer.classList.toggle('sidebar-collapsed');
+        }
+
+        // Update chevron icon direction
+        const icon = this.querySelector('i');
+        if (isCurrentlyCollapsed) {
+          icon.classList.remove('bi-chevron-left');
+          icon.classList.add('bi-chevron-right');
+          this.setAttribute('title', 'Expand sidebar');
+        } else {
+          icon.classList.remove('bi-chevron-right');
+          icon.classList.add('bi-chevron-left');
+          this.setAttribute('title', 'Collapse sidebar');
+        }
+
+        // Save state to localStorage
+        localStorage.setItem('sidebarCollapsed', isCurrentlyCollapsed);
+      });
+
+      // Set initial icon state
+      if (isCollapsed) {
+        const icon = collapseBtn.querySelector('i');
+        icon.classList.remove('bi-chevron-left');
+        icon.classList.add('bi-chevron-right');
+        collapseBtn.setAttribute('title', 'Expand sidebar');
+      }
+    }
+  });
+</script>

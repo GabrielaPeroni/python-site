@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/admin_sidebar.css' %}">
+<link rel="stylesheet" href="{% static 'css/components/admin_topbar.css' %}">
+<link rel="stylesheet" href="{% static 'css/pages/admin.css' %}">
+<style>
+  .form-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .form-section h5 {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+  }
+
+  .image-preview {
+    max-width: 300px;
+    margin-top: 10px;
+    border-radius: 8px;
+  }
+
+  .event-fields {
+    display: none;
+  }
+
+  .event-fields.show {
+    display: block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+  {% include 'includes/admin_sidebar.html' %}
+
+  <div class="admin-main-content">
+    {% include 'includes/admin_topbar.html' %}
+
+    <div class="admin-content-wrapper">
+      <div class="container-fluid px-4 py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="admin-title">
+        <i class="bi bi-newspaper me-2"></i>{{ title }}
+      </h1>
+      <a href="{% url 'core:admin_news_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Voltar
+      </a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h5><i class="bi bi-info-circle me-2"></i>Informações Básicas</h5>
+
+        <div class="mb-3">
+          {{ form.title.label_tag }}
+          {{ form.title }}
+          {% if form.title.errors %}
+            <div class="text-danger">{{ form.title.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          {{ form.category.label_tag }}
+          {{ form.category }}
+          {% if form.category.errors %}
+            <div class="text-danger">{{ form.category.errors }}</div>
+          {% endif %}
+          <small class="form-text text-muted">{{ form.category.help_text }}</small>
+        </div>
+
+        <div class="mb-3">
+          {{ form.excerpt.label_tag }}
+          {{ form.excerpt }}
+          {% if form.excerpt.errors %}
+            <div class="text-danger">{{ form.excerpt.errors }}</div>
+          {% endif %}
+          <small class="form-text text-muted">{{ form.excerpt.help_text }}</small>
+        </div>
+
+        <div class="mb-3">
+          {{ form.content.label_tag }}
+          {{ form.content }}
+          {% if form.content.errors %}
+            <div class="text-danger">{{ form.content.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Image -->
+      <div class="form-section">
+        <h5><i class="bi bi-image me-2"></i>Imagem Destacada</h5>
+
+        {% if news.featured_image %}
+        <div class="mb-3">
+          <img src="{{ news.featured_image.url }}" alt="Current image" class="image-preview">
+        </div>
+        {% endif %}
+
+        <div class="mb-3">
+          {{ form.featured_image.label_tag }}
+          {{ form.featured_image }}
+          {% if form.featured_image.errors %}
+            <div class="text-danger">{{ form.featured_image.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          {{ form.image_caption.label_tag }}
+          {{ form.image_caption }}
+          {% if form.image_caption.errors %}
+            <div class="text-danger">{{ form.image_caption.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Event Fields (shown only if Event category) -->
+      <div class="form-section event-fields" id="event-fields">
+        <h5><i class="bi bi-calendar-event me-2"></i>Informações do Evento</h5>
+
+        <div class="mb-3">
+          {{ form.event_date.label_tag }}
+          {{ form.event_date }}
+          {% if form.event_date.errors %}
+            <div class="text-danger">{{ form.event_date.errors }}</div>
+          {% endif %}
+          <small class="form-text text-muted">{{ form.event_date.help_text }}</small>
+        </div>
+
+        <div class="mb-3">
+          {{ form.event_end_date.label_tag }}
+          {{ form.event_end_date }}
+          {% if form.event_end_date.errors %}
+            <div class="text-danger">{{ form.event_end_date.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          {{ form.event_location.label_tag }}
+          {{ form.event_location }}
+          {% if form.event_location.errors %}
+            <div class="text-danger">{{ form.event_location.errors }}</div>
+          {% endif %}
+          <small class="form-text text-muted">{{ form.event_location.help_text }}</small>
+        </div>
+      </div>
+
+      <!-- Publication Settings -->
+      <div class="form-section">
+        <h5><i class="bi bi-gear me-2"></i>Configurações de Publicação</h5>
+
+        <div class="mb-3">
+          {{ form.status.label_tag }}
+          {{ form.status }}
+          {% if form.status.errors %}
+            <div class="text-danger">{{ form.status.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          {{ form.publish_date.label_tag }}
+          {{ form.publish_date }}
+          {% if form.publish_date.errors %}
+            <div class="text-danger">{{ form.publish_date.errors }}</div>
+          {% endif %}
+          <small class="form-text text-muted">{{ form.publish_date.help_text }}</small>
+        </div>
+
+        <div class="mb-3 form-check">
+          {{ form.is_featured }}
+          <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+            {{ form.is_featured.label }}
+          </label>
+          {% if form.is_featured.errors %}
+            <div class="text-danger">{{ form.is_featured.errors }}</div>
+          {% endif %}
+          <small class="form-text text-muted d-block">{{ form.is_featured.help_text }}</small>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-check-circle me-1"></i>{{ submit_text }}
+        </button>
+        <a href="{% url 'core:admin_news_list' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </a>
+      </div>
+    </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Show/hide event fields based on category selection
+  document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.querySelector('#id_category');
+    const eventFields = document.querySelector('#event-fields');
+
+    function toggleEventFields() {
+      const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+      const selectedText = selectedOption.text.toLowerCase();
+
+      if (selectedText.includes('event') || selectedText.includes('evento')) {
+        eventFields.classList.add('show');
+      } else {
+        eventFields.classList.remove('show');
+      }
+    }
+
+    // Toggle on page load
+    toggleEventFields();
+
+    // Toggle on change
+    categorySelect.addEventListener('change', toggleEventFields);
+
+    // Image preview
+    const imageInput = document.querySelector('#id_featured_image');
+    if (imageInput) {
+      imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            let preview = document.querySelector('.image-preview');
+            if (!preview) {
+              preview = document.createElement('img');
+              preview.className = 'image-preview';
+              imageInput.parentElement.appendChild(preview);
+            }
+            preview.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

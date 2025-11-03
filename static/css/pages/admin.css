@@ -3,6 +3,11 @@
    Styles for approval queue, backlog, and other admin pages
    ========================================================================== */
 
+:root {
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 70px;
+}
+
 /* Hover Effects */
 .hover-shadow {
   transition: box-shadow 0.3s ease;
@@ -14,7 +19,7 @@
 
 /* Admin Navigation */
 .admin-nav {
-  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  background: linear-gradient(135deg, #c1121f 0%, #9c0303 100%);
 }
 
 /* Place Cards */
@@ -63,7 +68,36 @@
 /* User Management Styles */
 .admin-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+  background: #f9fafb;
+  display: flex;
+}
+
+/* Admin Main Content (with sidebar) */
+.admin-main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease;
+}
+
+/* Collapsed sidebar state */
+.admin-container.sidebar-collapsed .admin-main-content {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+/* Content wrapper */
+.admin-content-wrapper {
+  flex: 1;
+  background: #f9fafb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  .admin-main-content {
+    margin-left: 0;
+  }
 }
 
 .admin-title {

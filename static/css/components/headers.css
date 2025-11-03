@@ -9,14 +9,14 @@
 }
 
 .page-header {
-  background: linear-gradient(to right, #374151, #1f2937);
+  background: linear-gradient(to right, #c1121f, #9c0303);
   color: white;
   padding: 2rem 0;
   margin-bottom: 0;
 }
 
 .page-header-gradient {
-  background: linear-gradient(to right, #374151, #1f2937);
+  background: linear-gradient(to right, #c1121f, #9c0303);
 }
 
 .page-header .container {

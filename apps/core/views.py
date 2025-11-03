@@ -7,7 +7,9 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 
 from apps.accounts.models import User
-from apps.explore.models import Category, Place
+from apps.explore.models import Category, Place, PlaceReview
+from apps.news.forms import NewsForm
+from apps.news.models import News, NewsCategory
 
 
 def landing_view(request):
@@ -45,12 +47,24 @@ def about_view(request):
     return render(request, "core/about.html")
 
 
+def calculate_percentage_change(current, previous):
+    """Calculate percentage change between two values"""
+    if previous == 0:
+        return 100 if current > 0 else 0
+    return round(((current - previous) / previous) * 100, 1)
+
+
 @login_required
 def admin_dashboard_view(request):
     """Centralized admin dashboard"""
     if not request.user.can_moderate:
         messages.error(request, "Você não tem permissão para acessar esta página.")
         return redirect("core:landing")
+
+    # Time periods
+    now = timezone.now()
+    week_ago = now - timedelta(days=7)
+    two_weeks_ago = now - timedelta(days=14)
 
     # Get key statistics
     total_users = User.objects.count()
@@ -59,11 +73,182 @@ def admin_dashboard_view(request):
     pending_places = Place.objects.filter(is_approved=False, is_active=True).count()
     approved_places = Place.objects.filter(is_approved=True).count()
 
+    # Weekly statistics
+    places_this_week = Place.objects.filter(created_at__gte=week_ago).count()
+    places_last_week = Place.objects.filter(
+        created_at__gte=two_weeks_ago, created_at__lt=week_ago
+    ).count()
+    places_change = calculate_percentage_change(places_this_week, places_last_week)
+
+    users_this_week = User.objects.filter(date_joined__gte=week_ago).count()
+    users_last_week = User.objects.filter(
+        date_joined__gte=two_weeks_ago, date_joined__lt=week_ago
+    ).count()
+    users_change = calculate_percentage_change(users_this_week, users_last_week)
+
+    reviews_this_week = PlaceReview.objects.filter(created_at__gte=week_ago).count()
+    reviews_last_week = PlaceReview.objects.filter(
+        created_at__gte=two_weeks_ago, created_at__lt=week_ago
+    ).count()
+    reviews_change = calculate_percentage_change(reviews_this_week, reviews_last_week)
+
+    total_reviews = PlaceReview.objects.count()
+
+    # News statistics
+    total_news = News.objects.count()
+    published_news = News.objects.filter(status=News.PUBLISHED).count()
+    draft_news = News.objects.filter(status=News.DRAFT).count()
+
+    # Recent users (last 10)
+    recent_users = User.objects.select_related().order_by("-date_joined")[:10]
+
     context = {
         "total_users": total_users,
         "active_users": active_users,
         "total_places": total_places,
         "pending_places": pending_places,
         "approved_places": approved_places,
+        "total_news": total_news,
+        "published_news": published_news,
+        "draft_news": draft_news,
+        # Weekly trends
+        "places_this_week": places_this_week,
+        "places_change": places_change,
+        "users_this_week": users_this_week,
+        "users_change": users_change,
+        "reviews_this_week": reviews_this_week,
+        "reviews_change": reviews_change,
+        "total_reviews": total_reviews,
+        # Recent data
+        "recent_users": recent_users,
     }
     return render(request, "core/admin_dashboard.html", context)
+
+
+# News Management Views
+
+
+@login_required
+def admin_news_list_view(request):
+    """List all news with filtering and sorting"""
+    if not request.user.can_moderate:
+        messages.error(request, "Você não tem permissão para acessar esta página.")
+        return redirect("core:landing")
+
+    # Get filter parameters
+    status_filter = request.GET.get("status", "all")
+    category_filter = request.GET.get("category", "all")
+    search_query = request.GET.get("q", "").strip()
+
+    # Start with all news
+    news_list = News.objects.select_related("author", "category").order_by(
+        "-created_at"
+    )
+
+    # Apply filters
+    if status_filter != "all":
+        news_list = news_list.filter(status=status_filter)
+
+    if category_filter != "all":
+        news_list = news_list.filter(category__name=category_filter)
+
+    if search_query:
+        news_list = news_list.filter(title__icontains=search_query)
+
+    # Get categories for filter
+    categories = NewsCategory.objects.all()
+
+    # Get counts for stats
+    total_count = News.objects.count()
+    published_count = News.objects.filter(status=News.PUBLISHED).count()
+    draft_count = News.objects.filter(status=News.DRAFT).count()
+    archived_count = News.objects.filter(status=News.ARCHIVED).count()
+
+    context = {
+        "news_list": news_list,
+        "categories": categories,
+        "status_filter": status_filter,
+        "category_filter": category_filter,
+        "search_query": search_query,
+        "total_count": total_count,
+        "published_count": published_count,
+        "draft_count": draft_count,
+        "archived_count": archived_count,
+    }
+    return render(request, "core/admin/news_list.html", context)
+
+
+@login_required
+def admin_news_create_view(request):
+    """Create a new news/event"""
+    if not request.user.can_moderate:
+        messages.error(request, "Você não tem permissão para acessar esta página.")
+        return redirect("core:landing")
+
+    if request.method == "POST":
+        form = NewsForm(request.POST, request.FILES)
+        if form.is_valid():
+            news = form.save(commit=False)
+            news.author = request.user
+            news.save()
+            messages.success(request, f'Notícia "{news.title}" criada com sucesso!')
+            return redirect("core:admin_news_list")
+    else:
+        form = NewsForm()
+
+    context = {
+        "form": form,
+        "title": "Criar Nova Notícia/Evento",
+        "submit_text": "Criar",
+    }
+    return render(request, "core/admin/news_form.html", context)
+
+
+@login_required
+def admin_news_edit_view(request, pk):
+    """Edit an existing news/event"""
+    if not request.user.can_moderate:
+        messages.error(request, "Você não tem permissão para acessar esta página.")
+        return redirect("core:landing")
+
+    from django.shortcuts import get_object_or_404
+
+    news = get_object_or_404(News, pk=pk)
+
+    if request.method == "POST":
+        form = NewsForm(request.POST, request.FILES, instance=news)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Notícia "{news.title}" atualizada com sucesso!')
+            return redirect("core:admin_news_list")
+    else:
+        form = NewsForm(instance=news)
+
+    context = {
+        "form": form,
+        "news": news,
+        "title": f"Editar: {news.title}",
+        "submit_text": "Salvar Alterações",
+    }
+    return render(request, "core/admin/news_form.html", context)
+
+
+@login_required
+def admin_news_delete_view(request, pk):
+    """Delete a news/event"""
+    if not request.user.can_moderate:
+        messages.error(request, "Você não tem permissão para acessar esta página.")
+        return redirect("core:landing")
+
+    from django.shortcuts import get_object_or_404
+
+    news = get_object_or_404(News, pk=pk)
+
+    if request.method == "POST":
+        news_title = news.title
+        news.delete()
+        messages.success(request, f'Notícia "{news_title}" excluída com sucesso.')
+        return redirect("core:admin_news_list")
+
+    context = {"news": news}
+    return render(request, "core/admin/news_delete_confirm.html", context)

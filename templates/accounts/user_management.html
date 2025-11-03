@@ -2,14 +2,20 @@
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/admin_sidebar.css' %}">
+<link rel="stylesheet" href="{% static 'css/components/admin_topbar.css' %}">
 <link rel="stylesheet" href="{% static 'css/pages/admin.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="admin-container">
-  {% include 'includes/admin_navbar.html' %}
+  {% include 'includes/admin_sidebar.html' %}
 
-  <div class="container-fluid px-4 py-4">
+  <div class="admin-main-content">
+    {% include 'includes/admin_topbar.html' %}
+
+    <div class="admin-content-wrapper">
+      <div class="container-fluid px-4 py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="admin-title">
         <i class="bi bi-people-fill me-2"></i>Gerenciamento de Usuários
@@ -114,6 +120,8 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
       </div>
     </div>
   </div>

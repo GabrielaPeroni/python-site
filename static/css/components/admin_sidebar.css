@@ -1,0 +1,262 @@
+/* Admin Sidebar Styles */
+
+:root {
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 70px;
+  --sidebar-bg: #9c0303;
+  --sidebar-text: #ffb6a5;
+  --sidebar-text-active: #ffffff;
+  --sidebar-active-bg: #ff9c9c25;
+  --sidebar-hover-bg: #ff9c9c25;
+  --sidebar-border: #ffffff1a;
+  --primary-blue: #ff937b;
+}
+
+.admin-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  transition:
+    width 0.3s ease,
+    transform 0.3s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Collapsed state */
+.admin-sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+.admin-sidebar.collapsed .sidebar-title,
+.admin-sidebar.collapsed .sidebar-subtitle,
+.admin-sidebar.collapsed .nav-item span,
+.admin-sidebar.collapsed .nav-badge {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+}
+
+.admin-sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.admin-sidebar.collapsed .nav-item.active {
+  border-left: none;
+  border-top: 3px solid var(--primary-red);
+  padding-left: 0;
+}
+
+/* Scrollbar styling */
+.admin-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  padding: 1.5rem 1.25rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  background: var(--primary-blue);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.sidebar-title h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--sidebar-text-active);
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-subtitle {
+  font-size: 0.75rem;
+  color: var(--sidebar-text);
+  display: block;
+  margin-top: 0.125rem;
+}
+
+/* Sidebar Collapse Button (Desktop) */
+.sidebar-collapse-btn {
+  position: absolute;
+  right: -15px;
+  top: 70px;
+  width: 30px;
+  height: 30px;
+  background: var(--primary-blue);
+  border: 2px solid var(--sidebar-bg);
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 1001;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-collapse-btn:hover {
+  background: #ff937b;
+  transform: scale(1.1);
+}
+
+.sidebar-collapse-btn i {
+  font-size: 0.875rem;
+  transition: transform 0.3s ease;
+}
+
+/* Navigation */
+.sidebar-nav {
+  flex: 1;
+  padding: 1rem 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 1.25rem;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+  gap: 0.875rem;
+}
+
+.nav-item:hover {
+  background: var(--sidebar-hover-bg);
+  color: var(--sidebar-text-active);
+}
+
+.nav-item.active {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-text-active);
+  border-left: 3px solid var(--primary-blue);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.nav-item i {
+  font-size: 1.25rem;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.nav-item span {
+  flex: 1;
+}
+
+/* Nav Badge */
+.nav-badge {
+  background: #ef4444;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+  min-width: 20px;
+  text-align: center;
+  margin-left: auto;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  border-top: 1px solid var(--sidebar-border);
+  padding: 1rem 0;
+}
+
+/* Sidebar Overlay (Mobile) */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.show {
+  display: block;
+  opacity: 1;
+}
+
+/* Responsive Styles */
+@media (max-width: 991.98px) {
+  .admin-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .admin-sidebar.show {
+    transform: translateX(0);
+  }
+
+  .sidebar-toggle {
+    display: flex;
+  }
+
+  .admin-sidebar.show .sidebar-toggle i {
+    transform: rotate(180deg);
+  }
+}
+
+/* Body adjustments when sidebar is open */
+body.sidebar-open {
+  overflow: hidden;
+}
+
+/* Animation for active state */
+@keyframes slideIn {
+  from {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.nav-item.active {
+  animation: slideIn 0.3s ease;
+}

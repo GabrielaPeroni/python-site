@@ -2,55 +2,104 @@
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/admin_sidebar.css' %}">
+<link rel="stylesheet" href="{% static 'css/components/admin_topbar.css' %}">
 <link rel="stylesheet" href="{% static 'css/pages/admin.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="admin-container">
-  {% include 'includes/admin_navbar.html' %}
+  {% include 'includes/admin_sidebar.html' %}
 
-  <div class="container-fluid px-4 py-4">
+  <div class="admin-main-content">
+    {% include 'includes/admin_topbar.html' %}
+
+    <div class="admin-content-wrapper">
+      <div class="container-fluid px-4 py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="admin-title">
         <i class="bi bi-speedometer2 me-2"></i>Painel Administrativo
       </h1>
     </div>
 
-    <!-- Quick Stats -->
+    <!-- Enhanced Stats with Trends -->
     <div class="row g-3 mb-4">
-      <div class="col-md-4">
-        <div class="stat-card">
-          <div class="stat-icon bg-primary">
-            <i class="bi bi-people"></i>
+      <!-- New Places -->
+      <div class="col-md-3">
+        <div class="stat-card-enhanced">
+          <div class="stat-header">
+            <div class="stat-icon-enhanced bg-primary">
+              <i class="bi bi-geo-alt"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label-enhanced">New Places</div>
+              <div class="stat-value-enhanced">{{ places_this_week }}</div>
+            </div>
           </div>
-          <div class="stat-content">
-            <div class="stat-label">Total de Usuários</div>
-            <div class="stat-value">{{ total_users }}</div>
-            <small class="text-muted">{{ active_users }} ativos</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="stat-card">
-          <div class="stat-icon bg-success">
-            <i class="bi bi-geo-alt"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">Total de Lugares</div>
-            <div class="stat-value">{{ total_places }}</div>
-            <small class="text-muted">{{ approved_places }} aprovados</small>
+          <div class="stat-trend {% if places_change >= 0 %}trend-up{% else %}trend-down{% endif %}">
+            <i class="bi bi-arrow-{% if places_change >= 0 %}up{% else %}down{% endif %}"></i>
+            <span>{% if places_change > 0 %}+{% endif %}{{ places_change }}%</span>
+            <small>Since last week</small>
           </div>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="stat-card">
-          <div class="stat-icon bg-warning">
-            <i class="bi bi-hourglass-split"></i>
+
+      <!-- New Users -->
+      <div class="col-md-3">
+        <div class="stat-card-enhanced">
+          <div class="stat-header">
+            <div class="stat-icon-enhanced bg-info">
+              <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label-enhanced">New Users</div>
+              <div class="stat-value-enhanced">{{ users_this_week }}</div>
+            </div>
           </div>
-          <div class="stat-content">
-            <div class="stat-label">Pendentes</div>
-            <div class="stat-value">{{ pending_places }}</div>
-            <small class="text-muted">Aguardando aprovação</small>
+          <div class="stat-trend {% if users_change >= 0 %}trend-up{% else %}trend-down{% endif %}">
+            <i class="bi bi-arrow-{% if users_change >= 0 %}up{% else %}down{% endif %}"></i>
+            <span>{% if users_change > 0 %}+{% endif %}{{ users_change }}%</span>
+            <small>Since last week</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Requests -->
+      <div class="col-md-3">
+        <div class="stat-card-enhanced">
+          <div class="stat-header">
+            <div class="stat-icon-enhanced bg-warning">
+              <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label-enhanced">Requests</div>
+              <div class="stat-value-enhanced">{{ pending_places }}</div>
+            </div>
+          </div>
+          <div class="stat-trend {% if pending_places > 0 %}trend-warning{% else %}trend-neutral{% endif %}">
+            <i class="bi bi-dash-circle"></i>
+            <span>-0.2%</span>
+            <small>Since last week</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews -->
+      <div class="col-md-3">
+        <div class="stat-card-enhanced">
+          <div class="stat-header">
+            <div class="stat-icon-enhanced bg-success">
+              <i class="bi bi-star"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label-enhanced">Reviews</div>
+              <div class="stat-value-enhanced">{{ reviews_this_week }}</div>
+            </div>
+          </div>
+          <div class="stat-trend {% if reviews_change >= 0 %}trend-up{% else %}trend-down{% endif %}">
+            <i class="bi bi-arrow-{% if reviews_change >= 0 %}up{% else %}down{% endif %}"></i>
+            <span>{% if reviews_change > 0 %}+{% endif %}{{ reviews_change }}%</span>
+            <small>Since last week</small>
           </div>
         </div>
       </div>
@@ -112,27 +161,194 @@
         </div>
       </div>
 
-      <!-- Django Admin -->
+      <!-- News Management -->
       <div class="col-md-6">
         <div class="card admin-card">
           <div class="card-body">
             <h5 class="card-title">
-              <i class="bi bi-gear-fill me-2"></i>Django Admin
+              <i class="bi bi-newspaper me-2"></i>Gerenciar Notícias
             </h5>
             <p class="card-text text-muted">
-              Acesso completo ao painel administrativo do Django.
+              Criar, editar e publicar notícias e eventos.
+              {% if draft_news > 0 %}
+                <span class="badge bg-warning ms-1">{{ draft_news }} rascunho{{ draft_news|pluralize }}</span>
+              {% endif %}
             </p>
-            <a href="/admin/" class="btn btn-secondary" target="_blank">
-              <i class="bi bi-box-arrow-up-right me-1"></i>Abrir
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <small class="text-muted">{{ total_news }} total, {{ published_news }} publicadas</small>
+            </div>
+            <a href="{% url 'core:admin_news_list' %}" class="btn btn-primary">
+              <i class="bi bi-arrow-right-circle me-1"></i>Acessar
             </a>
           </div>
         </div>
+      </div>
+
+    <!-- Recent Users Table -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="recent-users-table">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+              <i class="bi bi-people me-2"></i>New Users
+            </h5>
+            <a href="{% url 'accounts:user_management' %}" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-funnel me-1"></i>Filter
+            </a>
+          </div>
+
+          {% if recent_users %}
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Id</th>
+                  <th>Username</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for user in recent_users %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>#{{ user.id|stringformat:"06d" }}</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="user-avatar-mini">
+                      {% else %}
+                        <div class="user-avatar-placeholder-mini">
+                          <i class="bi bi-person"></i>
+                        </div>
+                      {% endif %}
+                      <span>{{ user.username }}</span>
+                    </div>
+                  </td>
+                  <td>{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+                  <td>
+                    {% if user.is_active %}
+                      <span class="badge-active">Active</span>
+                    {% else %}
+                      <span class="badge-inactive">Inactive</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #9CA3AF;"></i>
+            <p class="text-muted mt-2">Nenhum usuário recente encontrado.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
       </div>
     </div>
   </div>
 </div>
 
 <style>
+/* Enhanced Stat Cards */
+.stat-card-enhanced {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  height: 100%;
+  border: 1px solid #E5E7EB;
+}
+
+.stat-card-enhanced:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat-icon-enhanced {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-label-enhanced {
+  font-size: 0.875rem;
+  color: #6B7280;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value-enhanced {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1F2937;
+  line-height: 1;
+}
+
+.stat-trend {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: #F3F4F6;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.stat-trend i {
+  font-size: 1rem;
+}
+
+.stat-trend small {
+  margin-left: auto;
+  font-weight: 400;
+  color: #6B7280;
+}
+
+.trend-up {
+  color: #10B981;
+  background: #D1FAE5;
+}
+
+.trend-down {
+  color: #EF4444;
+  background: #FEE2E2;
+}
+
+.trend-warning {
+  color: #F59E0B;
+  background: #FEF3C7;
+}
+
+.trend-neutral {
+  color: #6B7280;
+  background: #F3F4F6;
+}
+
+/* Admin Action Cards */
 .admin-card {
   border: none;
   border-radius: var(--border-radius-md);
@@ -158,6 +374,77 @@
   font-size: 0.95rem;
   margin-bottom: 1.25rem;
   min-height: 48px;
+}
+
+/* Recent Users Table */
+.recent-users-table {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E5E7EB;
+}
+
+.recent-users-table .table {
+  margin-bottom: 0;
+}
+
+.recent-users-table .table thead th {
+  border-bottom: 2px solid #E5E7EB;
+  color: #6B7280;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.75rem;
+}
+
+.recent-users-table .table tbody td {
+  padding: 1rem 0.75rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.recent-users-table .table tbody tr:hover {
+  background: #F9FAFB;
+}
+
+.user-avatar-mini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #E5E7EB;
+}
+
+.user-avatar-placeholder-mini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #E5E7EB;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B7280;
+  font-size: 1rem;
+}
+
+.badge-active {
+  background: #D1FAE5;
+  color: #065F46;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-inactive {
+  background: #FEE2E2;
+  color: #991B1B;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 </style>
 {% endblock %}

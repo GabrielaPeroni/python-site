@@ -44,7 +44,7 @@
 .hero-nav {
   z-index: 10;
   padding: 1rem 0;
-  background: rgba(52, 41, 33, 0.95);
+  background: #c1121f;
   backdrop-filter: blur(10px);
   top: 0 !important;
 }
@@ -246,7 +246,7 @@
 }
 
 .hero-navbar {
-  background: rgba(193, 18, 31, 1);
+  background: linear-gradient(to right, #c1121f, #9c0303);
   backdrop-filter: blur(10px);
   padding: 1rem 2rem;
 }
@@ -299,7 +299,7 @@
   font-size: 1rem;
   font-weight: 500;
   color: white;
-  background: rgba(52, 41, 33, 0.9);
+  background: #c1121f;
   border: none;
   border-radius: 0;
   text-decoration: none;
@@ -308,7 +308,7 @@
 }
 
 .hero-cta-btn:hover {
-  background: rgba(52, 41, 33, 1);
+  background: #9c0303;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
@@ -564,7 +564,7 @@ body {
 
 /* Hero Specific Styles */
 .hero-gradient {
-  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  background: linear-gradient(135deg, #c1121f 0%, #9c0303 100%);
 }
 
 .hero-nav {
@@ -598,13 +598,13 @@ body {
 }
 
 .login-dropdown .btn-dark {
-  background: rgba(52, 41, 33, 0.95);
+  background: #c1121f;
   border: none;
   padding: 0.5rem 1rem;
 }
 
 .login-dropdown .btn-dark:hover {
-  background: rgba(52, 41, 33, 1);
+  background: #b60e1a;
 }
 
 /* Ensure Google Sign-In button has space */

@@ -2,14 +2,21 @@
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/admin_sidebar.css' %}">
+<link rel="stylesheet" href="{% static 'css/components/admin_topbar.css' %}">
 <link rel="stylesheet" href="{% static 'css/pages/admin.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="admin-container">
-  {% include 'includes/admin_navbar.html' %}
+  {% include 'includes/admin_sidebar.html' %}
 
-  <div class="container py-5">
+  <div class="admin-main-content">
+    {% include 'includes/admin_topbar.html' %}
+
+    <div class="admin-content-wrapper">
+      <div class="container-fluid px-4 py-4">
+    <div class="container py-5">
     <div class="row justify-content-center">
       <div class="col-md-6">
         <div class="card shadow-lg">
@@ -56,6 +63,10 @@
             </form>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+    </div>
       </div>
     </div>
   </div>
