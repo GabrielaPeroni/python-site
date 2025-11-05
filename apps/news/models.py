@@ -7,19 +7,19 @@ from django.utils.text import slugify
 class NewsCategory(models.Model):
     """Categories for news and events"""
 
-    NEWS = "news"
-    EVENT = "event"
-    ANNOUNCEMENT = "announcement"
+    NEWS = "Noticias"
+    EVENT = "Evento"
+    ANNOUNCEMENT = "Anuncios"
 
     CATEGORY_CHOICES = [
-        (NEWS, "News"),
-        (EVENT, "Event"),
-        (ANNOUNCEMENT, "Announcement"),
+        (NEWS, "Noticias"),
+        (EVENT, "Eventos"),
+        (ANNOUNCEMENT, "Anuncios"),
     ]
 
     name = models.CharField(max_length=50, choices=CATEGORY_CHOICES, unique=True)
     description = models.TextField(blank=True)
-    icon = models.CharField(max_length=50, blank=True, help_text="Icon class or emoji")
+    icon = models.CharField(max_length=50, blank=True, help_text="Icone ou emoji")
 
     class Meta:
         verbose_name = "News Category"
@@ -33,18 +33,18 @@ class NewsCategory(models.Model):
 class News(models.Model):
     """News and events for the city of Maricá"""
 
-    DRAFT = "draft"
-    PUBLISHED = "published"
-    ARCHIVED = "archived"
+    DRAFT = "Em Progresso"
+    PUBLISHED = "Publicado"
+    ARCHIVED = "Arquivado"
 
     STATUS_CHOICES = [
-        (DRAFT, "Draft"),
-        (PUBLISHED, "Published"),
-        (ARCHIVED, "Archived"),
+        (DRAFT, "Em Progresso"),
+        (PUBLISHED, "Publicado"),
+        (ARCHIVED, "Arquivado"),
     ]
 
     # Basic fields
-    title = models.CharField(max_length=200, help_text="News or event title")
+    title = models.CharField(max_length=200, help_text="Titulo da noticia ou evento")
     slug = models.SlugField(
         max_length=250, unique=True, blank=True, help_text="URL-friendly identifier"
     )

@@ -23,9 +23,9 @@ class NewsCategoryModelTests(TestCase):
         event_cat = NewsCategory.objects.create(name=NewsCategory.EVENT)
         announcement_cat = NewsCategory.objects.create(name=NewsCategory.ANNOUNCEMENT)
 
-        self.assertEqual(news_cat.get_name_display(), "News")
-        self.assertEqual(event_cat.get_name_display(), "Event")
-        self.assertEqual(announcement_cat.get_name_display(), "Announcement")
+        self.assertEqual(news_cat.get_name_display(), "Noticias")
+        self.assertEqual(event_cat.get_name_display(), "Eventos")
+        self.assertEqual(announcement_cat.get_name_display(), "Anuncios")
 
 
 class NewsModelTests(TestCase):
