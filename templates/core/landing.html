@@ -12,31 +12,31 @@
 {% endblock %}
 
 {% block content %}
-<!-- Hero Carousel Section -->
+<!-- Seção do Carrossel Hero -->
 <section id="heroSection" class="hero-section">
-  <!-- Navbar Container (Outside slides) -->
+  <!-- Contêiner da Navbar (Fora dos slides) -->
   <div class="hero-navbar-container">
     {% include 'includes/navbar.html' with navbar_class='hero-navbar' %}
   </div>
 
-  <!-- Swiper Container -->
+  <!-- Contêiner Swiper -->
   <div class="swiper hero-swiper">
     <div class="swiper-wrapper">
 
       <!-- Slide 1 -->
       <div class="swiper-slide">
-        <!-- Background Image Container -->
+        <!-- Contêiner da Imagem de Fundo -->
         <div class="hero-bg-container">
           <img src="{% static 'images/hero/hero.jpg' %}" alt="Maricá" class="hero-bg-image">
           <div class="hero-bg-overlay"></div>
         </div>
 
-        <!-- Content Container (Grid Layout) -->
+        <!-- Contêiner de Conteúdo (Layout em Grade) -->
         <div class="hero-content-container">
           <div class="container-fluid">
             <div class="row h-100">
               <div class="col-lg-6 d-flex flex-column justify-content-center">
-                <!-- Text Content -->
+                <!-- Conteúdo de Texto -->
                 <div class="hero-text-content">
                   <h1 class="hero-heading">Descubra as Maravilhas de Maricá</h1>
                   <p class="hero-text">Explore a beleza de praias intocadas, lagoas cristalinas e uma cultura vibrante. Embarque em uma jornada repleta de aventura e memórias inesquecíveis.</p>
@@ -100,7 +100,7 @@
 
     </div>
 
-    <!-- Navigation Controls (Outside slides so they appear on all) -->
+    <!-- Controles de Navegação (Fora dos slides para aparecerem em todos) -->
     <div class="hero-controls">
       <button class="hero-arrow-btn swiper-button-prev-custom">
         <i class="bi bi-chevron-left"></i>
@@ -337,9 +337,9 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Swiper is already loaded globally in base.html -->
+<!-- Swiper já está carregado globalmente no base.html -->
 <script src="{% static 'js/landing.js' %}"></script>
 <script src="{% static 'js/landing_map.js' %}?v=2"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&callback=initLandingMap&loading=async" async defer></script>
-{# Google auth is now handled in the global login modal in base.html #}
+{# A autenticação do Google agora é gerenciada no modal de login global no base.html #}
 {% endblock %}

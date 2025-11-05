@@ -1,7 +1,7 @@
 /**
- * MaricaCity - Favorites Service
- * Manages favorites using localStorage for all users
- * Optional backend sync for logged-in users
+ * MaricaCity - Serviço de Favoritos
+ * Gerencia favoritos usando localStorage para todos os usuários
+ * Sincronização opcional com backend para usuários logados
  */
 
 class FavoritesService {
@@ -11,35 +11,35 @@ class FavoritesService {
   }
 
   /**
-   * Get all favorites from localStorage
-   * @returns {number[]} Array of place IDs
+   * Obter todos os favoritos do localStorage
+   * @returns {number[]} Array de IDs de locais
    */
   getFavorites() {
     try {
       const stored = localStorage.getItem(this.storageKey);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error('Error reading favorites from localStorage:', error);
+      console.error('Erro ao ler favoritos do localStorage:', error);
       return [];
     }
   }
 
   /**
-   * Save favorites to localStorage
-   * @param {number[]} favorites - Array of place IDs
+   * Salvar favoritos no localStorage
+   * @param {number[]} favorites - Array de IDs de locais
    */
   saveFavorites(favorites) {
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(favorites));
       this.notifyListeners();
     } catch (error) {
-      console.error('Error saving favorites to localStorage:', error);
+      console.error('Erro ao salvar favoritos no localStorage:', error);
     }
   }
 
   /**
-   * Check if a place is favorited
-   * @param {number} placeId - Place ID to check
+   * Verificar se um local está favoritado
+   * @param {number} placeId - ID do local para verificar
    * @returns {boolean}
    */
   isFavorited(placeId) {
@@ -48,9 +48,9 @@ class FavoritesService {
   }
 
   /**
-   * Add a place to favorites
-   * @param {number} placeId - Place ID to add
-   * @returns {boolean} Success status
+   * Adicionar um local aos favoritos
+   * @param {number} placeId - ID do local para adicionar
+   * @returns {boolean} Status de sucesso
    */
   addFavorite(placeId) {
     const favorites = this.getFavorites();
@@ -65,9 +65,9 @@ class FavoritesService {
   }
 
   /**
-   * Remove a place from favorites
-   * @param {number} placeId - Place ID to remove
-   * @returns {boolean} Success status
+   * Remover um local dos favoritos
+   * @param {number} placeId - ID do local para remover
+   * @returns {boolean} Status de sucesso
    */
   removeFavorite(placeId) {
     const favorites = this.getFavorites();
@@ -83,9 +83,9 @@ class FavoritesService {
   }
 
   /**
-   * Toggle favorite status
-   * @param {number} placeId - Place ID to toggle
-   * @returns {boolean} New favorited status
+   * Alternar status de favorito
+   * @param {number} placeId - ID do local para alternar
+   * @returns {boolean} Novo status de favoritado
    */
   toggleFavorite(placeId) {
     if (this.isFavorited(placeId)) {
@@ -98,7 +98,7 @@ class FavoritesService {
   }
 
   /**
-   * Get count of favorites
+   * Obter contagem de favoritos
    * @returns {number}
    */
   getCount() {
@@ -106,22 +106,22 @@ class FavoritesService {
   }
 
   /**
-   * Clear all favorites
+   * Limpar todos os favoritos
    */
   clearAll() {
     this.saveFavorites([]);
   }
 
   /**
-   * Register a listener for favorites changes
-   * @param {Function} callback - Callback function
+   * Registrar um ouvinte para mudanças nos favoritos
+   * @param {Function} callback - Função de callback
    */
   addListener(callback) {
     this.listeners.push(callback);
   }
 
   /**
-   * Notify all listeners of changes
+   * Notificar todos os ouvintes sobre mudanças
    */
   notifyListeners() {
     const favorites = this.getFavorites();
@@ -129,16 +129,16 @@ class FavoritesService {
   }
 
   /**
-   * Sync favorites with backend (for logged-in users)
-   * @param {string} csrfToken - CSRF token for POST requests
+   * Sincronizar favoritos com backend (para usuários logados)
+   * @param {string} csrfToken - Token CSRF para requisições POST
    * @returns {Promise<void>}
    */
   async syncWithBackend(csrfToken) {
     try {
-      // Get local favorites
+      // Obter favoritos locais
       const localFavorites = this.getFavorites();
 
-      // Send to backend to merge
+      // Enviar para o backend para mesclar
       const response = await fetch('/explore/favorites/sync/', {
         method: 'POST',
         headers: {
@@ -150,18 +150,18 @@ class FavoritesService {
 
       if (response.ok) {
         const data = await response.json();
-        // Update local storage with merged favorites from backend
+        // Atualizar armazenamento local com favoritos mesclados do backend
         if (data.favorites) {
           this.saveFavorites(data.favorites);
         }
       }
     } catch (error) {
-      console.error('Error syncing favorites with backend:', error);
+      console.error('Erro ao sincronizar favoritos com backend:', error);
     }
   }
 
   /**
-   * Load favorites from backend (for logged-in users on page load)
+   * Carregar favoritos do backend (para usuários logados no carregamento da página)
    * @returns {Promise<number[]>}
    */
   async loadFromBackend() {
@@ -176,7 +176,7 @@ class FavoritesService {
       if (response.ok) {
         const data = await response.json();
         if (data.favorites) {
-          // Merge with local favorites
+          // Mesclar com favoritos locais
           const localFavorites = this.getFavorites();
           const merged = [...new Set([...localFavorites, ...data.favorites])];
           this.saveFavorites(merged);
@@ -184,16 +184,16 @@ class FavoritesService {
         }
       }
     } catch (error) {
-      console.error('Error loading favorites from backend:', error);
+      console.error('Erro ao carregar favoritos do backend:', error);
     }
     return this.getFavorites();
   }
 }
 
-// Create singleton instance
+// Criar instância singleton
 const favoritesService = new FavoritesService();
 
-// Export for use in other scripts
+// Exportar para uso em outros scripts
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = favoritesService;
 }

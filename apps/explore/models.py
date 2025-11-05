@@ -3,24 +3,25 @@ from django.db import models
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True, help_text="Category name")
+    name = models.CharField(max_length=100, unique=True, help_text="Nome da categoria")
 
     slug = models.SlugField(
-        max_length=100, unique=True, help_text="URL-friendly category identifier"
+        max_length=100, unique=True, help_text="Identificador amigável para URL"
     )
 
-    description = models.TextField(blank=True, help_text="Category description")
+    description = models.TextField(blank=True, help_text="Descrição da categoria")
 
     icon = models.CharField(
-        max_length=50, blank=True, help_text="Icon class or emoji for the category"
+        max_length=50, blank=True, help_text="Classe do ícone ou emoji para a categoria"
     )
 
     is_active = models.BooleanField(
-        default=True, help_text="Whether the category is currently active"
+        default=True, help_text="Se a categoria está atualmente ativa"
     )
 
     display_order = models.IntegerField(
-        default=0, help_text="Order in which category appears (lower numbers first)"
+        default=0,
+        help_text="Ordem em que a categoria aparece (números menores primeiro)",
     )
 
     # Timestamps
@@ -29,8 +30,8 @@ class Category(models.Model):
 
     class Meta:
         ordering = ["display_order", "name"]
-        verbose_name = "Category"
-        verbose_name_plural = "Categories"
+        verbose_name = "Categoria"
+        verbose_name_plural = "Categorias"
         indexes = [
             models.Index(fields=["is_active", "display_order"]),
             models.Index(fields=["slug"]),
@@ -41,55 +42,55 @@ class Category(models.Model):
 
     @property
     def active_places_count(self):
-        """Count of active approved places in this category"""
+        """Contagem de lugares ativos aprovados nesta categoria"""
         return self.places.filter(is_active=True, is_approved=True).count()
 
 
 class Place(models.Model):
-    name = models.CharField(max_length=200, help_text="Name of the place")
+    name = models.CharField(max_length=200, help_text="Nome do lugar")
 
-    description = models.TextField(help_text="Detailed description of the place")
+    description = models.TextField(help_text="Descrição detalhada do lugar")
 
-    address = models.TextField(help_text="Full address of the place")
+    address = models.TextField(help_text="Endereço completo do lugar")
 
-    # Location coordinates
+    # Coordenadas de localização
     latitude = models.DecimalField(
         max_digits=9,
         decimal_places=6,
         null=True,
         blank=True,
-        help_text="Latitude coordinate",
+        help_text="Coordenada de latitude",
     )
     longitude = models.DecimalField(
         max_digits=9,
         decimal_places=6,
         null=True,
         blank=True,
-        help_text="Longitude coordinate",
+        help_text="Coordenada de longitude",
     )
 
-    # Relationships
+    # Relacionamentos
     categories = models.ManyToManyField(
         Category,
         related_name="places",
         blank=True,
-        help_text="Categories this place belongs to",
+        help_text="Categorias às quais este lugar pertence",
     )
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="places",
-        help_text="User who created this place",
+        help_text="Usuário que criou este lugar",
     )
 
-    # Status fields
+    # Campos de status
     is_approved = models.BooleanField(
-        default=False, help_text="Whether the place has been approved by admin"
+        default=False, help_text="Se o lugar foi aprovado pelo administrador"
     )
 
     is_active = models.BooleanField(
-        default=True, help_text="Whether the place is currently active"
+        default=True, help_text="Se o lugar está atualmente ativo"
     )
 
     # Timestamps
@@ -98,8 +99,8 @@ class Place(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-        verbose_name = "Place"
-        verbose_name_plural = "Places"
+        verbose_name = "Lugar"
+        verbose_name_plural = "Lugares"
         indexes = [
             models.Index(fields=["is_approved", "is_active"]),
             models.Index(fields=["-created_at"]),
@@ -122,7 +123,7 @@ class Place(models.Model):
 
     @property
     def average_rating(self):
-        """Calculate average rating from all reviews"""
+        """Calcula a avaliação média de todas as avaliações"""
         from django.db.models import Avg
 
         result = self.reviews.aggregate(Avg("rating"))
@@ -130,43 +131,45 @@ class Place(models.Model):
 
     @property
     def review_count(self):
-        """Count of reviews for this place"""
+        """Contagem de avaliações para este lugar"""
         return self.reviews.count()
 
 
 class PlaceImage(models.Model):
-    """Images for places"""
+    """Imagens para lugares"""
 
     place = models.ForeignKey(
         Place,
         on_delete=models.CASCADE,
         related_name="images",
-        help_text="Place this image belongs to",
+        help_text="Lugar ao qual esta imagem pertence",
     )
 
-    image = models.ImageField(upload_to="places/images/%Y/%m/", help_text="Place image")
+    image = models.ImageField(
+        upload_to="places/images/%Y/%m/", help_text="Imagem do lugar"
+    )
 
     caption = models.CharField(
-        max_length=200, blank=True, help_text="Image caption or description"
+        max_length=200, blank=True, help_text="Legenda ou descrição da imagem"
     )
 
     is_primary = models.BooleanField(
-        default=False, help_text="Whether this is the primary/main image for the place"
+        default=False, help_text="Se esta é a imagem principal/primária do lugar"
     )
 
     display_order = models.IntegerField(
         default=0,
-        help_text="Order in which image appears in gallery (lower numbers first)",
+        help_text="Ordem em que a imagem aparece na galeria (números menores primeiro)",
     )
 
     uploaded_at = models.DateTimeField(
-        auto_now_add=True, help_text="When the image was uploaded"
+        auto_now_add=True, help_text="Quando a imagem foi carregada"
     )
 
     class Meta:
         ordering = ["display_order", "-uploaded_at"]
-        verbose_name = "Place Image"
-        verbose_name_plural = "Place Images"
+        verbose_name = "Imagem do Lugar"
+        verbose_name_plural = "Imagens do Lugar"
         indexes = [
             models.Index(fields=["place", "display_order"]),
             models.Index(fields=["place", "is_primary"]),
@@ -177,7 +180,7 @@ class PlaceImage(models.Model):
 
     def save(self, *args, **kwargs):
         if self.is_primary:
-            # Set all other images for this place to non-primary
+            # Define todas as outras imagens deste lugar como não-primárias
             PlaceImage.objects.filter(place=self.place, is_primary=True).update(
                 is_primary=False
             )
@@ -186,14 +189,14 @@ class PlaceImage(models.Model):
 
 class PlaceApproval(models.Model):
     class ActionType(models.TextChoices):
-        APPROVE = "APPROVE", "Approved"
-        REJECT = "REJECT", "Rejected"
-        REQUEST_CHANGES = "REQUEST_CHANGES", "Request Changes"
+        APPROVE = "APPROVE", "Aprovado"
+        REJECT = "REJECT", "Rejeitado"
+        REQUEST_CHANGES = "REQUEST_CHANGES", "Solicitar Alterações"
 
     class Meta:
         ordering = ["-reviewed_at"]
-        verbose_name = "Place Approval"
-        verbose_name_plural = "Place Approvals"
+        verbose_name = "Aprovação de Lugar"
+        verbose_name_plural = "Aprovações de Lugares"
         indexes = [
             models.Index(fields=["place", "-reviewed_at"]),
             models.Index(fields=["reviewer", "-reviewed_at"]),
@@ -218,7 +221,7 @@ class PlaceApproval(models.Model):
         Place,
         on_delete=models.CASCADE,
         related_name="approval_history",
-        help_text="Place being reviewed",
+        help_text="Lugar sendo revisado",
     )
 
     reviewer = models.ForeignKey(
@@ -226,30 +229,32 @@ class PlaceApproval(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         related_name="place_reviews",
-        help_text="Admin user who reviewed the place",
+        help_text="Usuário administrador que revisou o lugar",
     )
 
     action = models.CharField(
         max_length=20,
         choices=ActionType.choices,
-        help_text="Action taken by the reviewer",
+        help_text="Ação realizada pelo revisor",
     )
 
-    comments = models.TextField(blank=True, help_text="Reviewer comments or feedback")
+    comments = models.TextField(
+        blank=True, help_text="Comentários ou feedback do revisor"
+    )
 
     reviewed_at = models.DateTimeField(
-        auto_now_add=True, help_text="When the review was conducted"
+        auto_now_add=True, help_text="Quando a revisão foi realizada"
     )
 
 
 class PlaceReview(models.Model):
-    """User reviews and ratings for places"""
+    """Avaliações e classificações de usuários para lugares"""
 
     class Meta:
         ordering = ["-created_at"]
-        verbose_name = "Place Review"
-        verbose_name_plural = "Place Reviews"
-        unique_together = [["place", "user"]]  # One review per user per place
+        verbose_name = "Avaliação de Lugar"
+        verbose_name_plural = "Avaliações de Lugares"
+        unique_together = [["place", "user"]]  # Uma avaliação por usuário por lugar
         indexes = [
             models.Index(fields=["place", "-created_at"]),
             models.Index(fields=["user", "-created_at"]),
@@ -263,29 +268,29 @@ class PlaceReview(models.Model):
         Place,
         on_delete=models.CASCADE,
         related_name="reviews",
-        help_text="Place being reviewed",
+        help_text="Lugar sendo avaliado",
     )
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="place_reviews_written",
-        help_text="User who wrote the review",
+        help_text="Usuário que escreveu a avaliação",
     )
 
     rating = models.IntegerField(
         choices=[
-            (1, "1 Star"),
-            (2, "2 Stars"),
-            (3, "3 Stars"),
-            (4, "4 Stars"),
-            (5, "5 Stars"),
+            (1, "1 Estrela"),
+            (2, "2 Estrelas"),
+            (3, "3 Estrelas"),
+            (4, "4 Estrelas"),
+            (5, "5 Estrelas"),
         ],
-        help_text="Rating from 1 to 5 stars",
+        help_text="Avaliação de 1 a 5 estrelas",
     )
 
     comment = models.TextField(
-        help_text="Review comment/feedback",
+        help_text="Comentário/feedback da avaliação",
         max_length=1000,
     )
 
@@ -295,28 +300,31 @@ class PlaceReview(models.Model):
 
 class Favorite(models.Model):
     """
-    Model to track user favorites (saved places).
+    Modelo para rastrear favoritos do usuário (lugares salvos).
     """
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="favorites",
-        help_text="User who favorited the place",
+        help_text="Usuário que favoritou o lugar",
     )
 
     place = models.ForeignKey(
         Place,
         on_delete=models.CASCADE,
         related_name="favorited_by",
-        help_text="Place that was favorited",
+        help_text="Lugar que foi favoritado",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
-        unique_together = ("user", "place")  # User can only favorite a place once
+        unique_together = (
+            "user",
+            "place",
+        )  # Usuário pode favoritar um lugar apenas uma vez
         indexes = [
             models.Index(fields=["user", "-created_at"]),
             models.Index(fields=["place"]),

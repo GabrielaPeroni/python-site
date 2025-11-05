@@ -67,6 +67,6 @@ class NewsAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """Set author to current user if creating new news"""
-        if not change:  # If creating new object
+        if not change:
             obj.author = request.user
         super().save_model(request, obj, form, change)

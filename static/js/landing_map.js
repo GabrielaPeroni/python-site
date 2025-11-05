@@ -1,6 +1,6 @@
 /**
- * Interactive Google Maps for Landing Page
- * Shows all places with clickable markers and info windows
+ * Google Maps Interativo para Página Inicial
+ * Mostra todos os locais com marcadores clicáveis e janelas de informação
  */
 
 let landingMap;
@@ -15,10 +15,10 @@ async function initLandingMap() {
     return;
   }
 
-  // Default center (Maricá, Brazil)
+  // Centro padrão (Maricá, Brasil)
   const defaultCenter = { lat: -22.9194, lng: -42.8186 };
 
-  // Initialize map
+  // Inicializar mapa
   landingMap = new google.maps.Map(mapContainer, {
     center: defaultCenter,
     zoom: 12,
@@ -32,26 +32,26 @@ async function initLandingMap() {
     zoomControl: true,
   });
 
-  // Create single info window instance (reused for all markers)
+  // Criar instância única de janela de informação (reutilizada para todos os marcadores)
   infoWindow = new google.maps.InfoWindow();
 
-  // Fetch places data
+  // Buscar dados dos locais
   try {
     const response = await fetch('/explore/api/map-data/');
     const data = await response.json();
 
     if (data.places && data.places.length > 0) {
-      // Create markers for all places
+      // Criar marcadores para todos os locais
       createMarkers(data.places);
 
-      // Fit map to show all markers
+      // Ajustar mapa para mostrar todos os marcadores
       fitMapToMarkers();
     }
 
-    // Update place count
+    // Atualizar contagem de locais
     updatePlaceCount(data.count);
   } catch (error) {
-    console.error('Error fetching places data:', error);
+    console.error('Erro ao buscar dados dos locais:', error);
   }
 }
 
@@ -64,10 +64,10 @@ function createMarkers(places) {
       animation: google.maps.Animation.DROP,
     });
 
-    // Store place data with marker
+    // Armazenar dados do local com o marcador
     marker.placeData = place;
 
-    // Add click listener to show info window
+    // Adicionar ouvinte de clique para mostrar janela de informação
     marker.addListener('click', () => {
       showInfoWindow(marker);
     });
@@ -79,7 +79,7 @@ function createMarkers(places) {
 function showInfoWindow(marker) {
   const place = marker.placeData;
 
-  // Build info window content
+  // Construir conteúdo da janela de informação
   let content = `
     <div style="max-width: 280px; padding: 8px;">
       ${
@@ -137,7 +137,7 @@ function fitMapToMarkers() {
 
   landingMap.fitBounds(bounds);
 
-  // Don't zoom in too much if there's only one marker
+  // Não dar zoom demais se houver apenas um marcador
   if (markers.length === 1) {
     landingMap.setZoom(15);
   }
@@ -150,5 +150,5 @@ function updatePlaceCount(count) {
   }
 }
 
-// Make function globally available for Google Maps callback
+// Tornar função globalmente disponível para callback do Google Maps
 window.initLandingMap = initLandingMap;

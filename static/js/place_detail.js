@@ -1,14 +1,14 @@
 /**
- * MaricaCity - Place Detail Page JavaScript
- * Handles reviews (create, edit, delete) and favorites functionality
+ * MaricaCity - JavaScript da Página de Detalhes do Local
+ * Gerencia avaliações (criar, editar, excluir) e funcionalidade de favoritos
  */
 
-// State variables
+// Variáveis de estado
 let currentReviewId = null;
 let deleteReviewId = null;
 
 /**
- * Reset review form to create new review state
+ * Resetar formulário de avaliação para estado de nova avaliação
  */
 function resetReviewForm() {
   currentReviewId = null;
@@ -24,10 +24,10 @@ function resetReviewForm() {
 }
 
 /**
- * Populate form for editing existing review
- * @param {number} reviewId - Review ID
- * @param {number} rating - Rating value (1-5)
- * @param {string} comment - Review comment
+ * Preencher formulário para editar avaliação existente
+ * @param {number} reviewId - ID da avaliação
+ * @param {number} rating - Valor da classificação (1-5)
+ * @param {string} comment - Comentário da avaliação
  */
 function editReview(reviewId, rating, comment) {
   currentReviewId = reviewId;
@@ -46,7 +46,7 @@ function editReview(reviewId, rating, comment) {
 }
 
 /**
- * Submit review (create or update)
+ * Enviar avaliação (criar ou atualizar)
  */
 function submitReview() {
   const form = document.getElementById('reviewForm');
@@ -60,16 +60,16 @@ function submitReview() {
     return;
   }
 
-  // Determine URL based on whether we're creating or editing
+  // Determinar URL com base em estar criando ou editando
   let url;
   if (currentReviewId) {
-    // Get from data attribute on form
+    // Obter do atributo data no formulário
     url = form.dataset.editUrlTemplate.replace('0', currentReviewId);
   } else {
     url = form.dataset.createUrl;
   }
 
-  // Submit form via fetch
+  // Enviar formulário via fetch
   fetch(url, {
     method: 'POST',
     body: formData,
@@ -79,7 +79,7 @@ function submitReview() {
   })
     .then(response => {
       if (response.ok) {
-        // Close modal and reload page to show updated review
+        // Fechar modal e recarregar página para mostrar avaliação atualizada
         const modal = bootstrap.Modal.getInstance(
           document.getElementById('reviewModal')
         );
@@ -90,14 +90,14 @@ function submitReview() {
       }
     })
     .catch(error => {
-      console.error('Error submitting review:', error);
+      console.error('Erro ao enviar avaliação:', error);
       alert('Erro ao enviar avaliação. Por favor, tente novamente.');
     });
 }
 
 /**
- * Show delete confirmation modal
- * @param {number} reviewId - Review ID to delete
+ * Mostrar modal de confirmação de exclusão
+ * @param {number} reviewId - ID da avaliação para excluir
  */
 function deleteReview(reviewId) {
   deleteReviewId = reviewId;
@@ -106,7 +106,7 @@ function deleteReview(reviewId) {
 }
 
 /**
- * Confirm and execute review deletion
+ * Confirmar e executar exclusão de avaliação
  */
 function confirmDeleteReview() {
   const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
@@ -127,7 +127,7 @@ function confirmDeleteReview() {
   })
     .then(response => {
       if (response.ok) {
-        // Close modal and reload page
+        // Fechar modal e recarregar página
         const modal = bootstrap.Modal.getInstance(
           document.getElementById('deleteReviewModal')
         );
@@ -138,19 +138,19 @@ function confirmDeleteReview() {
       }
     })
     .catch(error => {
-      console.error('Error deleting review:', error);
+      console.error('Erro ao excluir avaliação:', error);
       alert('Erro ao excluir avaliação. Por favor, tente novamente.');
     });
 }
 
 /**
- * Note: Favorite button functionality is now handled by favorites-ui.js
- * which uses localStorage for all users and optionally syncs with backend
- * for logged-in users. The unified system is loaded in base.html.
+ * Nota: A funcionalidade do botão de favorito agora é gerenciada pelo favorites-ui.js
+ * que usa localStorage para todos os usuários e opcionalmente sincroniza com o backend
+ * para usuários logados. O sistema unificado é carregado no base.html.
  */
 
 /**
- * Initialize Place Carousel
+ * Inicializar Carrossel do Local
  */
 function initPlaceCarousel() {
   const carousel = document.querySelector('.place-carousel');
@@ -161,16 +161,16 @@ function initPlaceCarousel() {
   const nextBtn = carousel.querySelector('.place-carousel-next');
   const dots = carousel.querySelectorAll('.place-carousel-dot');
 
-  if (items.length <= 1) return; // No need for carousel with single image
+  if (items.length <= 1) return; // Não há necessidade de carrossel com uma única imagem
 
   let currentIndex = 0;
 
   function showSlide(index) {
-    // Remove active class from all items and dots
+    // Remover classe active de todos os itens e pontos
     items.forEach(item => item.classList.remove('active'));
     dots.forEach(dot => dot.classList.remove('active'));
 
-    // Add active class to current item and dot
+    // Adicionar classe active ao item e ponto atual
     items[index].classList.add('active');
     dots[index].classList.add('active');
     currentIndex = index;
@@ -186,7 +186,7 @@ function initPlaceCarousel() {
     showSlide(newIndex);
   }
 
-  // Event listeners
+  // Ouvintes de eventos
   if (prevBtn) {
     prevBtn.addEventListener('click', prevSlide);
   }
@@ -199,21 +199,21 @@ function initPlaceCarousel() {
     dot.addEventListener('click', () => showSlide(index));
   });
 
-  // Keyboard navigation
+  // Navegação por teclado
   document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') prevSlide();
     if (e.key === 'ArrowRight') nextSlide();
   });
 }
 
-// Initialize carousel when DOM is ready
+// Inicializar carrossel quando o DOM estiver pronto
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initPlaceCarousel);
 } else {
   initPlaceCarousel();
 }
 
-// Export functions for global use
+// Exportar funções para uso global
 window.resetReviewForm = resetReviewForm;
 window.editReview = editReview;
 window.submitReview = submitReview;

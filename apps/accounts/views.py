@@ -35,8 +35,8 @@ def register_view(request):
 
 def login_view(request):
     """
-    AJAX login endpoint for modal-based authentication
-    Returns JSON response with success/error messages
+    Endpoint AJAX de login para autenticação baseada em modal
+    Retorna resposta JSON com mensagens de sucesso/erro
     """
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
@@ -80,7 +80,7 @@ def login_view(request):
                 status=401,
             )
 
-    # GET request - not allowed for AJAX endpoint
+    # Requisição GET - não permitida para endpoint AJAX
     return JsonResponse({"success": False, "error": "Método não permitido"}, status=405)
 
 
@@ -91,26 +91,26 @@ def logout_view(request):
     return redirect("core:landing")
 
 
-# Admin User Management Views
+# Views de Gerenciamento de Usuários Admin
 @login_required
 def user_management_view(request):
-    """Admin view to manage all users"""
+    """View de administração para gerenciar todos os usuários"""
     if not request.user.can_moderate:
         messages.error(request, "Você não tem permissão para acessar esta página.")
         return redirect("core:landing")
 
-    # Get filter parameters
-    role_filter = request.GET.get("role", "")  # Changed from user_type to role
+    # Obter parâmetros de filtro
+    role_filter = request.GET.get("role", "")  # Alterado de user_type para role
     status_filter = request.GET.get("status", "")
     search_query = request.GET.get("q", "")
 
-    # Base queryset with statistics
+    # Queryset base com estatísticas
     users = User.objects.annotate(
         places_count=Count("places", distinct=True),
         reviews_count=Count("place_reviews_written", distinct=True),
     ).select_related()
 
-    # Apply filters
+    # Aplicar filtros
     if role_filter == "staff":
         users = users.filter(is_staff=True)
     elif role_filter == "regular":
@@ -129,7 +129,7 @@ def user_management_view(request):
             | Q(last_name__icontains=search_query)
         )
 
-    # Get statistics
+    # Obter estatísticas
     total_users = User.objects.count()
     active_users = User.objects.filter(is_active=True).count()
     staff_users = User.objects.filter(is_staff=True).count()
@@ -150,7 +150,7 @@ def user_management_view(request):
 
 @login_required
 def user_update_type_view(request, user_id):
-    """Toggle user staff status"""
+    """Alterna o status de staff do usuário"""
     if not request.user.can_moderate:
         return JsonResponse({"success": False, "error": "Sem permissão"}, status=403)
 
@@ -161,7 +161,7 @@ def user_update_type_view(request, user_id):
 
     user = get_object_or_404(User, id=user_id)
 
-    # Prevent changing own staff status
+    # Prevenir alteração do próprio status de staff
     if user == request.user:
         return JsonResponse(
             {
@@ -171,7 +171,7 @@ def user_update_type_view(request, user_id):
             status=400,
         )
 
-    # Toggle staff status
+    # Alternar status de staff
     user.is_staff = not user.is_staff
     user.save()
 
@@ -192,7 +192,7 @@ def user_update_type_view(request, user_id):
 
 @login_required
 def user_toggle_status_view(request, user_id):
-    """Toggle user active status"""
+    """Alterna o status ativo do usuário"""
     if not request.user.can_moderate:
         return JsonResponse({"success": False, "error": "Sem permissão"}, status=403)
 
@@ -203,7 +203,7 @@ def user_toggle_status_view(request, user_id):
 
     user = get_object_or_404(User, id=user_id)
 
-    # Prevent deactivating own account
+    # Prevenir desativação da própria conta
     if user == request.user:
         return JsonResponse(
             {"success": False, "error": "Você não pode desativar sua própria conta"},
@@ -227,14 +227,14 @@ def user_toggle_status_view(request, user_id):
 
 @login_required
 def user_delete_view(request, user_id):
-    """Delete user account"""
+    """Excluir conta de usuário"""
     if not request.user.can_moderate:
         messages.error(request, "Você não tem permissão para excluir usuários.")
         return redirect("accounts:user_management")
 
     user = get_object_or_404(User, id=user_id)
 
-    # Prevent deleting own account
+    # Prevenir exclusão da própria conta
     if user == request.user:
         messages.error(request, "Você não pode excluir sua própria conta.")
         return redirect("accounts:user_management")

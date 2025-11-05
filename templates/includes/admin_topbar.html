@@ -1,25 +1,25 @@
 {% load static %}
 
 <div class="admin-topbar">
-  <!-- Mobile Menu Button -->
+  <!-- Botão de Menu Mobile -->
   <button class="mobile-menu-btn d-lg-none" id="mobileMenuBtn">
     <i class="bi bi-list"></i>
   </button>
 
-  <!-- Welcome Message -->
+  <!-- Mensagem de Boas-vindas -->
   <div class="topbar-welcome">
-    <h1>Welcome Back, {% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}</h1>
+    <h1>Bem-vindo, {% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}</h1>
   </div>
 
-  <!-- Topbar Actions -->
+  <!-- Ações da Barra Superior -->
   <div class="topbar-actions">
-    <!-- Search Box -->
+    <!-- Caixa de Pesquisa -->
     <div class="search-box d-none d-md-flex">
       <i class="bi bi-search"></i>
-      <input type="text" placeholder="Search" id="topbarSearch">
+      <input type="text" placeholder="Pesquisar" id="topbarSearch">
     </div>
 
-    <!-- Notifications -->
+    <!-- Notificações -->
     <div class="notification-btn" id="notificationBtn">
       <i class="bi bi-bell"></i>
       {% if pending_places > 0 %}
@@ -27,7 +27,7 @@
       {% endif %}
     </div>
 
-    <!-- User Menu -->
+    <!-- Menu do Usuário -->
     <div class="user-menu" id="userMenuToggle">
       {% if request.user.profile_picture %}
         <img src="{{ request.user.profile_picture.url }}" alt="{{ request.user.username }}" class="user-avatar">
@@ -40,7 +40,7 @@
       <i class="bi bi-chevron-down"></i>
     </div>
 
-    <!-- User Dropdown Menu -->
+    <!-- Menu Suspenso do Usuário -->
     <div class="user-dropdown" id="userDropdown">
       <div class="dropdown-header">
         <strong>{{ request.user.username }}</strong>
@@ -63,7 +63,7 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Mobile menu button
+    // Botão do menu mobile
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const sidebar = document.getElementById('adminSidebar');
     const overlay = document.getElementById('sidebarOverlay');
@@ -76,7 +76,7 @@
       });
     }
 
-    // User menu dropdown
+    // Menu suspenso do usuário
     const userMenuToggle = document.getElementById('userMenuToggle');
     const userDropdown = document.getElementById('userDropdown');
 
@@ -86,7 +86,7 @@
         userDropdown.classList.toggle('show');
       });
 
-      // Close dropdown when clicking outside
+      // Fechar menu suspenso ao clicar fora
       document.addEventListener('click', function(e) {
         if (!userMenuToggle.contains(e.target) && !userDropdown.contains(e.target)) {
           userDropdown.classList.remove('show');
@@ -94,24 +94,24 @@
       });
     }
 
-    // Notification button (placeholder - can be expanded later)
+    // Botão de notificações (espaço reservado - pode ser expandido depois)
     const notificationBtn = document.getElementById('notificationBtn');
     if (notificationBtn) {
       notificationBtn.addEventListener('click', function() {
-        // Redirect to approval queue if there are pending items
+        // Redirecionar para fila de aprovação se houver itens pendentes
         {% if pending_places > 0 %}
           window.location.href = "{% url 'explore:approval_queue' %}";
         {% endif %}
       });
     }
 
-    // Search functionality (placeholder - can be expanded later)
+    // Funcionalidade de pesquisa (espaço reservado - pode ser expandido depois)
     const searchInput = document.getElementById('topbarSearch');
     if (searchInput) {
       searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
-          // Can implement search functionality here
-          console.log('Search:', this.value);
+          // Pode implementar funcionalidade de pesquisa aqui
+          console.log('Pesquisar:', this.value);
         }
       });
     }

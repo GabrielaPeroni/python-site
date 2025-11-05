@@ -8,7 +8,6 @@ urlpatterns = [
     path("", views.landing_view, name="landing"),
     path("sobre/", views.about_view, name="about"),
     path("painel-admin/", views.admin_dashboard_view, name="admin_dashboard"),
-    # News Management URLs
     path("painel-admin/noticias/", views.admin_news_list_view, name="admin_news_list"),
     path(
         "painel-admin/noticias/criar/",

@@ -68,7 +68,7 @@
     {% endfor %}
   </div>
   {% else %}
-  <!-- Empty state for when no favorites exist -->
+  <!-- Vazio pra quando nao tiver favoritos -->
   <div class="text-center py-5" id="emptyFavoritesState">
     <div class="display-1 mb-4">
       <i class="bi bi-heart"></i>
@@ -89,36 +89,30 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Favorites UI is already loaded from base.html via favorites-ui.js -->
+<!-- Favorites UI carrega de base.html por favorites-ui.js -->
 {% if not is_authenticated %}
 <script>
-  // For anonymous users, dynamically load favorites from localStorage
   document.addEventListener('DOMContentLoaded', async function() {
     const favoritePlaceIds = favoritesService.getFavorites();
     const emptyState = document.getElementById('emptyFavoritesState');
     const container = emptyState.parentElement;
 
     if (favoritePlaceIds.length === 0) {
-      // Show empty state
       emptyState.classList.remove('d-none');
     } else {
-      // Fetch place details for these IDs
       try {
         const response = await fetch(`/explore/api/places-by-ids/?ids=${favoritePlaceIds.join(',')}`);
         const data = await response.json();
 
         if (data.places && data.places.length > 0) {
-          // Hide empty state
           emptyState.remove();
 
-          // Update favorites count in header
           const countElement = container.querySelector('.text-white-50');
           if (countElement) {
             const count = data.places.length;
             countElement.textContent = `${count} lugar${count !== 1 ? 'es' : ''} salvo${count !== 1 ? 's' : ''}`;
           }
 
-          // Create places grid
           const gridHtml = `
             <div class="row g-4">
               ${data.places.map(place => `
@@ -162,7 +156,6 @@
 
           container.innerHTML = gridHtml;
 
-          // Re-attach event listeners to favorite buttons
           const favoriteButtons = container.querySelectorAll('.favorite-btn');
           favoriteButtons.forEach(button => {
             button.addEventListener('click', async function(e) {
@@ -172,7 +165,6 @@
               const placeId = button.dataset.placeId;
               favoritesService.removeFavorite(placeId);
 
-              // Remove card with animation
               const card = button.closest('.col-12');
               if (card) {
                 card.style.transition = 'all 0.3s ease';
@@ -182,12 +174,10 @@
                 setTimeout(() => {
                   card.remove();
 
-                  // Check if no more favorites
                   const remainingCards = container.querySelectorAll('.favorite-btn').length;
                   if (remainingCards === 0) {
-                    location.reload(); // Reload to show empty state
+                    location.reload();
                   } else {
-                    // Update count
                     const countElement = document.querySelector('.text-white-50');
                     if (countElement) {
                       const newCount = remainingCards;
@@ -199,7 +189,6 @@
             });
           });
         } else {
-          // No places found (might be deleted or unapproved)
           emptyState.classList.remove('d-none');
         }
       } catch (error) {

@@ -1,34 +1,34 @@
 /**
- * Google Maps integration for Place Detail Page
- * Displays an embedded map with a marker at the place's location
+ * Integração do Google Maps para Página de Detalhes do Local
+ * Exibe um mapa incorporado com um marcador na localização do local
  */
 
 let map;
 let marker;
 
 function initPlaceMap() {
-  // Get map container and data
+  // Obter contêiner do mapa e dados
   const mapContainer = document.getElementById('place-map');
 
   if (!mapContainer) {
     return;
   }
 
-  // Get coordinates from data attributes
+  // Obter coordenadas dos atributos de dados
   const latitude = parseFloat(mapContainer.dataset.latitude);
   const longitude = parseFloat(mapContainer.dataset.longitude);
   const placeName = mapContainer.dataset.placeName;
 
-  // Check if coordinates are valid
+  // Verificar se as coordenadas são válidas
   if (isNaN(latitude) || isNaN(longitude)) {
     mapContainer.parentElement.style.display = 'none';
     return;
   }
 
-  // Create location object
+  // Criar objeto de localização
   const placeLocation = { lat: latitude, lng: longitude };
 
-  // Initialize map
+  // Inicializar mapa
   map = new google.maps.Map(mapContainer, {
     center: placeLocation,
     zoom: 15,
@@ -42,7 +42,7 @@ function initPlaceMap() {
     zoomControl: true,
   });
 
-  // Create marker
+  // Criar marcador
   marker = new google.maps.Marker({
     position: placeLocation,
     map: map,
@@ -50,7 +50,7 @@ function initPlaceMap() {
     animation: google.maps.Animation.DROP,
   });
 
-  // Create info window
+  // Criar janela de informação
   const infoWindow = new google.maps.InfoWindow({
     content: `
       <div style="padding: 8px; max-width: 200px;">
@@ -62,20 +62,20 @@ function initPlaceMap() {
     `,
   });
 
-  // Show info window on marker click
+  // Mostrar janela de informação ao clicar no marcador
   marker.addListener('click', () => {
     infoWindow.open(map, marker);
   });
 
-  // Open info window by default
+  // Abrir janela de informação por padrão
   infoWindow.open(map, marker);
 
-  // Add bounce animation on marker hover
+  // Adicionar animação de salto ao passar o mouse sobre o marcador
   marker.addListener('mouseover', () => {
     marker.setAnimation(google.maps.Animation.BOUNCE);
     setTimeout(() => marker.setAnimation(null), 750);
   });
 }
 
-// Initialize when Google Maps script is loaded
+// Inicializar quando o script do Google Maps for carregado
 window.initPlaceMap = initPlaceMap;

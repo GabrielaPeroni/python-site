@@ -3,18 +3,11 @@ from pathlib import Path
 from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# No default provided - must be set in .env file for security
 SECRET_KEY = config("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
-
-
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -23,9 +16,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Third-party apps
+    # Apps
     "django_ratelimit",
-    # Local apps
     "apps.core",
     "apps.accounts",
     "apps.explore",
@@ -97,9 +89,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Cache configuration for rate limiting
-# NOTE: For production, use Redis or Memcached for proper rate limiting across multiple processes
-# For development/single-process deployments, LocMemCache is acceptable
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -129,11 +118,9 @@ LOGIN_URL = "core:landing"
 LOGIN_REDIRECT_URL = "core:landing"
 LOGOUT_REDIRECT_URL = "core:landing"
 
-# Google OAuth settings
+# Google settings
 # Must be set in .env file
 GOOGLE_OAUTH_CLIENT_ID = config("GOOGLE_OAUTH_CLIENT_ID")
-
-# Google Maps API
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
 
 # Rate Limiting (to prevent API abuse)

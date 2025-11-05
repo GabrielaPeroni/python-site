@@ -15,7 +15,7 @@ function decodeJWT(token) {
 function handleCredentialResponse(response) {
   const payload = decodeJWT(response.credential);
 
-  // Send token to backend for authentication
+  // Enviar token para o backend para autenticação
   fetch('/auth/google/', {
     method: 'POST',
     headers: {
@@ -28,20 +28,20 @@ function handleCredentialResponse(response) {
       if (res.ok) {
         window.location.href = '/';
       } else {
-        console.error('Google authentication failed');
+        console.error('Autenticação do Google falhou');
         alert('Falha ao autenticar com Google. Por favor, tente novamente.');
       }
     })
     .catch(error => {
-      console.error('Error during Google authentication:', error);
+      console.error('Erro durante a autenticação do Google:', error);
       alert('Erro ao conectar com o servidor. Por favor, tente novamente.');
     });
 }
 
-// Track if Google Sign-In has been initialized
+// Rastrear se o Google Sign-In foi inicializado
 let googleInitialized = false;
 
-// Initialize Google Sign-In SDK
+// Inicializar SDK do Google Sign-In
 function initializeGoogleSDK() {
   if (
     typeof google !== 'undefined' &&
@@ -57,15 +57,15 @@ function initializeGoogleSDK() {
       googleInitialized = true;
       renderGoogleButton();
     } catch (error) {
-      console.error('Error initializing Google Sign-In SDK:', error);
+      console.error('Erro ao inicializar SDK do Google Sign-In:', error);
     }
   } else if (!googleInitialized) {
-    // If Google SDK not ready yet, try again in 100ms
+    // Se o SDK do Google ainda não estiver pronto, tentar novamente em 100ms
     setTimeout(initializeGoogleSDK, 100);
   }
 }
 
-// Render the Google Sign-In button
+// Renderizar o botão do Google Sign-In
 function renderGoogleButton() {
   if (!googleInitialized) {
     return;
@@ -84,21 +84,21 @@ function renderGoogleButton() {
         width: 280,
       });
     } catch (error) {
-      console.error('Error rendering Google Sign-In button:', error);
+      console.error('Erro ao renderizar botão do Google Sign-In:', error);
     }
   }
 }
 
-// Listen for dropdown show events to render the button when it becomes visible
+// Ouvir eventos de exibição do dropdown para renderizar o botão quando ele se tornar visível
 document.addEventListener('shown.bs.dropdown', function (event) {
-  // Check if this is a login dropdown
+  // Verificar se este é um dropdown de login
   const dropdown = event.target;
   if (dropdown.querySelector('#google-signin-button')) {
     renderGoogleButton();
   }
 });
 
-// Start initialization when DOM is ready
+// Iniciar inicialização quando o DOM estiver pronto
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeGoogleSDK);
 } else {

@@ -12,21 +12,21 @@
     </div>
   </div>
 
-  <!-- Desktop Collapse Button -->
-  <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Collapse sidebar">
+  <!-- Botão de Colapso Desktop -->
+  <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Recolher barra lateral">
     <i class="bi bi-chevron-left"></i>
   </button>
 
-  <!-- Navigation -->
+  <!-- Navegação -->
   <nav class="sidebar-nav">
     <a href="{% url 'core:admin_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
       <i class="bi bi-speedometer2"></i>
-      <span>Dashboard</span>
+      <span>Painel</span>
     </a>
 
     <a href="{% url 'explore:approval_queue' %}" class="nav-item {% if 'approval' in request.path %}active{% endif %}">
       <i class="bi bi-file-earmark-text"></i>
-      <span>Requests</span>
+      <span>Solicitações</span>
       {% if pending_places > 0 %}
         <span class="nav-badge">{{ pending_places }}</span>
       {% endif %}
@@ -34,38 +34,38 @@
 
     <a href="{% url 'explore:backlog' %}" class="nav-item {% if 'backlog' in request.path %}active{% endif %}">
       <i class="bi bi-archive"></i>
-      <span>Backlog</span>
+      <span>Histórico</span>
     </a>
 
     <a href="{% url 'accounts:user_management' %}" class="nav-item {% if 'usuarios' in request.path %}active{% endif %}">
       <i class="bi bi-people"></i>
-      <span>Users</span>
+      <span>Usuários</span>
     </a>
 
     <a href="{% url 'core:admin_news_list' %}" class="nav-item {% if 'noticias' in request.path %}active{% endif %}">
       <i class="bi bi-newspaper"></i>
-      <span>News</span>
+      <span>Notícias</span>
       {% if draft_news > 0 %}
         <span class="nav-badge">{{ draft_news }}</span>
       {% endif %}
     </a>
   </nav>
 
-  <!-- Sidebar Footer -->
+  <!-- Rodapé da Barra Lateral -->
   <div class="sidebar-footer">
     <a href="/admin/" class="nav-item" target="_blank">
       <i class="bi bi-gear"></i>
-      <span>Settings</span>
+      <span>Configurações</span>
     </a>
 
     <a href="{% url 'accounts:logout' %}" class="nav-item">
       <i class="bi bi-box-arrow-left"></i>
-      <span>Log Out</span>
+      <span>Sair</span>
     </a>
   </div>
 </div>
 
-<!-- Overlay for mobile -->
+<!-- Sobreposição para mobile -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <script>
@@ -75,7 +75,7 @@
     const collapseBtn = document.getElementById('sidebarCollapseBtn');
     const adminContainer = document.querySelector('.admin-container');
 
-    // Restore sidebar state from localStorage
+    // Restaurar estado da barra lateral do localStorage
     const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
     if (isCollapsed) {
       sidebar.classList.add('collapsed');
@@ -84,7 +84,7 @@
       }
     }
 
-    // Desktop collapse functionality
+    // Funcionalidade de colapso no desktop
     if (collapseBtn) {
       collapseBtn.addEventListener('click', function() {
         const isCurrentlyCollapsed = sidebar.classList.toggle('collapsed');
@@ -93,28 +93,28 @@
           adminContainer.classList.toggle('sidebar-collapsed');
         }
 
-        // Update chevron icon direction
+        // Atualizar direção do ícone chevron
         const icon = this.querySelector('i');
         if (isCurrentlyCollapsed) {
           icon.classList.remove('bi-chevron-left');
           icon.classList.add('bi-chevron-right');
-          this.setAttribute('title', 'Expand sidebar');
+          this.setAttribute('title', 'Expandir barra lateral');
         } else {
           icon.classList.remove('bi-chevron-right');
           icon.classList.add('bi-chevron-left');
-          this.setAttribute('title', 'Collapse sidebar');
+          this.setAttribute('title', 'Recolher barra lateral');
         }
 
-        // Save state to localStorage
+        // Salvar estado no localStorage
         localStorage.setItem('sidebarCollapsed', isCurrentlyCollapsed);
       });
 
-      // Set initial icon state
+      // Definir estado inicial do ícone
       if (isCollapsed) {
         const icon = collapseBtn.querySelector('i');
         icon.classList.remove('bi-chevron-left');
         icon.classList.add('bi-chevron-right');
-        collapseBtn.setAttribute('title', 'Expand sidebar');
+        collapseBtn.setAttribute('title', 'Expandir barra lateral');
       }
     }
   });

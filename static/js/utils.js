@@ -1,12 +1,12 @@
 /**
- * MaricaCity - Shared Utilities
- * Common functions used across the application
+ * MaricaCity - Utilitários Compartilhados
+ * Funções comuns usadas em toda a aplicação
  */
 
 /**
- * Get CSRF token from cookie
- * @param {string} name - Cookie name
- * @returns {string|null} Cookie value
+ * Obter token CSRF do cookie
+ * @param {string} name - Nome do cookie
+ * @returns {string|null} Valor do cookie
  */
 function getCookie(name) {
   let cookieValue = null;
@@ -23,7 +23,7 @@ function getCookie(name) {
   return cookieValue;
 }
 
-// Export for use in other scripts
+// Exportar para uso em outros scripts
 if (typeof window !== 'undefined') {
   window.getCookie = getCookie;
 }

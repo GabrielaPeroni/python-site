@@ -1,15 +1,15 @@
 /**
- * MaricaCity - Landing Page JavaScript
- * Handles Swiper carousel initialization
+ * MaricaCity - JavaScript da Página Inicial
+ * Gerencia a inicialização do carrossel Swiper
  */
 
-// Initialize function
+// Função de inicialização
 function initializeSwipers() {
-  // Initialize Hero Carousel
+  // Inicializar Carrossel Hero
   window.heroSwiperInstance = new Swiper('.hero-swiper', {
     loop: true,
     effect: 'fade',
-    speed: 600, // Faster transition
+    speed: 600, // Transição mais rápida
     autoplay: {
       delay: 5000,
       disableOnInteraction: false,
@@ -23,12 +23,12 @@ function initializeSwipers() {
       clickable: true,
       type: 'bullets',
     },
-    allowTouchMove: true, // Enable touch/swipe
+    allowTouchMove: true, // Habilitar toque/deslize
     touchRatio: 1,
-    threshold: 10, // Lower threshold for more responsive swipe
+    threshold: 10, // Limite inferior para deslize mais responsivo
   });
 
-  // Initialize Swiper carousel for featured places
+  // Inicializar carrossel Swiper para lugares destacados
   const featuredSwiper = document.querySelector('.featured-swiper');
 
   if (featuredSwiper) {
@@ -44,36 +44,36 @@ function initializeSwipers() {
   }
 }
 
-// Run initialization when DOM is ready or immediately if already ready
+// Executar inicialização quando o DOM estiver pronto ou imediatamente se já estiver pronto
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeSwipers);
 } else {
   initializeSwipers();
 }
 
-// Prevent login dropdown from closing when clicking inside
-// and pause carousel autoplay when dropdown is open
+// Impedir que o dropdown de login feche ao clicar dentro
+// e pausar autoplay do carrossel quando o dropdown estiver aberto
 document.addEventListener('DOMContentLoaded', function () {
   const loginDropdown = document.querySelector('.login-dropdown');
   const loginDropdownParent = document.querySelector('#loginDropdown');
 
   if (loginDropdown) {
-    // Prevent dropdown from closing when clicking inside
+    // Impedir que o dropdown feche ao clicar dentro
     loginDropdown.addEventListener('click', function (e) {
       e.stopPropagation();
     });
   }
 
-  // Use a slight delay to ensure swiper is initialized
+  // Usar um pequeno atraso para garantir que o swiper esteja inicializado
   setTimeout(function () {
     if (loginDropdownParent) {
-      // Pause autoplay when dropdown opens
+      // Pausar autoplay quando o dropdown abre
       loginDropdownParent.addEventListener('shown.bs.dropdown', function () {
         if (window.heroSwiperInstance && window.heroSwiperInstance.autoplay) {
           window.heroSwiperInstance.autoplay.stop();
         }
 
-        // Trigger Google Sign-In button rendering if available
+        // Acionar renderização do botão Google Sign-In se disponível
         if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
           google.accounts.id.renderButton(
             document.getElementById('google-signin-button-dropdown'),
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       });
 
-      // Resume autoplay when dropdown closes
+      // Retomar autoplay quando o dropdown fecha
       loginDropdownParent.addEventListener('hidden.bs.dropdown', function () {
         if (window.heroSwiperInstance && window.heroSwiperInstance.autoplay) {
           window.heroSwiperInstance.autoplay.start();

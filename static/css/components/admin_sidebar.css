@@ -38,22 +38,52 @@
 .admin-sidebar.collapsed .sidebar-subtitle,
 .admin-sidebar.collapsed .nav-item span,
 .admin-sidebar.collapsed .nav-badge {
-  opacity: 0;
-  width: 0;
-  overflow: hidden;
-  transition: opacity 0.2s ease;
+  display: none;
+}
+
+.admin-sidebar.collapsed .sidebar-header {
+  padding: 1.25rem 0;
+  justify-content: center;
+  position: relative;
+}
+
+.admin-sidebar.collapsed .sidebar-logo {
+  display: none;
+}
+
+.admin-sidebar.collapsed .sidebar-title {
+  display: none;
+}
+
+.admin-sidebar.collapsed .sidebar-header::after {
+  content: '\F4CB';
+  font-family: 'bootstrap-icons';
+  font-size: 1.5rem;
+  color: var(--sidebar-text-active);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .admin-sidebar.collapsed .nav-item {
   justify-content: center;
-  padding-left: 0;
-  padding-right: 0;
+  padding: 0.875rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.admin-sidebar.collapsed .nav-item i {
+  width: 24px;
+  text-align: center;
+  margin: 0;
 }
 
 .admin-sidebar.collapsed .nav-item.active {
   border-left: none;
-  border-top: 3px solid var(--primary-red);
-  padding-left: 0;
+  border-top: 3px solid var(--primary-blue);
+  padding-top: calc(0.875rem - 3px);
 }
 
 /* Scrollbar styling */
@@ -114,31 +144,40 @@
 /* Sidebar Collapse Button (Desktop) */
 .sidebar-collapse-btn {
   position: absolute;
-  right: -15px;
+  right: 10px;
   top: 70px;
   width: 30px;
   height: 30px;
-  background: var(--primary-blue);
-  border: 2px solid var(--sidebar-bg);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  color: white;
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
   z-index: 1001;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
 }
 
 .sidebar-collapse-btn:hover {
-  background: #ff937b;
-  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
 }
 
 .sidebar-collapse-btn i {
   font-size: 0.875rem;
   transition: transform 0.3s ease;
+}
+
+.admin-sidebar.collapsed .sidebar-collapse-btn {
+  right: 50%;
+  transform: translateX(50%);
+}
+
+.admin-sidebar.collapsed .sidebar-collapse-btn:hover {
+  transform: translateX(50%) scale(1.05);
 }
 
 /* Navigation */

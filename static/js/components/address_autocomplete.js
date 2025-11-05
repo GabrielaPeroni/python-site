@@ -1,7 +1,7 @@
 /**
- * Google Maps Places Autocomplete for Place Form
- * Handles address autocomplete and automatic latitude/longitude capture
- * Uses the new PlaceAutocompleteElement API (recommended by Google as of March 2025)
+ * Autocompletar de Locais do Google Maps para Formulário de Local
+ * Gerencia autocompletar de endereço e captura automática de latitude/longitude
+ * Usa a nova API PlaceAutocompleteElement (recomendada pelo Google desde março de 2025)
  */
 
 let autocompleteInput;
@@ -10,48 +10,48 @@ let latitudeField;
 let longitudeField;
 
 function initAutocomplete() {
-  // Get form fields
+  // Obter campos do formulário
   addressTextarea = document.getElementById('id_address');
   latitudeField = document.getElementById('id_latitude');
   longitudeField = document.getElementById('id_longitude');
 
   if (!addressTextarea) {
-    console.error('Address field not found');
+    console.error('Campo de endereço não encontrado');
     return;
   }
 
-  // Hide the original textarea temporarily
+  // Ocultar o textarea original temporariamente
   addressTextarea.style.display = 'none';
 
-  // Create a text input for autocomplete
+  // Criar um input de texto para autocompletar
   autocompleteInput = document.createElement('input');
   autocompleteInput.type = 'text';
   autocompleteInput.className = addressTextarea.className;
   autocompleteInput.placeholder = 'Comece a digitar o endereço...';
   autocompleteInput.value = addressTextarea.value;
 
-  // Insert the autocomplete input before the textarea
+  // Inserir o input de autocompletar antes do textarea
   addressTextarea.parentNode.insertBefore(autocompleteInput, addressTextarea);
 
-  // Create autocomplete instance using the classic API (still supported)
+  // Criar instância de autocompletar usando a API clássica (ainda suportada)
   const autocomplete = new google.maps.places.Autocomplete(autocompleteInput, {
     types: ['address'],
-    componentRestrictions: { country: 'BR' }, // Restrict to Brazil
+    componentRestrictions: { country: 'BR' }, // Restringir ao Brasil
     fields: ['formatted_address', 'geometry', 'address_components'],
   });
 
-  // Listen for place selection
+  // Ouvir seleção de local
   autocomplete.addListener('place_changed', () => {
     const place = autocomplete.getPlace();
     onPlaceChanged(place);
   });
 
-  // Sync manual input to hidden textarea
+  // Sincronizar entrada manual com textarea oculto
   autocompleteInput.addEventListener('input', function () {
     addressTextarea.value = this.value;
   });
 
-  // Prevent form submission on Enter key in address field
+  // Prevenir envio de formulário ao pressionar Enter no campo de endereço
   autocompleteInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -61,16 +61,16 @@ function initAutocomplete() {
 
 function onPlaceChanged(place) {
   if (!place.geometry || !place.geometry.location) {
-    console.warn('No geometry data for selected place');
+    console.warn('Sem dados de geometria para o local selecionado');
     return;
   }
 
-  // Update both input and textarea with formatted address
+  // Atualizar input e textarea com endereço formatado
   const formattedAddress = place.formatted_address || '';
   autocompleteInput.value = formattedAddress;
   addressTextarea.value = formattedAddress;
 
-  // Update latitude and longitude
+  // Atualizar latitude e longitude
   if (latitudeField && longitudeField) {
     const lat = place.geometry.location.lat();
     const lng = place.geometry.location.lng();
@@ -79,26 +79,26 @@ function onPlaceChanged(place) {
     longitudeField.value = lng.toFixed(6);
   }
 
-  // Optional: Update city/state fields if they exist
+  // Opcional: Atualizar campos de cidade/estado se existirem
   if (place.address_components) {
     updateAddressComponents(place.address_components);
   }
 }
 
 function updateAddressComponents(components) {
-  // This function can be extended to auto-fill other fields like city, state, etc.
-  // Example: Extract city and state if needed
+  // Esta função pode ser estendida para preencher automaticamente outros campos como cidade, estado, etc.
+  // Exemplo: Extrair cidade e estado se necessário
   components.forEach(component => {
     const types = component.types;
-    // Can be used to populate city/state fields if form fields are added
+    // Pode ser usado para preencher campos de cidade/estado se campos de formulário forem adicionados
     if (types.includes('locality')) {
-      // City: component.long_name
+      // Cidade: component.long_name
     }
     if (types.includes('administrative_area_level_1')) {
-      // State: component.short_name
+      // Estado: component.short_name
     }
   });
 }
 
-// Initialize when Google Maps script is loaded
+// Inicializar quando o script do Google Maps for carregado
 window.initAutocomplete = initAutocomplete;

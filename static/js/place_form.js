@@ -1,6 +1,6 @@
 /**
- * MaricaCity - Place Form JavaScript
- * Handles image upload preview and management for place creation/editing
+ * MaricaCity - JavaScript do Formulário de Local
+ * Gerencia visualização e gerenciamento de upload de imagens para criação/edição de locais
  */
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -11,27 +11,27 @@ document.addEventListener('DOMContentLoaded', function () {
   let imageCount = 0;
   const MAX_IMAGES = 3;
 
-  // Count existing images on page load
+  // Contar imagens existentes ao carregar a página
   formsetForms.forEach((formDiv, index) => {
     const imageInput = formDiv.querySelector('input[type="file"]');
     const deleteInput = formDiv.querySelector('input[name*="DELETE"]');
     const existingImageUrl = formDiv.dataset.existingImageUrl;
 
-    // Check if there's an existing image (from database) and it's not marked for deletion
+    // Verificar se há uma imagem existente (do banco de dados) e não está marcada para exclusão
     if (existingImageUrl && !deleteInput.checked) {
       imageCount++;
       createPreviewCard(existingImageUrl, index, true);
     }
   });
 
-  // Handle add image button click
+  // Gerenciar clique no botão adicionar imagem
   addImageBtn.addEventListener('click', function () {
     if (imageCount >= MAX_IMAGES) {
       alert(`Você pode adicionar no máximo ${MAX_IMAGES} imagens.`);
       return;
     }
 
-    // Find first available form slot
+    // Encontrar primeiro slot de formulário disponível
     let targetFormIndex = -1;
     formsetForms.forEach((formDiv, index) => {
       if (targetFormIndex === -1) {
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const imageInput = formDiv.querySelector('input[type="file"]');
         const existingImageUrl = formDiv.dataset.existingImageUrl;
 
-        // Available if not deleted, has no new file, and has no existing image
+        // Disponível se não excluído, não tem novo arquivo e não tem imagem existente
         if (!deleteInput.checked && !imageInput.files.length && !existingImageUrl) {
           targetFormIndex = index;
         }
@@ -51,12 +51,12 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    // Trigger file input click
+    // Acionar clique no input de arquivo
     const formDiv = formsetForms[targetFormIndex];
     const imageInput = formDiv.querySelector('input[type="file"]');
     imageInput.click();
 
-    // Handle file selection
+    // Gerenciar seleção de arquivo
     imageInput.onchange = function (e) {
       const file = e.target.files[0];
       if (file && file.type.startsWith('image/')) {
@@ -72,10 +72,10 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /**
-   * Create a preview card for an image
-   * @param {string} imageSrc - Image source URL or data URL
-   * @param {number} formIndex - Index of the form in formset
-   * @param {boolean} isExisting - Whether this is an existing image
+   * Criar um cartão de visualização para uma imagem
+   * @param {string} imageSrc - URL da fonte da imagem ou URL de dados
+   * @param {number} formIndex - Índice do formulário no formset
+   * @param {boolean} isExisting - Se esta é uma imagem existente
    */
   function createPreviewCard(imageSrc, formIndex, isExisting) {
     const col = document.createElement('div');
@@ -105,9 +105,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /**
-   * Remove an image from the preview and mark for deletion
-   * @param {number} formIndex - Index of the form in formset
-   * @param {HTMLElement} cardElement - The card element to remove
+   * Remover uma imagem da visualização e marcar para exclusão
+   * @param {number} formIndex - Índice do formulário no formset
+   * @param {HTMLElement} cardElement - O elemento do cartão para remover
    */
   function removeImage(formIndex, cardElement) {
     const formDiv = formsetForms[formIndex];
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
       imageInput.value = '';
     }
 
-    // Clear the existing image URL data attribute
+    // Limpar o atributo de dados da URL da imagem existente
     if (formDiv.dataset.existingImageUrl) {
       delete formDiv.dataset.existingImageUrl;
     }
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /**
-   * Update the add button state based on image count
+   * Atualizar o estado do botão adicionar com base na contagem de imagens
    */
   function updateButtonState() {
     if (imageCount >= MAX_IMAGES) {
@@ -147,10 +147,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Initial button state update
+  // Atualização inicial do estado do botão
   updateButtonState();
 
-  // Set display order and primary automatically on form submit
+  // Definir ordem de exibição e primária automaticamente ao enviar o formulário
   document.getElementById('place-form').addEventListener('submit', function (e) {
     const previewCards = previewGrid.querySelectorAll('[data-form-index]');
     previewCards.forEach((card, index) => {

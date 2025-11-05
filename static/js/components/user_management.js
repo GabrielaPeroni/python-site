@@ -1,12 +1,12 @@
 /**
- * User Management JavaScript
- * Handles AJAX operations for user type updates and status toggles
+ * JavaScript de Gerenciamento de Usuários
+ * Gerencia operações AJAX para atualizações de tipo de usuário e alternâncias de status
  */
 
 document.addEventListener('DOMContentLoaded', function () {
   const csrfToken = getCookie('csrftoken');
 
-  // Handle user role change (toggle between staff and regular)
+  // Gerenciar mudança de função de usuário (alternar entre staff e regular)
   const userRoleSelects = document.querySelectorAll('.user-role-select');
   userRoleSelects.forEach(select => {
     select.addEventListener('change', function () {
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // Disable select during request
+      // Desabilitar select durante a requisição
       this.disabled = true;
 
       fetch(`/accounts/usuarios/${userId}/tipo/`, {
@@ -35,10 +35,10 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            // Show success message
+            // Mostrar mensagem de sucesso
             showNotification('success', data.message);
 
-            // Update the selected option based on response
+            // Atualizar a opção selecionada com base na resposta
             const options = this.querySelectorAll('option');
             options.forEach(opt => {
               opt.removeAttribute('selected');
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
               }
             });
           } else {
-            // Revert to original role
+            // Reverter para função original
             this.value = originalRole;
             showNotification(
               'error',
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         })
         .catch(error => {
-          console.error('Error:', error);
+          console.error('Erro:', error);
           this.value = originalRole;
           showNotification('error', 'Erro ao processar solicitação');
         })
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Handle status toggle
+  // Gerenciar alternância de status
   const statusButtons = document.querySelectorAll('.toggle-status-btn');
   statusButtons.forEach(button => {
     button.addEventListener('click', function () {
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // Disable button during request
+      // Desabilitar botão durante a requisição
       this.disabled = true;
 
       fetch(`/accounts/usuarios/${userId}/status/`, {
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            // Update badge
+            // Atualizar badge
             if (data.is_active) {
               statusBadge.classList.remove('bg-secondary');
               statusBadge.classList.add('bg-success');
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         })
         .catch(error => {
-          console.error('Error:', error);
+          console.error('Erro:', error);
           showNotification('error', 'Erro ao processar solicitação');
         })
         .finally(() => {
@@ -124,12 +124,12 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /**
-   * Show notification message
-   * @param {string} type - 'success' or 'error'
-   * @param {string} message - Message to display
+   * Mostrar mensagem de notificação
+   * @param {string} type - 'success' ou 'error'
+   * @param {string} message - Mensagem para exibir
    */
   function showNotification(type, message) {
-    // Create notification element
+    // Criar elemento de notificação
     const notification = document.createElement('div');
     notification.className = `alert alert-${
       type === 'success' ? 'success' : 'danger'
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.body.appendChild(notification);
 
-    // Auto-remove after 5 seconds
+    // Remover automaticamente após 5 segundos
     setTimeout(() => {
       notification.classList.remove('show');
       setTimeout(() => notification.remove(), 150);

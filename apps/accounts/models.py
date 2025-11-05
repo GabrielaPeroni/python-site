@@ -5,39 +5,42 @@ from django.db import models
 class User(AbstractUser):
     @property
     def can_create_places(self):
-        """Check if user can create places - all authenticated users can create"""
+        """Verifica se o usuário pode criar lugares - todos os usuários autenticados podem criar"""
         return self.is_authenticated
 
     @property
     def can_moderate(self):
-        """Check if user can moderate/approve places - only staff/superuser"""
+        """Verifica se o usuário pode moderar/aprovar lugares - apenas staff/superusuário"""
         return self.is_staff or self.is_superuser
 
     class Meta:
         ordering = ["-created_at"]
-        verbose_name = "User"
-        verbose_name_plural = "Users"
+        verbose_name = "Usuário"
+        verbose_name_plural = "Usuários"
 
     def __str__(self):
         return self.username
 
-    bio = models.TextField(blank=True, null=True, help_text="User biography")
+    bio = models.TextField(blank=True, null=True, help_text="Biografia do usuário")
 
     profile_picture = models.ImageField(
-        upload_to="profiles/", blank=True, null=True, help_text="User profile picture"
+        upload_to="profiles/",
+        blank=True,
+        null=True,
+        help_text="Foto de perfil do usuário",
     )
 
-    # Contact information
+    # Informações de contato
     contact_phone = models.CharField(
-        max_length=20, blank=True, null=True, help_text="Contact phone number"
+        max_length=20, blank=True, null=True, help_text="Número de telefone de contato"
     )
     contact_email = models.EmailField(
         blank=True,
         null=True,
-        help_text="Public contact email (different from login email)",
+        help_text="E-mail de contato público (diferente do e-mail de login)",
     )
     contact_website = models.URLField(
-        blank=True, null=True, help_text="Website or social media URL"
+        blank=True, null=True, help_text="Website ou URL de rede social"
     )
 
     created_at = models.DateTimeField(auto_now_add=True)

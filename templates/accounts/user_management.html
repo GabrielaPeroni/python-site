@@ -22,7 +22,7 @@
       </h1>
     </div>
 
-    <!-- Filters and Search -->
+    <!-- Filtros e Pesquisa -->
     <div class="card mb-4">
       <div class="card-body">
         <form method="get" class="row g-3">
@@ -45,7 +45,7 @@
           </div>
           <div class="col-md-4">
             <label for="searchQuery" class="form-label">Pesquisar</label>
-            <input type="text" class="form-control" id="searchQuery" name="q" value="{{ search_query }}" placeholder="Nome, email, username...">
+            <input type="text" class="form-control" id="searchQuery" name="q" value="{{ search_query }}" placeholder="Nome, email, nome de usuário...">
           </div>
           <div class="col-md-2 d-flex align-items-end">
             <button type="submit" class="btn btn-primary w-100">
@@ -56,7 +56,7 @@
       </div>
     </div>
 
-    <!-- Users Table -->
+    <!-- Tabela de Usuários -->
     <div class="card">
       <div class="card-body">
         <div class="table-responsive">
@@ -94,15 +94,17 @@
                   <small class="text-muted">{{ user_item.created_at|date:"d/m/Y" }}</small>
                 </td>
                 <td>
-                  <div class="btn-group" role="group">
+                  <div class="btn-group" role="group" aria-label="Ações do usuário">
                     <button type="button"
                             class="btn btn-sm btn-outline-primary toggle-status-btn"
                             data-user-id="{{ user_item.id }}"
+                            aria-label="{% if user_item.is_active %}Desativar usuário{% else %}Ativar usuário{% endif %}"
                             {% if user_item == user %}disabled title="Você não pode modificar sua própria conta"{% endif %}>
                       <i class="bi bi-{% if user_item.is_active %}x-circle{% else %}check-circle{% endif %}"></i>
                     </button>
                     <a href="{% url 'accounts:user_delete' user_item.id %}"
                        class="btn btn-sm btn-outline-danger"
+                       aria-label="Excluir usuário"
                        {% if user_item == user %}onclick="return false;" style="opacity: 0.5; cursor: not-allowed;" title="Você não pode excluir sua própria conta"{% endif %}>
                       <i class="bi bi-trash"></i>
                     </a>

@@ -22,9 +22,9 @@
       </h1>
     </div>
 
-    <!-- Enhanced Stats with Trends -->
+    <!-- Estatísticas Aprimoradas com Tendências -->
     <div class="row g-3 mb-4">
-      <!-- New Places -->
+      <!-- Novos Lugares -->
       <div class="col-md-3">
         <div class="stat-card-enhanced">
           <div class="stat-header">
@@ -32,19 +32,19 @@
               <i class="bi bi-geo-alt"></i>
             </div>
             <div class="stat-info">
-              <div class="stat-label-enhanced">New Places</div>
+              <div class="stat-label-enhanced">Novos Lugares</div>
               <div class="stat-value-enhanced">{{ places_this_week }}</div>
             </div>
           </div>
           <div class="stat-trend {% if places_change >= 0 %}trend-up{% else %}trend-down{% endif %}">
             <i class="bi bi-arrow-{% if places_change >= 0 %}up{% else %}down{% endif %}"></i>
             <span>{% if places_change > 0 %}+{% endif %}{{ places_change }}%</span>
-            <small>Since last week</small>
+            <small>Desde a semana passada</small>
           </div>
         </div>
       </div>
 
-      <!-- New Users -->
+      <!-- Novos Usuários -->
       <div class="col-md-3">
         <div class="stat-card-enhanced">
           <div class="stat-header">
@@ -52,19 +52,19 @@
               <i class="bi bi-people"></i>
             </div>
             <div class="stat-info">
-              <div class="stat-label-enhanced">New Users</div>
+              <div class="stat-label-enhanced">Novos Usuários</div>
               <div class="stat-value-enhanced">{{ users_this_week }}</div>
             </div>
           </div>
           <div class="stat-trend {% if users_change >= 0 %}trend-up{% else %}trend-down{% endif %}">
             <i class="bi bi-arrow-{% if users_change >= 0 %}up{% else %}down{% endif %}"></i>
             <span>{% if users_change > 0 %}+{% endif %}{{ users_change }}%</span>
-            <small>Since last week</small>
+            <small>Desde a semana passada</small>
           </div>
         </div>
       </div>
 
-      <!-- Requests -->
+      <!-- Solicitações -->
       <div class="col-md-3">
         <div class="stat-card-enhanced">
           <div class="stat-header">
@@ -72,19 +72,19 @@
               <i class="bi bi-hourglass-split"></i>
             </div>
             <div class="stat-info">
-              <div class="stat-label-enhanced">Requests</div>
+              <div class="stat-label-enhanced">Solicitações</div>
               <div class="stat-value-enhanced">{{ pending_places }}</div>
             </div>
           </div>
           <div class="stat-trend {% if pending_places > 0 %}trend-warning{% else %}trend-neutral{% endif %}">
             <i class="bi bi-dash-circle"></i>
             <span>-0.2%</span>
-            <small>Since last week</small>
+            <small>Desde a semana passada</small>
           </div>
         </div>
       </div>
 
-      <!-- Reviews -->
+      <!-- Avaliações -->
       <div class="col-md-3">
         <div class="stat-card-enhanced">
           <div class="stat-header">
@@ -92,22 +92,22 @@
               <i class="bi bi-star"></i>
             </div>
             <div class="stat-info">
-              <div class="stat-label-enhanced">Reviews</div>
+              <div class="stat-label-enhanced">Avaliações</div>
               <div class="stat-value-enhanced">{{ reviews_this_week }}</div>
             </div>
           </div>
           <div class="stat-trend {% if reviews_change >= 0 %}trend-up{% else %}trend-down{% endif %}">
             <i class="bi bi-arrow-{% if reviews_change >= 0 %}up{% else %}down{% endif %}"></i>
             <span>{% if reviews_change > 0 %}+{% endif %}{{ reviews_change }}%</span>
-            <small>Since last week</small>
+            <small>Desde a semana passada</small>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Admin Actions -->
+    <!-- Ações Administrativas -->
     <div class="row g-3">
-      <!-- User Management -->
+      <!-- Gerenciamento de Usuários -->
       <div class="col-md-6">
         <div class="card admin-card">
           <div class="card-body">
@@ -124,7 +124,7 @@
         </div>
       </div>
 
-      <!-- Place Approval Queue -->
+      <!-- Fila de Aprovação de Lugares -->
       <div class="col-md-6">
         <div class="card admin-card">
           <div class="card-body">
@@ -161,7 +161,7 @@
         </div>
       </div>
 
-      <!-- News Management -->
+      <!-- Gerenciamento de Notícias -->
       <div class="col-md-6">
         <div class="card admin-card">
           <div class="card-body">
@@ -184,16 +184,16 @@
         </div>
       </div>
 
-    <!-- Recent Users Table -->
+    <!-- Tabela de Usuários Recentes -->
     <div class="row mt-4">
       <div class="col-12">
         <div class="recent-users-table">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="mb-0">
-              <i class="bi bi-people me-2"></i>New Users
+              <i class="bi bi-people me-2"></i>Novos Usuários
             </h5>
             <a href="{% url 'accounts:user_management' %}" class="btn btn-sm btn-outline-primary">
-              <i class="bi bi-funnel me-1"></i>Filter
+              <i class="bi bi-funnel me-1"></i>Filtrar
             </a>
           </div>
 
@@ -202,10 +202,10 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>No</th>
+                  <th>Nº</th>
                   <th>Id</th>
-                  <th>Username</th>
-                  <th>Date</th>
+                  <th>Nome de Usuário</th>
+                  <th>Data</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -229,9 +229,9 @@
                   <td>{{ user.date_joined|date:"d/m/Y H:i" }}</td>
                   <td>
                     {% if user.is_active %}
-                      <span class="badge-active">Active</span>
+                      <span class="badge-active">Ativo</span>
                     {% else %}
-                      <span class="badge-inactive">Inactive</span>
+                      <span class="badge-inactive">Inativo</span>
                     {% endif %}
                   </td>
                 </tr>

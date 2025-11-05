@@ -1,5 +1,5 @@
 """
-Context processors for making variables available to all templates.
+Processadores de contexto para disponibilizar variáveis em todos os templates.
 """
 
 from django.conf import settings
@@ -7,7 +7,7 @@ from django.conf import settings
 
 def google_oauth(request):
     """
-    Add Google OAuth Client ID to template context.
+    Adicionar ID do Cliente Google OAuth ao contexto do template.
     """
     return {
         "GOOGLE_OAUTH_CLIENT_ID": settings.GOOGLE_OAUTH_CLIENT_ID,
@@ -16,8 +16,8 @@ def google_oauth(request):
 
 def admin_stats(request):
     """
-    Add admin statistics to context for sidebar badges.
-    Only calculated for authenticated admin users.
+    Adicionar estatísticas de administração ao contexto para badges da sidebar.
+    Calculado apenas para usuários admin autenticados.
     """
     if request.user.is_authenticated and request.user.can_moderate:
         from apps.explore.models import Place

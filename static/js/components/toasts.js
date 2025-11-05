@@ -1,6 +1,6 @@
 /**
- * MaricaCity - Toast Component
- * Auto-shows Bootstrap toast messages
+ * MaricaCity - Componente de Toast
+ * Mostra automaticamente mensagens de toast do Bootstrap
  */
 
 document.addEventListener('DOMContentLoaded', function () {

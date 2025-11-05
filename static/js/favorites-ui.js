@@ -1,25 +1,25 @@
 /**
- * MaricaCity - Favorites UI Handler
- * Manages UI interactions for favorites using the FavoritesService
+ * MaricaCity - Gerenciador de UI de Favoritos
+ * Gerencia interações de UI para favoritos usando o FavoritesService
  */
 
 /**
- * Update favorite button UI
- * @param {HTMLElement} button - Favorite button element
- * @param {boolean} isFavorited - Current favorited status
+ * Atualizar UI do botão de favorito
+ * @param {HTMLElement} button - Elemento do botão de favorito
+ * @param {boolean} isFavorited - Status atual de favoritado
  */
 function updateFavoriteButton(button, isFavorited) {
   const icon = button.querySelector('i');
 
   if (isFavorited) {
-    // Favorited state
+    // Estado favoritado
     icon.classList.remove('bi-heart');
     icon.classList.add('bi-heart-fill');
     button.classList.add('favorited');
     button.setAttribute('title', 'Remover dos favoritos');
     button.setAttribute('aria-label', 'Remover dos favoritos');
   } else {
-    // Not favorited state
+    // Estado não favoritado
     icon.classList.remove('bi-heart-fill');
     icon.classList.add('bi-heart');
     button.classList.remove('favorited');
@@ -31,9 +31,9 @@ function updateFavoriteButton(button, isFavorited) {
 }
 
 /**
- * Update favorites count display
- * @param {number} placeId - Place ID
- * @param {number} delta - Change in count (+1 or -1)
+ * Atualizar exibição da contagem de favoritos
+ * @param {number} placeId - ID do local
+ * @param {number} delta - Mudança na contagem (+1 ou -1)
  */
 function updateFavoritesCount(placeId, delta) {
   const countElements = document.querySelectorAll(
@@ -48,10 +48,10 @@ function updateFavoritesCount(placeId, delta) {
 }
 
 /**
- * Initialize favorites UI on page load
+ * Inicializar UI de favoritos ao carregar a página
  */
 function initializeFavoritesUI() {
-  // Update all favorite buttons based on localStorage
+  // Atualizar todos os botões de favorito com base no localStorage
   const buttons = document.querySelectorAll('.favorite-btn');
 
   buttons.forEach(button => {
@@ -62,15 +62,15 @@ function initializeFavoritesUI() {
     }
   });
 
-  // Update favorites count in navbar/header if exists
+  // Atualizar contagem de favoritos na navbar/header se existir
   updateNavbarFavoritesCount();
 
-  // If user is logged in, sync with backend
+  // Se o usuário estiver logado, sincronizar com backend
   const isLoggedIn = document.body.dataset.userAuthenticated === 'true';
   if (isLoggedIn) {
     const csrfToken = getCookie('csrftoken');
     favoritesService.loadFromBackend().then(() => {
-      // Refresh UI after loading from backend
+      // Atualizar UI após carregar do backend
       buttons.forEach(button => {
         const placeId = button.dataset.placeId;
         if (placeId) {
@@ -84,7 +84,7 @@ function initializeFavoritesUI() {
 }
 
 /**
- * Update favorites count in navbar
+ * Atualizar contagem de favoritos na navbar
  */
 function updateNavbarFavoritesCount() {
   const navbarCount = document.querySelector('.favorites-count');
@@ -92,7 +92,7 @@ function updateNavbarFavoritesCount() {
     const count = favoritesService.getCount();
     navbarCount.textContent = count;
 
-    // Show/hide badge
+    // Mostrar/ocultar badge
     if (count > 0) {
       navbarCount.classList.remove('d-none');
     } else {
@@ -102,8 +102,8 @@ function updateNavbarFavoritesCount() {
 }
 
 /**
- * Handle favorite button click
- * @param {Event} e - Click event
+ * Gerenciar clique no botão de favorito
+ * @param {Event} e - Evento de clique
  */
 async function handleFavoriteClick(e) {
   e.preventDefault();
@@ -113,35 +113,35 @@ async function handleFavoriteClick(e) {
   const placeId = button.dataset.placeId;
 
   if (!placeId) {
-    console.error('No place ID found');
+    console.error('ID do local não encontrado');
     return;
   }
 
-  // Disable button during processing
+  // Desabilitar botão durante o processamento
   button.disabled = true;
 
   try {
-    // Toggle in localStorage
+    // Alternar no localStorage
     const isNowFavorited = favoritesService.toggleFavorite(placeId);
 
-    // Update UI
+    // Atualizar UI
     updateFavoriteButton(button, isNowFavorited);
     updateFavoritesCount(placeId, isNowFavorited ? 1 : -1);
     updateNavbarFavoritesCount();
 
-    // Show feedback animation
+    // Mostrar animação de feedback
     button.style.transition = 'transform 0.2s ease';
     button.style.transform = 'scale(1.3)';
     setTimeout(() => {
       button.style.transform = 'scale(1)';
     }, 200);
 
-    // If logged in, also sync with backend (optional - fire and forget)
+    // Se logado, também sincronizar com backend (opcional - dispara e esquece)
     const isLoggedIn = document.body.dataset.userAuthenticated === 'true';
     if (isLoggedIn) {
       const csrfToken = getCookie('csrftoken');
 
-      // Optional: call backend endpoint to save favorite
+      // Opcional: chamar endpoint do backend para salvar favorito
       try {
         await fetch(`/explore/place/${placeId}/favorite/toggle/`, {
           method: 'POST',
@@ -151,12 +151,12 @@ async function handleFavoriteClick(e) {
           },
         });
       } catch (error) {
-        // Backend sync failed but local storage still works
-        console.warn('Backend sync failed:', error);
+        // Sincronização com backend falhou mas o armazenamento local ainda funciona
+        console.warn('Sincronização com backend falhou:', error);
       }
     }
   } catch (error) {
-    console.error('Error toggling favorite:', error);
+    console.error('Erro ao alternar favorito:', error);
     alert('Erro ao atualizar favorito. Tente novamente.');
   } finally {
     button.disabled = false;
@@ -164,8 +164,8 @@ async function handleFavoriteClick(e) {
 }
 
 /**
- * Handle removing favorite from favorites page
- * @param {Event} e - Click event
+ * Gerenciar remoção de favorito da página de favoritos
+ * @param {Event} e - Evento de clique
  */
 async function handleRemoveFavorite(e) {
   e.preventDefault();
@@ -176,10 +176,10 @@ async function handleRemoveFavorite(e) {
 
   if (!placeId) return;
 
-  // Remove from localStorage
+  // Remover do localStorage
   favoritesService.removeFavorite(placeId);
 
-  // Remove card with animation
+  // Remover cartão com animação
   const card = button.closest('.col-12, .col-md-6, .col-lg-4');
   if (card) {
     card.style.transition = 'all 0.3s ease';
@@ -189,18 +189,18 @@ async function handleRemoveFavorite(e) {
     setTimeout(() => {
       card.remove();
 
-      // Check if no more favorites
+      // Verificar se não há mais favoritos
       const remainingCards = document.querySelectorAll('.favorite-btn').length;
       if (remainingCards === 0) {
-        location.reload(); // Reload to show empty state
+        location.reload(); // Recarregar para mostrar estado vazio
       }
     }, 300);
   }
 
-  // Update navbar count
+  // Atualizar contagem da navbar
   updateNavbarFavoritesCount();
 
-  // Sync with backend if logged in
+  // Sincronizar com backend se logado
   const isLoggedIn = document.body.dataset.userAuthenticated === 'true';
   if (isLoggedIn) {
     const csrfToken = getCookie('csrftoken');
@@ -213,17 +213,17 @@ async function handleRemoveFavorite(e) {
         },
       });
     } catch (error) {
-      console.warn('Backend sync failed:', error);
+      console.warn('Sincronização com backend falhou:', error);
     }
   }
 }
 
-// Initialize when DOM is ready
+// Inicializar quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', function () {
-  // Initialize UI
+  // Inicializar UI
   initializeFavoritesUI();
 
-  // Add click handlers to all favorite buttons
+  // Adicionar manipuladores de clique a todos os botões de favorito
   const favoriteButtons = document.querySelectorAll(
     '.favorite-btn:not([data-remove-mode])'
   );
@@ -231,13 +231,13 @@ document.addEventListener('DOMContentLoaded', function () {
     button.addEventListener('click', handleFavoriteClick);
   });
 
-  // Add click handlers for remove buttons on favorites page
+  // Adicionar manipuladores de clique para botões de remover na página de favoritos
   const removeButtons = document.querySelectorAll('.favorite-btn[data-remove-mode]');
   removeButtons.forEach(button => {
     button.addEventListener('click', handleRemoveFavorite);
   });
 
-  // Listen for storage changes from other tabs
+  // Ouvir mudanças de armazenamento de outras abas
   window.addEventListener('storage', function (e) {
     if (e.key === 'marica_favorites') {
       initializeFavoritesUI();

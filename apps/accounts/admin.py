@@ -6,7 +6,7 @@ from .models import User
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    """Custom admin for User model"""
+    """Administração personalizada para o modelo User"""
 
     list_display = (
         "username",
@@ -20,9 +20,9 @@ class UserAdmin(BaseUserAdmin):
     ordering = ("-created_at",)
 
     fieldsets = BaseUserAdmin.fieldsets + (
-        ("Profile", {"fields": ("bio", "profile_picture")}),
+        ("Perfil", {"fields": ("bio", "profile_picture")}),
         (
-            "Contact Information",
+            "Informações de Contato",
             {"fields": ("contact_phone", "contact_email", "contact_website")},
         ),
         ("Timestamps", {"fields": ("created_at", "updated_at")}),

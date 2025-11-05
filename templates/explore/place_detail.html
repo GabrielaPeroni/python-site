@@ -71,23 +71,23 @@
             </div>
 
             {% if place.gallery_images.count > 1 %}
-            <!-- Navigation Arrows -->
-            <button class="place-carousel-btn place-carousel-prev" type="button" aria-label="Previous image">
+            <!-- Setas de Navegação -->
+            <button class="place-carousel-btn place-carousel-prev" type="button" aria-label="Imagem anterior">
               <i class="bi bi-chevron-left"></i>
             </button>
-            <button class="place-carousel-btn place-carousel-next" type="button" aria-label="Next image">
+            <button class="place-carousel-btn place-carousel-next" type="button" aria-label="Próxima imagem">
               <i class="bi bi-chevron-right"></i>
             </button>
 
-            <!-- Pagination Dots -->
+            <!-- Pontos de Paginação -->
             <div class="place-carousel-pagination">
               {% for image in place.gallery_images %}
-              <button class="place-carousel-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" aria-label="Go to image {{ forloop.counter }}"></button>
+              <button class="place-carousel-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" aria-label="Ir para imagem {{ forloop.counter }}"></button>
               {% endfor %}
             </div>
             {% endif %}
 
-            <!-- Favorite Button Overlay -->
+            <!-- Sobreposição do Botão de Favorito -->
             <button class="btn btn-light rounded-circle position-absolute favorite-heart-icon favorite-btn"
                     id="favoriteBtn"
                     data-place-id="{{ place.pk }}"
@@ -103,7 +103,7 @@
         {% endif %}
       </div>
 
-      <!-- Title and Category -->
+      <!-- Título e Categoria -->
       <div class="mb-3">
         <h1 class="fw-bold text-uppercase mb-2" style="font-size: 1.5rem; letter-spacing: 0.5px;">{{ place.name }}</h1>
         {% if place.categories.exists %}
@@ -117,12 +117,12 @@
         {% endif %}
       </div>
 
-      <!-- Description -->
+      <!-- Descrição -->
       <div class="mb-4">
         <p class="text-muted" style="line-height: 1.6; font-size: 0.875rem; white-space: pre-line;">{{ place.description }}</p>
       </div>
 
-      <!-- Location Section -->
+      <!-- Seção de Localização -->
       <div class="mb-4">
         <h2 class="fs-5 fw-bold text-uppercase mb-3">Localização</h2>
         <p class="text-muted mb-3">
@@ -146,7 +146,7 @@
     </div>
 
     <div class="place-detail-sidebar">
-      <!-- Contact Information Box -->
+      <!-- Caixa de Informações de Contato -->
       <div class="card border-0 shadow-sm mb-3">
         <div class="card-body p-3">
           <h2 class="text-uppercase mb-3" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">Informações de Contato</h2>
@@ -162,7 +162,7 @@
         </div>
       </div>
 
-      <!-- Reviews Box -->
+      <!-- Caixa de Avaliações -->
       <div class="card border-0 shadow-sm">
         <div class="card-body p-3">
           <h2 class="text-uppercase mb-3" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">
@@ -179,7 +179,7 @@
                     <div class="d-flex align-items-center gap-2 mb-1">
                       <span class="fw-bold" style="font-size: 0.85rem;">{{ review.user.username }}</span>
                       {% if review.user == place.created_by %}
-                        <span class="badge bg-info text-white" style="font-size: 0.65rem;">Criador</span>
+                        <span class="badge bg-info text-white" style="font-size: 0.65rem;">Autor</span>
                       {% endif %}
                     </div>
                     <div class="d-flex align-items-center gap-2">
@@ -253,7 +253,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title fw-bold text-uppercase" id="reviewModalLabel">Escrever Avaliação</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
       <div class="modal-body">
         <form id="reviewForm" method="post" data-create-url="{% url 'explore:review_create' place.pk %}" data-edit-url-template="{% url 'explore:review_edit' 0 %}" data-delete-url-template="{% url 'explore:review_delete' 0 %}">
@@ -284,7 +284,7 @@
                 <label class="form-check-label star-label" for="rating5">★</label>
               </div>
             </div>
-            <small class="form-text text-muted">Clique nas estrelas para avaliar</small>
+            <small class="form-text text-muted" id="rating-help">Clique nas estrelas para avaliar</small>
           </div>
 
           <div class="mb-4">
@@ -295,10 +295,10 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Cancelar">
           <i class="bi bi-x-circle me-2"></i>Cancelar
         </button>
-        <button type="button" class="btn btn-primary" onclick="submitReview()">
+        <button type="button" class="btn btn-primary" onclick="submitReview()" aria-label="Enviar avaliação">
           <i class="bi bi-check-circle me-2"></i><span id="submitButtonText">Enviar Avaliação</span>
         </button>
       </div>
@@ -313,7 +313,7 @@
         <h5 class="modal-title fw-bold" id="deleteReviewModalLabel">
           <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
       <div class="modal-body">
         {% csrf_token %}
