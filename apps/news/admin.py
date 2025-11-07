@@ -29,33 +29,33 @@ class NewsAdmin(admin.ModelAdmin):
 
     fieldsets = [
         (
-            "Basic Information",
+            "Informações Básicas",
             {
                 "fields": ["title", "slug", "category", "content", "excerpt"],
             },
         ),
         (
-            "Images",
+            "Imagens",
             {
                 "fields": ["featured_image", "image_caption"],
             },
         ),
         (
-            "Event Details",
+            "Detalhes do Evento",
             {
                 "fields": ["event_date", "event_end_date", "event_location"],
                 "classes": ["collapse"],
-                "description": "Fill these fields only if this is an event",
+                "description": "Preencha estes campos apenas se for um evento",
             },
         ),
         (
-            "Publication",
+            "Publicação",
             {
                 "fields": ["status", "publish_date", "is_featured", "author"],
             },
         ),
         (
-            "Metadata",
+            "Metadados",
             {
                 "fields": ["view_count", "created_at", "updated_at"],
                 "classes": ["collapse"],
@@ -66,7 +66,7 @@ class NewsAdmin(admin.ModelAdmin):
     readonly_fields = ["created_at", "updated_at", "view_count"]
 
     def save_model(self, request, obj, form, change):
-        """Set author to current user if creating new news"""
+        """Definir autor como usuário atual se estiver criando nova notícia"""
         if not change:
             obj.author = request.user
         super().save_model(request, obj, form, change)

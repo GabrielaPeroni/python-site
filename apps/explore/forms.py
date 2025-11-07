@@ -48,12 +48,12 @@ class PlaceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Only show active categories
+        # Mostrar apenas categorias ativas
         self.fields["categories"].queryset = Category.objects.filter(
             is_active=True
         ).order_by("display_order")
 
-        # Make all fields required
+        # Tornar todos os campos obrigatórios
         self.fields["name"].required = True
         self.fields["description"].required = True
         self.fields["address"].required = True
@@ -93,21 +93,21 @@ class PlaceImageForm(forms.ModelForm):
         }
 
 
-# Create a formset for handling multiple images
+# Criar um formset para lidar com múltiplas imagens
 PlaceImageFormSet = inlineformset_factory(
     Place,
     PlaceImage,
     form=PlaceImageForm,
     fields=["image", "caption", "is_primary", "display_order"],
-    extra=3,  # Show 3 empty forms by default
+    extra=3,  # Mostrar 3 formulários vazios por padrão
     can_delete=True,
-    max_num=10,  # Maximum 10 images per place
+    max_num=10,  # Máximo de 10 imagens por lugar
     validate_max=True,
 )
 
 
 class PlaceReviewForm(forms.ModelForm):
-    """Form for submitting place reviews"""
+    """Formulário para enviar avaliações de lugares"""
 
     class Meta:
         model = PlaceReview

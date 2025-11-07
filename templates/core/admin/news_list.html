@@ -29,46 +29,54 @@
     <!-- Status -->
     <div class="row g-3 mb-4">
       <div class="col-md-3">
-        <div class="stat-card">
-          <div class="stat-icon bg-primary">
-            <i class="bi bi-file-earmark-text"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">Total</div>
-            <div class="stat-value">{{ total_count }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="stat-card">
-          <div class="stat-icon bg-success">
-            <i class="bi bi-check-circle"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">Publicadas</div>
-            <div class="stat-value">{{ published_count }}</div>
+        <div class="stat-card-enhanced">
+          <div class="stat-header">
+            <div class="stat-icon-enhanced bg-primary">
+              <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label-enhanced">Total</div>
+              <div class="stat-value-enhanced">{{ total_count }}</div>
+            </div>
           </div>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="stat-card">
-          <div class="stat-icon bg-warning">
-            <i class="bi bi-pencil-square"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">Rascunhos</div>
-            <div class="stat-value">{{ draft_count }}</div>
+        <div class="stat-card-enhanced">
+          <div class="stat-header">
+            <div class="stat-icon-enhanced bg-success">
+              <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label-enhanced">Publicadas</div>
+              <div class="stat-value-enhanced">{{ published_count }}</div>
+            </div>
           </div>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="stat-card">
-          <div class="stat-icon bg-secondary">
-            <i class="bi bi-archive"></i>
+        <div class="stat-card-enhanced">
+          <div class="stat-header">
+            <div class="stat-icon-enhanced bg-warning">
+              <i class="bi bi-pencil-square"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label-enhanced">Rascunhos</div>
+              <div class="stat-value-enhanced">{{ draft_count }}</div>
+            </div>
           </div>
-          <div class="stat-content">
-            <div class="stat-label">Arquivadas</div>
-            <div class="stat-value">{{ archived_count }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card-enhanced">
+          <div class="stat-header">
+            <div class="stat-icon-enhanced bg-secondary">
+              <i class="bi bi-archive"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label-enhanced">Arquivadas</div>
+              <div class="stat-value-enhanced">{{ archived_count }}</div>
+            </div>
           </div>
         </div>
       </div>

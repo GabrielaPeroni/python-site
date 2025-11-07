@@ -30,7 +30,7 @@
 
 <div class="container py-5" style="max-width: 800px;">
   <div class="mb-4 text-center">
-    <a href="{% url 'explore:approval_queue' %}" class="btn btn-outline-secondary text-uppercase">
+    <a href="{% url 'explore:backlog' %}?view=queue" class="btn btn-outline-secondary text-uppercase">
       <i class="bi bi-arrow-left me-2"></i>Voltar para Fila de Aprovação
     </a>
   </div>
@@ -87,7 +87,7 @@
           <button type="submit" class="btn btn-danger text-uppercase">
             <i class="bi bi-x-circle me-2"></i>Confirmar Rejeição
           </button>
-          <a href="{% url 'explore:approval_queue' %}" class="btn btn-outline-secondary text-uppercase">
+          <a href="{% url 'explore:backlog' %}?view=queue" class="btn btn-outline-secondary text-uppercase">
             <i class="bi bi-arrow-left me-2"></i>Cancelar
           </a>
         </div>

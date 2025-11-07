@@ -299,11 +299,11 @@ class PlaceCreateViewTests(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.creation_user = User.objects.create_user(
+        self.creator = User.objects.create_user(
             username="creator", password="pass123", is_staff=False
         )
-        self.explore_user = User.objects.create_user(
-            username="explorer", password="pass123", is_staff=False
+        self.other_user = User.objects.create_user(
+            username="other", password="pass123", is_staff=False
         )
         self.admin_user = User.objects.create_user(
             username="admin", password="pass123", is_staff=True
@@ -319,7 +319,7 @@ class PlaceCreateViewTests(TestCase):
     def test_all_logged_in_users_can_create_places(self):
         """Test all authenticated users can access place creation"""
         # Test with regular user
-        self.client.login(username="explorer", password="pass123")
+        self.client.login(username="other", password="pass123")
         response = self.client.get(reverse("explore:place_create"))
         self.assertEqual(response.status_code, 200)
 
@@ -362,7 +362,7 @@ class PlaceCreateViewTests(TestCase):
 
         # Check place properties
         self.assertEqual(place.name, "Test Restaurant")
-        self.assertEqual(place.created_by, self.creation_user)
+        self.assertEqual(place.created_by, self.creator)
         self.assertFalse(place.is_approved)  # Should start as unapproved
         self.assertTrue(place.is_active)
         self.assertIn(self.category, place.categories.all())
@@ -399,7 +399,7 @@ class PlaceUpdateViewTests(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.creation_user = User.objects.create_user(
+        self.creator = User.objects.create_user(
             username="creator", password="pass123", is_staff=False
         )
         self.other_user = User.objects.create_user(
@@ -414,7 +414,7 @@ class PlaceUpdateViewTests(TestCase):
             name="Original Place",
             description="Original description",
             address="Original address",
-            created_by=self.creation_user,
+            created_by=self.creator,
             is_approved=True,
         )
         self.place.categories.add(self.category)
@@ -446,8 +446,8 @@ class PlaceUpdateViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "explore/place_form.html")
 
-    def test_other_creation_user_cannot_edit_place(self):
-        """Test other creation users cannot edit places they didn't create"""
+    def test_other_user_cannot_edit_place(self):
+        """Test other users cannot edit places they didn't create"""
         self.client.login(username="other", password="pass123")
         response = self.client.get(
             reverse("explore:place_edit", kwargs={"pk": self.place.pk})
@@ -492,7 +492,7 @@ class PlaceDeleteViewTests(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.creation_user = User.objects.create_user(
+        self.creator = User.objects.create_user(
             username="creator", password="pass123", is_staff=False
         )
         self.other_user = User.objects.create_user(
@@ -506,7 +506,7 @@ class PlaceDeleteViewTests(TestCase):
             name="Test Place",
             description="Test description",
             address="Test address",
-            created_by=self.creation_user,
+            created_by=self.creator,
         )
 
     def test_place_delete_requires_login(self):
@@ -568,21 +568,21 @@ class PlaceDetailViewTests(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.creation_user = User.objects.create_user(
+        self.creator = User.objects.create_user(
             username="creator", password="pass123", is_staff=False
         )
         self.admin_user = User.objects.create_user(
             username="admin", password="pass123", is_staff=True
         )
-        self.explore_user = User.objects.create_user(
-            username="explorer", password="pass123", is_staff=False
+        self.other_user = User.objects.create_user(
+            username="other", password="pass123", is_staff=False
         )
 
         self.approved_place = Place.objects.create(
             name="Approved Place",
             description="Approved description",
             address="Approved address",
-            created_by=self.creation_user,
+            created_by=self.creator,
             is_approved=True,
             is_active=True,
         )
@@ -591,7 +591,7 @@ class PlaceDetailViewTests(TestCase):
             name="Unapproved Place",
             description="Unapproved description",
             address="Unapproved address",
-            created_by=self.creation_user,
+            created_by=self.creator,
             is_approved=False,
             is_active=True,
         )
@@ -605,8 +605,8 @@ class PlaceDetailViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Approved Place")
 
-        # Logged in explore user
-        self.client.login(username="explorer", password="pass123")
+        # Logged in other user
+        self.client.login(username="other", password="pass123")
         response = self.client.get(
             reverse("explore:place_detail", kwargs={"pk": self.approved_place.pk})
         )
@@ -629,9 +629,9 @@ class PlaceDetailViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_unapproved_place_hidden_from_explore_users(self):
-        """Test unapproved places are hidden from explore users"""
-        self.client.login(username="explorer", password="pass123")
+    def test_unapproved_place_hidden_from_other_users(self):
+        """Test unapproved places are hidden from other users"""
+        self.client.login(username="other", password="pass123")
         response = self.client.get(
             reverse("explore:place_detail", kwargs={"pk": self.unapproved_place.pk})
         )
@@ -653,8 +653,8 @@ class PlaceDetailViewTests(TestCase):
         )
         self.assertTrue(response.context["can_edit"])
 
-        # Explore user doesn't see edit button
-        self.client.login(username="explorer", password="pass123")
+        # Other user doesn't see edit button
+        self.client.login(username="other", password="pass123")
         response = self.client.get(
             reverse("explore:place_detail", kwargs={"pk": self.approved_place.pk})
         )

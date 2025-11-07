@@ -5,7 +5,7 @@ from django.utils.text import slugify
 
 
 class NewsCategory(models.Model):
-    """Categories for news and events"""
+    """Categorias para notícias e eventos"""
 
     NEWS = "Noticias"
     EVENT = "Evento"
@@ -19,7 +19,9 @@ class NewsCategory(models.Model):
 
     name = models.CharField(max_length=50, choices=CATEGORY_CHOICES, unique=True)
     description = models.TextField(blank=True)
-    icon = models.CharField(max_length=50, blank=True, help_text="Icone ou emoji")
+    icon = models.CharField(
+        max_length=50, blank=True, help_text="Classe de ícone ou emoji"
+    )
 
     class Meta:
         verbose_name = "News Category"
@@ -31,7 +33,7 @@ class NewsCategory(models.Model):
 
 
 class News(models.Model):
-    """News and events for the city of Maricá"""
+    """Notícias e eventos para a cidade de Maricá"""
 
     DRAFT = "Em Progresso"
     PUBLISHED = "Publicado"
@@ -43,7 +45,7 @@ class News(models.Model):
         (ARCHIVED, "Arquivado"),
     ]
 
-    # Basic fields
+    # Campos básicos
     title = models.CharField(max_length=200, help_text="Titulo da noticia ou evento")
     slug = models.SlugField(
         max_length=250, unique=True, blank=True, help_text="URL-friendly identifier"
@@ -55,7 +57,7 @@ class News(models.Model):
         help_text="Short summary for listings (max 300 chars)",
     )
 
-    # Categorization
+    # Categorização
     category = models.ForeignKey(
         NewsCategory,
         on_delete=models.PROTECT,
@@ -63,7 +65,7 @@ class News(models.Model):
         help_text="Type of content (news, event, announcement)",
     )
 
-    # Images
+    # Imagens
     featured_image = models.ImageField(
         upload_to="news/%Y/%m/",
         blank=True,
@@ -74,7 +76,7 @@ class News(models.Model):
         max_length=200, blank=True, help_text="Caption for featured image"
     )
 
-    # Event-specific fields
+    # Campos específicos de eventos
     event_date = models.DateTimeField(
         null=True,
         blank=True,
@@ -91,7 +93,7 @@ class News(models.Model):
         help_text="End date and time of event (optional)",
     )
 
-    # Publication management
+    # Gerenciamento de publicação
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
@@ -103,7 +105,7 @@ class News(models.Model):
         help_text="Date when this should be published",
     )
 
-    # Author and metadata
+    # Autor e metadados
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -119,7 +121,7 @@ class News(models.Model):
         help_text="Number of times this has been viewed",
     )
 
-    # Timestamps
+    # Datas e horários
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -138,7 +140,7 @@ class News(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        """Auto-generate slug if not provided"""
+        """Gerar slug automaticamente se não fornecido"""
         if not self.slug:
             base_slug = slugify(self.title)
             slug = base_slug
@@ -148,7 +150,7 @@ class News(models.Model):
                 counter += 1
             self.slug = slug
 
-        # Auto-generate excerpt if not provided
+        # Gerar resumo automaticamente se não fornecido
         if not self.excerpt and self.content:
             self.excerpt = (
                 self.content[:297] + "..." if len(self.content) > 300 else self.content
@@ -158,24 +160,24 @@ class News(models.Model):
 
     @property
     def is_event(self):
-        """Check if this is an event"""
+        """Verificar se isto é um evento"""
         return self.category.name == NewsCategory.EVENT
 
     @property
     def is_upcoming_event(self):
-        """Check if this is an upcoming event"""
+        """Verificar se isto é um evento futuro"""
         if not self.is_event or not self.event_date:
             return False
         return self.event_date > timezone.now()
 
     @property
     def is_past_event(self):
-        """Check if this is a past event"""
+        """Verificar se isto é um evento passado"""
         if not self.is_event or not self.event_date:
             return False
         return self.event_date <= timezone.now()
 
     def increment_view_count(self):
-        """Increment the view counter"""
+        """Incrementar o contador de visualizações"""
         self.view_count += 1
         self.save(update_fields=["view_count"])

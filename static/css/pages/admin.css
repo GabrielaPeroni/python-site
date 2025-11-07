@@ -207,3 +207,99 @@
   transform: scale(1.1);
   z-index: 1;
 }
+
+/* Enhanced Stat Cards - Globalized Design */
+.stat-card-enhanced {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  height: 100%;
+  border: 1px solid #e5e7eb;
+}
+
+.stat-card-enhanced:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat-icon-enhanced {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-label-enhanced {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value-enhanced {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+.stat-trend {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: #f3f4f6;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.stat-trend i {
+  font-size: 1rem;
+}
+
+.stat-trend small {
+  margin-left: auto;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.trend-up {
+  color: #10b981;
+  background: #d1fae5;
+}
+
+.trend-down {
+  color: #ef4444;
+  background: #fee2e2;
+}
+
+.trend-warning {
+  color: #f59e0b;
+  background: #fef3c7;
+}
+
+.trend-neutral {
+  color: #6b7280;
+  background: #f3f4f6;
+}

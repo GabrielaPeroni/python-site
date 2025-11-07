@@ -283,19 +283,3 @@
 body.sidebar-open {
   overflow: hidden;
 }
-
-/* Animation for active state */
-@keyframes slideIn {
-  from {
-    transform: translateX(-10px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.nav-item.active {
-  animation: slideIn 0.3s ease;
-}

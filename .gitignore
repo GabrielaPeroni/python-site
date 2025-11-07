@@ -37,7 +37,7 @@ poetry.lock
 local_settings.py
 # db.sqlite3 <-- Comenting for presentation
 db.sqlite3-journal
-/media
+#/media <-- Comenting for presentation
 /staticfiles
 /cache
 
@@ -66,6 +66,5 @@ Thumbs.db
 # Claude
 /claude_context
 /.claude
-
-# Others
-nul
+CLAUDE.md
+/backup

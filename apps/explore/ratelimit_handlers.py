@@ -11,5 +11,5 @@ def ratelimited_error(request, exception):
         "Você excedeu o limite de pedidos. Por favor, aguarde alguns minutos antes de tentar novamente.",
     )
 
-    # Redirect to the explore page
+    # Redirecionar para a página de exploração
     return redirect("explore:explore")

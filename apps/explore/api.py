@@ -1,6 +1,6 @@
 """
-API views for the explore app
-Provides JSON endpoints for map integration and other features
+Views de API para o aplicativo explore
+Fornece endpoints JSON para integração com mapas e outros recursos
 """
 
 from django.http import JsonResponse
@@ -12,10 +12,10 @@ from .models import Place
 @require_GET
 def map_data_api(request):
     """
-    API endpoint that returns all approved places with coordinates in JSON format
-    Used by the landing page interactive map
+    Endpoint de API que retorna todos os lugares aprovados com coordenadas em formato JSON
+    Usado pelo mapa interativo da página inicial
     """
-    # Get all approved places with coordinates
+    # Obter todos os lugares aprovados com coordenadas
     places = (
         Place.objects.filter(
             is_approved=True,
@@ -27,14 +27,14 @@ def map_data_api(request):
         .order_by("-created_at")
     )
 
-    # Build response data
+    # Construir dados de resposta
     places_data = []
     for place in places:
-        # Get primary image or first image
+        # Obter imagem primária ou primeira imagem
         primary_image = place.primary_image
         image_url = primary_image.image.url if primary_image else None
 
-        # Get first category for icon/color
+        # Obter primeira categoria para ícone/cor
         first_category = place.categories.first()
         category_name = first_category.name if first_category else "Outros"
         category_icon = first_category.icon if first_category else "📍"
@@ -65,22 +65,22 @@ def map_data_api(request):
 @require_GET
 def places_by_ids_api(request):
     """
-    API endpoint that returns place details for given IDs
-    Used by favorites page for anonymous users
+    Endpoint de API que retorna detalhes de lugares para IDs fornecidos
+    Usado pela página de favoritos para usuários anônimos
     """
-    # Get comma-separated IDs from query parameter
+    # Obter IDs separados por vírgula do parâmetro de consulta
     ids_param = request.GET.get("ids", "")
 
     if not ids_param:
         return JsonResponse({"places": [], "count": 0})
 
-    # Parse IDs
+    # Analisar IDs
     try:
         place_ids = [int(id.strip()) for id in ids_param.split(",") if id.strip()]
     except ValueError:
-        return JsonResponse({"error": "Invalid ID format"}, status=400)
+        return JsonResponse({"error": "Formato de ID inválido"}, status=400)
 
-    # Get places
+    # Obter lugares
     places = (
         Place.objects.filter(
             id__in=place_ids,
@@ -91,14 +91,14 @@ def places_by_ids_api(request):
         .order_by("-created_at")
     )
 
-    # Build response data
+    # Construir dados de resposta
     places_data = []
     for place in places:
-        # Get primary image or first image
+        # Obter imagem primária ou primeira imagem
         primary_image = place.primary_image
         image_url = primary_image.image.url if primary_image else None
 
-        # Get categories
+        # Obter categorias
         categories = [
             {
                 "name": cat.name,

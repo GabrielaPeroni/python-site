@@ -13,7 +13,7 @@ from apps.news.models import News, NewsCategory
 
 
 def landing_view(request):
-    # Lugares em destaque (mais novos)
+    # Lugares em destaque (mais recentes)
     featured_places = (
         Place.objects.filter(is_approved=True, is_active=True)
         .prefetch_related("images", "categories")

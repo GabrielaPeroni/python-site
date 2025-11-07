@@ -23,38 +23,84 @@
     <div class="d-flex align-items-center justify-content-between mb-4">
       <div>
         <h1 class="h3 fw-bold text-uppercase mb-2">
+          {% if view_mode == 'queue' %}
+          <i class="bi bi-hourglass-split me-2"></i>Fila de Aprovação
+          {% else %}
           <i class="bi bi-archive me-2"></i>Histórico de Lugares
+          {% endif %}
         </h1>
-        <p class="mb-0 text-white-50">Visualize e gerencie todos os lugares do sistema</p>
+        <p class="mb-0 text-muted">
+          {% if view_mode == 'queue' %}
+          Revise e aprove lugares enviados pela comunidade
+          {% else %}
+          Visualize e gerencie todos os lugares do sistema
+          {% endif %}
+        </p>
       </div>
     </div>
 
+    {% if view_mode == 'history' %}
     <div class="row g-3">
       <div class="col-6 col-md-3">
-        <div class="bg-white bg-opacity-10 rounded p-3">
-          <div class="h4 fw-bold mb-1">{{ total_count }}</div>
-          <div class="text-white-50 small text-uppercase">Total</div>
+        <div class="stat-card-enhanced">
+          <div class="stat-header">
+            <div class="stat-icon-enhanced bg-secondary">
+              <i class="bi bi-geo-alt"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label-enhanced">Total</div>
+              <div class="stat-value-enhanced">{{ total_count }}</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="col-6 col-md-3">
-        <div class="bg-success bg-opacity-25 rounded p-3">
-          <div class="h4 fw-bold text-white mb-1">{{ approved_count }}</div>
-          <div class="text-white-50 small text-uppercase">Aprovados</div>
+        <div class="stat-card-enhanced">
+          <div class="stat-header">
+            <div class="stat-icon-enhanced bg-success">
+              <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label-enhanced">Aprovados</div>
+              <div class="stat-value-enhanced">{{ approved_count }}</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="col-6 col-md-3">
-        <div class="bg-primary bg-opacity-25 rounded p-3">
-          <div class="h4 fw-bold text-white mb-1">{{ pending_count }}</div>
-          <div class="text-white-50 small text-uppercase">Pendentes</div>
+        <div class="stat-card-enhanced">
+          <div class="stat-header">
+            <div class="stat-icon-enhanced bg-warning">
+              <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label-enhanced">Pendentes</div>
+              <div class="stat-value-enhanced">{{ pending_count }}</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="col-6 col-md-3">
-        <div class="bg-danger bg-opacity-25 rounded p-3">
-          <div class="h4 fw-bold text-white mb-1">{{ rejected_count }}</div>
-          <div class="text-white-50 small text-uppercase">Rejeitados</div>
+        <div class="stat-card-enhanced">
+          <div class="stat-header">
+            <div class="stat-icon-enhanced bg-danger">
+              <i class="bi bi-x-circle"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label-enhanced">Rejeitados</div>
+              <div class="stat-value-enhanced">{{ rejected_count }}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    {% else %}
+    <div class="mb-3">
+      <span class="badge bg-warning text-dark fs-5 px-4 py-2">
+        {{ pending_count }} pendente{{ pending_count|pluralize:"s" }}
+      </span>
+    </div>
+    {% endif %}
   </div>
 
   <div class="row">
@@ -62,10 +108,10 @@
       <div class="card border-0 shadow-sm mb-4 sticky-top" style="top: 20px;">
         <div class="card-body p-0">
           <div class="list-group list-group-flush">
-            <a href="{% url 'explore:approval_queue' %}" class="list-group-item list-group-item-action border-0 py-3">
+            <a href="{% url 'explore:backlog' %}?view=queue" class="list-group-item list-group-item-action {% if view_mode == 'queue' %}active{% endif %} border-0 py-3">
               <i class="bi bi-hourglass-split me-2"></i>Fila de Aprovação
             </a>
-            <a href="{% url 'explore:backlog' %}" class="list-group-item list-group-item-action active border-0 py-3">
+            <a href="{% url 'explore:backlog' %}?view=history" class="list-group-item list-group-item-action {% if view_mode == 'history' %}active{% endif %} border-0 py-3">
               <i class="bi bi-archive me-2"></i>Histórico Completo
             </a>
           </div>
@@ -75,9 +121,11 @@
 
     <div class="col-md-9 col-lg-10">
 
+  {% if view_mode == 'history' %}
   <div class="card border-2 mb-4">
     <div class="card-body">
       <form method="get" class="row g-3">
+        <input type="hidden" name="view" value="history">
         <div class="col-md-4">
           <label for="status" class="form-label fw-bold text-uppercase small">Filtrar por Status</label>
           <select id="status" name="status" class="form-select" onchange="this.form.submit()">
@@ -112,6 +160,7 @@
       </form>
     </div>
   </div>
+  {% endif %}
 
   {% if places %}
   <div class="row g-3">
@@ -202,15 +251,26 @@
   {% else %}
   <div class="card border-2 shadow-sm">
     <div class="card-body text-center py-5">
+      {% if view_mode == 'queue' %}
+      <div class="display-1 mb-4">✅</div>
+      <h2 class="h4 fw-bold mb-2">Nenhum lugar pendente</h2>
+      <p class="text-muted mb-4">Não há lugares aguardando aprovação no momento.</p>
+      <a href="{% url 'explore:explore' %}" class="btn btn-dark text-uppercase">
+        <i class="bi bi-compass me-2"></i>Explorar Lugares
+      </a>
+      {% else %}
       <div class="display-1 mb-4">📋</div>
       <h2 class="h4 fw-bold mb-2">Nenhum lugar encontrado</h2>
       <p class="text-muted mb-4">Não há lugares que correspondam aos filtros selecionados.</p>
-      <a href="{% url 'explore:backlog' %}" class="btn btn-dark text-uppercase">
+      <a href="{% url 'explore:backlog' %}?view=history" class="btn btn-dark text-uppercase">
         <i class="bi bi-arrow-clockwise me-2"></i>Limpar Filtros
       </a>
+      {% endif %}
     </div>
   </div>
   {% endif %}
+    </div>
+  </div>
     </div>
   </div>
       </div>

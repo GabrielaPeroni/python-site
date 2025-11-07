@@ -46,6 +46,11 @@ O projeto implementa operações CRUD seguindo o padrão MVT (Model-View-Templat
 - `reject_place_view`: Rejeitar lugar com motivo (**admin**).
 - `backlog_view`: Exibe todos os lugares com filtros (**admin**).
 
+**Ações em Massa (Django Admin):**
+
+- `approve_places`: Aprovar múltiplos lugares pendentes de uma vez.
+- `revoke_approval`: Revogar aprovação de lugares, retornando-os ao status pendente e ocultando-os do site público.
+
 ---
 
 #### 3. **Reviews (Avaliações)** — CRUD Completo
@@ -101,4 +106,5 @@ O projeto implementa operações CRUD seguindo o padrão MVT (Model-View-Templat
 | Favoritar (localStorage) | ✅          | ✅          |
 | Editar qualquer lugar    | ❌          | ✅          |
 | Aprovar/Rejeitar         | ❌          | ✅          |
+| Revogar aprovação        | ❌          | ✅          |
 | Gerenciar usuários       | ❌          | ✅          |

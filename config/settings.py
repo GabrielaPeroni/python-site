@@ -16,7 +16,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Apps
+    # Aplicativos
     "django_ratelimit",
     "apps.core",
     "apps.accounts",
@@ -103,31 +103,35 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-# Media files (User uploaded content)
+# Arquivos de mídia (Conteúdo enviado pelo usuário)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Custom User Model
+# Modelo de Usuário Personalizado
 AUTH_USER_MODEL = "accounts.User"
 
-# Authentication settings
-# Redirect to landing page where login modal is available
+# Configurações de autenticação
+# Redirecionar para a página inicial onde o modal de login está disponível
 LOGIN_URL = "core:landing"
 LOGIN_REDIRECT_URL = "core:landing"
 LOGOUT_REDIRECT_URL = "core:landing"
 
-# Google settings
-# Must be set in .env file
+# Configurações do Google
+# Deve ser definido no arquivo .env
 GOOGLE_OAUTH_CLIENT_ID = config("GOOGLE_OAUTH_CLIENT_ID")
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
 
-# Rate Limiting (to prevent API abuse)
+# Limitação de Taxa (para prevenir abuso de API)
 RATELIMIT_ENABLE = config("RATELIMIT_ENABLE", default=True, cast=bool)
-RATELIMIT_USE_CACHE = "default"  # Use default cache for rate limiting
+RATELIMIT_USE_CACHE = "default"  # Usar cache padrão para limitação de taxa
 RATELIMIT_VIEW = "apps.explore.ratelimit_handlers.ratelimited_error"
 
-# Silence django-ratelimit warnings for LocMemCache in development
-# For production with multiple processes, switch to Redis or Memcached
+# Silenciar avisos do django-ratelimit para LocMemCache em desenvolvimento
+# Para produção com múltiplos processos, mude para Redis ou Memcached
 SILENCED_SYSTEM_CHECKS = ["django_ratelimit.E003", "django_ratelimit.W001"]
+
+# Configuração de testes
+# Usar executor de testes personalizado para excluir .github da descoberta de testes
+TEST_RUNNER = "config.test_runner.CustomTestRunner"

@@ -12,15 +12,15 @@ from .models import Category, Favorite, Place, PlaceApproval, PlaceReview
 
 
 def explore_view(request):
-    """Explore page with categories and all places with search"""
+    """Página de exploração com categorias e todos os lugares com pesquisa"""
 
-    # Get all active categories with place counts
+    # Obter todas as categorias ativas com contagens de lugares
     categories = Category.objects.filter(is_active=True).order_by("display_order")
 
-    # Get search query
+    # Obter consulta de pesquisa
     search_query = request.GET.get("q", "").strip()
 
-    # Get sorting parameter
+    # Obter parâmetro de ordenação
     sort_by = request.GET.get("sort", "-created_at")
     valid_sorts = {
         "-created_at": "-created_at",
@@ -29,10 +29,10 @@ def explore_view(request):
     }
     sort_order = valid_sorts.get(sort_by, "-created_at")
 
-    # Get all approved places with optional search and sorting
+    # Obter todos os lugares aprovados com pesquisa e ordenação opcionais
     all_places = Place.objects.filter(is_approved=True, is_active=True)
 
-    # Apply search filter if query exists
+    # Aplicar filtro de pesquisa se houver consulta
     if search_query:
         all_places = all_places.filter(
             Q(name__icontains=search_query)
@@ -53,12 +53,12 @@ def explore_view(request):
 
 
 def category_detail_view(request, slug):
-    """Category detail page with all places in the category"""
+    """Página de detalhes da categoria com todos os lugares na categoria"""
 
-    # Get the category or 404
+    # Obter a categoria ou 404
     category = get_object_or_404(Category, slug=slug, is_active=True)
 
-    # Get sorting parameter
+    # Obter parâmetro de ordenação
     sort_by = request.GET.get("sort", "-created_at")
     valid_sorts = {
         "-created_at": "-created_at",
@@ -67,14 +67,14 @@ def category_detail_view(request, slug):
     }
     sort_order = valid_sorts.get(sort_by, "-created_at")
 
-    # Get all approved and active places in this category
+    # Obter todos os lugares aprovados e ativos nesta categoria
     places = (
         Place.objects.filter(categories=category, is_approved=True, is_active=True)
         .prefetch_related("images", "categories", "created_by")
         .order_by(sort_order)
     )
 
-    # Get all categories for navigation
+    # Obter todas as categorias para navegação
     all_categories = Category.objects.filter(is_active=True).order_by("display_order")
 
     context = {
@@ -87,15 +87,15 @@ def category_detail_view(request, slug):
 
 
 def place_detail_view(request, pk):
-    """Individual place detail page"""
+    """Página de detalhes do lugar individual"""
 
-    # Get the place or 404 (only show approved and active places to non-moderators)
+    # Obter o lugar ou 404 (mostrar apenas lugares aprovados e ativos para não-moderadores)
     if request.user.is_authenticated:
-        # All authenticated users can view their own unapproved places
+        # Todos os usuários autenticados podem ver seus próprios lugares não aprovados
         place = get_object_or_404(
             Place.objects.prefetch_related("images", "categories"), pk=pk
         )
-        # But regular users can only see their own places if unapproved
+        # Mas usuários regulares só podem ver seus próprios lugares se não aprovados
         if (
             place.created_by != request.user
             and not request.user.can_moderate
@@ -103,10 +103,10 @@ def place_detail_view(request, pk):
         ):
             place = get_object_or_404(Place, pk=pk, is_approved=True, is_active=True)
     else:
-        # Regular users can only see approved and active places
+        # Usuários regulares só podem ver lugares aprovados e ativos
         place = get_object_or_404(Place, pk=pk, is_approved=True, is_active=True)
 
-    # Get related places from the same categories
+    # Obter lugares relacionados das mesmas categorias
     related_places = (
         Place.objects.filter(
             categories__in=place.categories.all(), is_approved=True, is_active=True
@@ -116,26 +116,26 @@ def place_detail_view(request, pk):
         .prefetch_related("images", "categories")[:3]
     )
 
-    # Check if user can edit this place
+    # Verificar se o usuário pode editar este lugar
     can_edit = False
     if request.user.is_authenticated:
         if request.user.can_moderate or place.created_by == request.user:
             can_edit = True
 
-    # Get all reviews for this place
+    # Obter todas as avaliações para este lugar
     reviews = place.reviews.select_related("user").order_by("-created_at")
 
-    # Check if current user has already reviewed this place
+    # Verificar se o usuário atual já avaliou este lugar
     user_review = None
     if request.user.is_authenticated:
         user_review = reviews.filter(user=request.user).first()
 
-    # Check if place is favorited by current user
+    # Verificar se o lugar está favoritado pelo usuário atual
     is_favorited = False
     if request.user.is_authenticated:
         is_favorited = Favorite.objects.filter(user=request.user, place=place).exists()
 
-    # Get favorites count
+    # Obter contagem de favoritos
     favorites_count = place.favorited_by.count()
 
     context = {
@@ -154,9 +154,9 @@ def place_detail_view(request, pk):
 @login_required
 @ratelimit(key="user", rate="5/h", method="POST", block=True)
 def place_create_view(request):
-    """Create a new place (all authenticated users)"""
+    """Criar um novo lugar (todos os usuários autenticados)"""
 
-    # Check if user can create places
+    # Verificar se o usuário pode criar lugares
     if not request.user.can_create_places:
         messages.error(request, "Você não tem permissão para criar lugares.")
         return redirect("explore:explore")
@@ -166,30 +166,30 @@ def place_create_view(request):
         formset = PlaceImageFormSet(request.POST, request.FILES)
 
         if form.is_valid() and formset.is_valid():
-            # Create the place
+            # Criar o lugar
             place = form.save(commit=False)
             place.created_by = request.user
-            place.is_approved = False  # Always starts as unapproved
+            place.is_approved = False  # Sempre começa como não aprovado
             place.save()
 
-            # Save categories (many-to-many relationship)
+            # Salvar categorias (relacionamento muitos-para-muitos)
             form.save_m2m()
 
-            # Save images
+            # Salvar imagens
             formset.instance = place
             formset.save()
 
-            # Ensure at least one image is marked as primary
+            # Garantir que pelo menos uma imagem seja marcada como primária
             images = place.images.all()
             if images.exists():
                 primary_images = images.filter(is_primary=True)
                 if not primary_images.exists():
-                    # If no primary image is set, make the first one primary
+                    # Se nenhuma imagem primária está definida, tornar a primeira como primária
                     first_image = images.first()
                     first_image.is_primary = True
                     first_image.save()
                 elif primary_images.count() > 1:
-                    # If multiple primary images, keep only the first one
+                    # Se houver múltiplas imagens primárias, manter apenas a primeira
                     primary_images.exclude(id=primary_images.first().id).update(
                         is_primary=False
                     )
@@ -216,12 +216,12 @@ def place_create_view(request):
 @login_required
 @ratelimit(key="user", rate="10/h", method="POST", block=True)
 def place_update_view(request, pk):
-    """Update an existing place (owner or admin only)"""
+    """Atualizar um lugar existente (apenas proprietário ou administrador)"""
 
-    # Get the place
+    # Obter o lugar
     place = get_object_or_404(Place, pk=pk)
 
-    # Check permissions
+    # Verificar permissões
     if not (request.user.can_moderate or place.created_by == request.user):
         messages.error(request, "Você não tem permissão para editar este lugar.")
         return redirect("explore:place_detail", pk=place.pk)
@@ -231,23 +231,23 @@ def place_update_view(request, pk):
         formset = PlaceImageFormSet(request.POST, request.FILES, instance=place)
 
         if form.is_valid() and formset.is_valid():
-            # Save the place
+            # Salvar o lugar
             updated_place = form.save()
 
-            # Save images
+            # Salvar imagens
             formset.save()
 
-            # Ensure at least one image is marked as primary
+            # Garantir que pelo menos uma imagem seja marcada como primária
             images = updated_place.images.all()
             if images.exists():
                 primary_images = images.filter(is_primary=True)
                 if not primary_images.exists():
-                    # If no primary image is set, make the first one primary
+                    # Se nenhuma imagem primária está definida, tornar a primeira como primária
                     first_image = images.first()
                     first_image.is_primary = True
                     first_image.save()
                 elif primary_images.count() > 1:
-                    # If multiple primary images, keep only the first one
+                    # Se houver múltiplas imagens primárias, manter apenas a primeira
                     primary_images.exclude(id=primary_images.first().id).update(
                         is_primary=False
                     )
@@ -273,11 +273,11 @@ def place_update_view(request, pk):
 
 @login_required
 def place_delete_view(request, pk):
-    """Delete a place (owner or admin only)"""
+    """Excluir um lugar (apenas proprietário ou administrador)"""
 
     place = get_object_or_404(Place, pk=pk)
 
-    # Check permissions
+    # Verificar permissões
     if not (request.user.can_moderate or place.created_by == request.user):
         messages.error(request, "Você não tem permissão para excluir este lugar.")
         return redirect("explore:place_detail", pk=place.pk)
@@ -294,38 +294,27 @@ def place_delete_view(request, pk):
     return render(request, "explore/place_delete_confirm.html", context)
 
 
-# Admin approval views
+# Views de aprovação do administrador
 
 
 @login_required
 def approval_queue_view(request):
-    """Admin approval queue showing pending places"""
+    """Fila de aprovação do administrador - redireciona para backlog com view=queue"""
 
-    # Check if user is admin
+    # Verificar se o usuário é administrador
     if not request.user.can_moderate:
         messages.error(request, "Você não tem permissão para acessar esta página.")
         return redirect("explore:explore")
 
-    # Get all pending places (unapproved and active)
-    pending_places = (
-        Place.objects.filter(is_approved=False, is_active=True)
-        .select_related("created_by")
-        .prefetch_related("images", "categories")
-        .order_by("-created_at")
-    )
-
-    context = {
-        "pending_places": pending_places,
-        "pending_count": pending_places.count(),
-    }
-    return render(request, "explore/admin/approval_queue.html", context)
+    # Redirecionar para a visualização unificada no modo de fila
+    return redirect("explore:backlog" + "?view=queue")
 
 
 @login_required
 def approve_place_view(request, pk):
-    """Approve a pending place"""
+    """Aprovar um lugar pendente"""
 
-    # Check if user is admin
+    # Verificar se o usuário é administrador
     if not request.user.can_moderate:
         messages.error(request, "Você não tem permissão para realizar esta ação.")
         return redirect("explore:explore")
@@ -333,7 +322,7 @@ def approve_place_view(request, pk):
     place = get_object_or_404(Place, pk=pk)
 
     if request.method == "POST":
-        # Create approval record
+        # Criar registro de aprovação
         PlaceApproval.objects.create(
             place=place,
             reviewer=request.user,
@@ -345,17 +334,17 @@ def approve_place_view(request, pk):
             request,
             f'Lugar "{place.name}" foi aprovado com sucesso!',
         )
-        return redirect("explore:approval_queue")
+        return redirect("explore:backlog" + "?view=queue")
 
-    # If GET, redirect to place detail
+    # Se for GET, redirecionar para detalhes do lugar
     return redirect("explore:place_detail", pk=pk)
 
 
 @login_required
 def reject_place_view(request, pk):
-    """Reject a pending place"""
+    """Rejeitar um lugar pendente"""
 
-    # Check if user is admin
+    # Verificar se o usuário é administrador
     if not request.user.can_moderate:
         messages.error(request, "Você não tem permissão para realizar esta ação.")
         return redirect("explore:explore")
@@ -367,9 +356,9 @@ def reject_place_view(request, pk):
 
         if not comments:
             messages.error(request, "Por favor, forneça um motivo para a rejeição.")
-            return redirect("explore:approval_queue")
+            return redirect("explore:backlog" + "?view=queue")
 
-        # Create rejection record
+        # Criar registro de rejeição
         PlaceApproval.objects.create(
             place=place,
             reviewer=request.user,
@@ -381,9 +370,9 @@ def reject_place_view(request, pk):
             request,
             f'Lugar "{place.name}" foi rejeitado.',
         )
-        return redirect("explore:approval_queue")
+        return redirect("explore:backlog" + "?view=queue")
 
-    # If GET, show rejection form
+    # Se for GET, mostrar formulário de rejeição
     context = {
         "place": place,
     }
@@ -392,36 +381,43 @@ def reject_place_view(request, pk):
 
 @login_required
 def backlog_view(request):
-    """Admin backlog showing all places with filtering"""
+    """Backlog do administrador mostrando todos os lugares com filtragem"""
 
-    # Check if user is admin
+    # Verificar se o usuário é administrador
     if not request.user.can_moderate:
         messages.error(request, "Você não tem permissão para acessar esta página.")
         return redirect("explore:explore")
 
-    # Get filter parameters
+    # Obter parâmetro de visualização (queue ou history)
+    view_mode = request.GET.get("view", "history")
+
+    # Obter parâmetros de filtro
     status_filter = request.GET.get("status", "all")
     category_filter = request.GET.get("category", "all")
     sort_by = request.GET.get("sort", "-created_at")
 
-    # Start with all places
+    # Começar com todos os lugares
     places = Place.objects.select_related("created_by").prefetch_related(
         "images", "categories"
     )
 
-    # Apply status filter
-    if status_filter == "approved":
-        places = places.filter(is_approved=True, is_active=True)
-    elif status_filter == "pending":
+    # Se estiver no modo de fila, mostrar apenas pendentes
+    if view_mode == "queue":
         places = places.filter(is_approved=False, is_active=True)
-    elif status_filter == "rejected":
-        places = places.filter(is_active=False)
+    else:
+        # Aplicar filtro de status no modo histórico
+        if status_filter == "approved":
+            places = places.filter(is_approved=True, is_active=True)
+        elif status_filter == "pending":
+            places = places.filter(is_approved=False, is_active=True)
+        elif status_filter == "rejected":
+            places = places.filter(is_active=False)
 
-    # Apply category filter
+    # Aplicar filtro de categoria
     if category_filter != "all":
         places = places.filter(categories__slug=category_filter)
 
-    # Apply sorting
+    # Aplicar ordenação
     valid_sorts = {
         "-created_at": "-created_at",
         "created_at": "created_at",
@@ -431,10 +427,10 @@ def backlog_view(request):
     sort_order = valid_sorts.get(sort_by, "-created_at")
     places = places.order_by(sort_order).distinct()
 
-    # Get all categories for filter dropdown
+    # Obter todas as categorias para o menu suspenso de filtro
     categories = Category.objects.filter(is_active=True).order_by("name")
 
-    # Get counts for each status
+    # Obter contagens para cada status
     total_count = Place.objects.count()
     approved_count = Place.objects.filter(is_approved=True, is_active=True).count()
     pending_count = Place.objects.filter(is_approved=False, is_active=True).count()
@@ -450,19 +446,20 @@ def backlog_view(request):
         "approved_count": approved_count,
         "pending_count": pending_count,
         "rejected_count": rejected_count,
+        "view_mode": view_mode,
     }
     return render(request, "explore/admin/backlog.html", context)
 
 
-# Review Views
+# Views de Avaliação
 
 
 @login_required
 def review_create_view(request, place_pk):
-    """Create a new review for a place"""
+    """Criar uma nova avaliação para um lugar"""
     place = get_object_or_404(Place, pk=place_pk, is_approved=True, is_active=True)
 
-    # Check if user already reviewed this place
+    # Verificar se o usuário já avaliou este lugar
     existing_review = PlaceReview.objects.filter(place=place, user=request.user).first()
     if existing_review:
         messages.warning(
@@ -488,10 +485,10 @@ def review_create_view(request, place_pk):
 
 @login_required
 def review_edit_view(request, pk):
-    """Edit an existing review"""
+    """Editar uma avaliação existente"""
     review = get_object_or_404(PlaceReview, pk=pk)
 
-    # Check permissions: owner or moderator can edit
+    # Verificar permissões: proprietário ou moderador pode editar
     if review.user != request.user and not request.user.can_moderate:
         messages.error(request, "Você não tem permissão para editar esta avaliação.")
         return redirect("explore:place_detail", pk=review.place.pk)
@@ -511,10 +508,10 @@ def review_edit_view(request, pk):
 
 @login_required
 def review_delete_view(request, pk):
-    """Delete a review"""
+    """Excluir uma avaliação"""
     review = get_object_or_404(PlaceReview, pk=pk)
 
-    # Check permissions: owner or moderator can delete
+    # Verificar permissões: proprietário ou moderador pode excluir
     if review.user != request.user and not request.user.can_moderate:
         messages.error(request, "Você não tem permissão para excluir esta avaliação.")
         return redirect("explore:place_detail", pk=review.place.pk)
@@ -529,37 +526,37 @@ def review_delete_view(request, pk):
     return render(request, "explore/review_delete_confirm.html", context)
 
 
-# Favorite Views
+# Views de Favoritos
 
 
 def toggle_favorite_view(request, pk):
     """
-    Toggle favorite status for a place (AJAX endpoint)
-    Works for both logged-in and anonymous users
-    - Logged-in users: syncs with backend database
-    - Anonymous users: client-side only (localStorage)
+    Alternar status de favorito para um lugar (endpoint AJAX)
+    Funciona para usuários autenticados e anônimos
+    - Usuários autenticados: sincroniza com banco de dados backend
+    - Usuários anônimos: apenas no lado do cliente (localStorage)
     """
     if request.method != "POST":
         return JsonResponse({"error": "POST method required"}, status=405)
 
     place = get_object_or_404(Place, pk=pk, is_approved=True, is_active=True)
 
-    # For logged-in users, sync with database
+    # Para usuários autenticados, sincronizar com banco de dados
     if request.user.is_authenticated:
         favorite = Favorite.objects.filter(user=request.user, place=place).first()
 
         if favorite:
-            # Remove favorite
+            # Remover favorito
             favorite.delete()
             is_favorited = False
             message = "Lugar removido dos favoritos"
         else:
-            # Add favorite
+            # Adicionar favorito
             Favorite.objects.create(user=request.user, place=place)
             is_favorited = True
             message = "Lugar adicionado aos favoritos"
 
-        # Get total favorites count for this place
+        # Obter contagem total de favoritos para este lugar
         favorites_count = place.favorited_by.count()
 
         return JsonResponse(
@@ -571,8 +568,8 @@ def toggle_favorite_view(request, pk):
             }
         )
     else:
-        # For anonymous users, just confirm the action
-        # Actual toggle happens in client-side localStorage
+        # Para usuários anônimos, apenas confirmar a ação
+        # A alternância real acontece no localStorage do lado do cliente
         return JsonResponse(
             {
                 "success": True,
@@ -583,12 +580,12 @@ def toggle_favorite_view(request, pk):
 
 def favorites_list_view(request):
     """
-    List all favorites for the current user
-    - Logged-in users: shows database favorites
-    - Anonymous users: page uses JavaScript to load from localStorage
+    Listar todos os favoritos para o usuário atual
+    - Usuários autenticados: mostra favoritos do banco de dados
+    - Usuários anônimos: página usa JavaScript para carregar do localStorage
     """
     if request.user.is_authenticated:
-        # Get favorites from database for logged-in users
+        # Obter favoritos do banco de dados para usuários autenticados
         favorites = (
             Favorite.objects.filter(user=request.user)
             .select_related("place", "place__created_by")
@@ -602,7 +599,7 @@ def favorites_list_view(request):
             "is_authenticated": True,
         }
     else:
-        # For anonymous users, page will use JavaScript to load from localStorage
+        # Para usuários anônimos, a página usará JavaScript para carregar do localStorage
         context = {
             "favorites": [],
             "favorites_count": 0,
@@ -615,8 +612,8 @@ def favorites_list_view(request):
 @login_required
 def sync_favorites_view(request):
     """
-    Sync favorites from localStorage to backend (for logged-in users)
-    Merges local favorites with backend favorites
+    Sincronizar favoritos do localStorage para backend (para usuários autenticados)
+    Mescla favoritos locais com favoritos do backend
     """
     if request.method != "POST":
         return JsonResponse({"error": "POST method required"}, status=405)
@@ -627,18 +624,18 @@ def sync_favorites_view(request):
         data = json.loads(request.body)
         local_favorites = data.get("favorites", [])
 
-        # Get existing backend favorites
+        # Obter favoritos existentes no backend
         existing_favorites = set(
             Favorite.objects.filter(user=request.user).values_list(
                 "place_id", flat=True
             )
         )
 
-        # Merge: add any new favorites from localStorage to backend
+        # Mesclar: adicionar quaisquer novos favoritos do localStorage ao backend
         new_favorites = []
         for place_id in local_favorites:
             if place_id not in existing_favorites:
-                # Verify place exists and is approved
+                # Verificar se o lugar existe e está aprovado
                 try:
                     place = Place.objects.get(pk=place_id, is_approved=True)
                     Favorite.objects.create(user=request.user, place=place)
@@ -646,7 +643,7 @@ def sync_favorites_view(request):
                 except Place.DoesNotExist:
                     continue
 
-        # Get all favorites (merged)
+        # Obter todos os favoritos (mesclados)
         all_favorites = list(
             Favorite.objects.filter(user=request.user).values_list(
                 "place_id", flat=True
@@ -671,8 +668,8 @@ def sync_favorites_view(request):
 @login_required
 def favorites_api_list_view(request):
     """
-    API endpoint to get list of favorite place IDs for logged-in user
-    Used by JavaScript to sync localStorage with backend on page load
+    Endpoint de API para obter lista de IDs de lugares favoritos para usuário autenticado
+    Usado pelo JavaScript para sincronizar localStorage com backend ao carregar a página
     """
     favorites = list(
         Favorite.objects.filter(user=request.user).values_list("place_id", flat=True)

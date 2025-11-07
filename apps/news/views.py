@@ -5,37 +5,37 @@ from .models import News, NewsCategory
 
 
 def news_list_view(request):
-    """Display list of all published news and events"""
-    # Get filter parameters
+    """Exibir lista de todas as notícias e eventos publicados"""
+    # Obter parâmetros de filtro
     category_filter = request.GET.get("category", "all")
     sort_by = request.GET.get("sort", "newest")
 
-    # Base query - only published items with publish_date <= now
+    # Consulta base - apenas itens publicados com publish_date <= agora
     news_items = News.objects.filter(
         status=News.PUBLISHED, publish_date__lte=timezone.now()
     )
 
-    # Filter by category if specified
+    # Filtrar por categoria se especificado
     if category_filter != "all":
         news_items = news_items.filter(category__name=category_filter)
 
-    # Sort
+    # Ordenar
     if sort_by == "oldest":
         news_items = news_items.order_by("publish_date")
     elif sort_by == "popular":
         news_items = news_items.order_by("-view_count", "-publish_date")
-    else:  # newest (default)
+    else:  # mais recentes (padrão)
         news_items = news_items.order_by("-publish_date")
 
-    # Get categories for filter menu
+    # Obter categorias para menu de filtro
     categories = NewsCategory.objects.all()
 
-    # Separate upcoming events
+    # Separar eventos futuros
     upcoming_events = news_items.filter(
         category__name=NewsCategory.EVENT, event_date__gt=timezone.now()
     ).order_by("event_date")[:3]
 
-    # Get featured items
+    # Obter itens em destaque
     featured_items = news_items.filter(is_featured=True)[:3]
 
     context = {
@@ -51,15 +51,15 @@ def news_list_view(request):
 
 
 def news_detail_view(request, slug):
-    """Display detail page for a single news/event item"""
+    """Exibir página de detalhes de uma única notícia/evento"""
     news_item = get_object_or_404(
         News, slug=slug, status=News.PUBLISHED, publish_date__lte=timezone.now()
     )
 
-    # Increment view count
+    # Incrementar contador de visualizações
     news_item.increment_view_count()
 
-    # Get related news (same category, exclude current)
+    # Obter notícias relacionadas (mesma categoria, excluir atual)
     related_news = (
         News.objects.filter(
             category=news_item.category,

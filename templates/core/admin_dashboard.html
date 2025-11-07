@@ -124,35 +124,18 @@
         </div>
       </div>
 
-      <!-- Fila de Aprovação de Lugares -->
+      <!-- Gestão de Lugares -->
       <div class="col-md-6">
         <div class="card admin-card">
           <div class="card-body">
             <h5 class="card-title">
-              <i class="bi bi-check-circle-fill me-2"></i>Fila de Aprovação
+              <i class="bi bi-geo-alt-fill me-2"></i>Gestão de Lugares
             </h5>
             <p class="card-text text-muted">
-              Revisar e aprovar lugares enviados pela comunidade.
+              Revisar, aprovar e gerenciar lugares da comunidade.
               {% if pending_places > 0 %}
-                <span class="badge bg-warning ms-1">{{ pending_places }}</span>
+                <span class="badge bg-warning ms-1">{{ pending_places }} pendente{{ pending_places|pluralize:"s" }}</span>
               {% endif %}
-            </p>
-            <a href="{% url 'explore:approval_queue' %}" class="btn btn-primary">
-              <i class="bi bi-arrow-right-circle me-1"></i>Acessar
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Backlog -->
-      <div class="col-md-6">
-        <div class="card admin-card">
-          <div class="card-body">
-            <h5 class="card-title">
-              <i class="bi bi-archive-fill me-2"></i>Backlog
-            </h5>
-            <p class="card-text text-muted">
-              Lugares rejeitados e histórico de aprovações.
             </p>
             <a href="{% url 'explore:backlog' %}" class="btn btn-primary">
               <i class="bi bi-arrow-right-circle me-1"></i>Acessar
@@ -174,9 +157,6 @@
                 <span class="badge bg-warning ms-1">{{ draft_news }} rascunho{{ draft_news|pluralize }}</span>
               {% endif %}
             </p>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <small class="text-muted">{{ total_news }} total, {{ published_news }} publicadas</small>
-            </div>
             <a href="{% url 'core:admin_news_list' %}" class="btn btn-primary">
               <i class="bi bi-arrow-right-circle me-1"></i>Acessar
             </a>
@@ -254,100 +234,6 @@
 </div>
 
 <style>
-/* Enhanced Stat Cards */
-.stat-card-enhanced {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  height: 100%;
-  border: 1px solid #E5E7EB;
-}
-
-.stat-card-enhanced:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.stat-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.stat-icon-enhanced {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: white;
-  flex-shrink: 0;
-}
-
-.stat-info {
-  flex: 1;
-}
-
-.stat-label-enhanced {
-  font-size: 0.875rem;
-  color: #6B7280;
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-}
-
-.stat-value-enhanced {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1F2937;
-  line-height: 1;
-}
-
-.stat-trend {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  background: #F3F4F6;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.stat-trend i {
-  font-size: 1rem;
-}
-
-.stat-trend small {
-  margin-left: auto;
-  font-weight: 400;
-  color: #6B7280;
-}
-
-.trend-up {
-  color: #10B981;
-  background: #D1FAE5;
-}
-
-.trend-down {
-  color: #EF4444;
-  background: #FEE2E2;
-}
-
-.trend-warning {
-  color: #F59E0B;
-  background: #FEF3C7;
-}
-
-.trend-neutral {
-  color: #6B7280;
-  background: #F3F4F6;
-}
-
 /* Admin Action Cards */
 .admin-card {
   border: none;

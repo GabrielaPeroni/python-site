@@ -23,10 +23,10 @@ class CategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
 
     fieldsets = (
-        ("Basic Information", {"fields": ("name", "slug", "description", "icon")}),
-        ("Display Settings", {"fields": ("display_order", "is_active")}),
+        ("Informações Básicas", {"fields": ("name", "slug", "description", "icon")}),
+        ("Configurações de Exibição", {"fields": ("display_order", "is_active")}),
         (
-            "Timestamps",
+            "Datas e Horários",
             {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
         ),
     )
@@ -42,9 +42,49 @@ class PlaceImageInline(admin.TabularInline):
 @admin.register(Place)
 class PlaceAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
-        if not change:  # If creating new object
+        if not change:  # Se estiver criando novo objeto
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
+
+    def approve_places(self, request, queryset):
+        """Aprovar lugares selecionados"""
+        count = 0
+        for place in queryset:
+            if not place.is_approved:
+                place.is_approved = True
+                place.save()
+                # Criar registro de aprovação
+                PlaceApproval.objects.create(
+                    place=place,
+                    reviewer=request.user,
+                    action="APPROVE",
+                    comments="Aprovado via ação em massa no admin",
+                )
+                count += 1
+        self.message_user(request, f"{count} lugar(es) aprovado(s) com sucesso.")
+
+    approve_places.short_description = "Aprovar lugares selecionados"
+
+    def revoke_approval(self, request, queryset):
+        """Revogar aprovação de lugares selecionados"""
+        count = 0
+        for place in queryset:
+            if place.is_approved:
+                place.is_approved = False
+                place.save()
+                # Criar registro de revogação
+                PlaceApproval.objects.create(
+                    place=place,
+                    reviewer=request.user,
+                    action="REJECT",
+                    comments="Aprovação revogada via ação em massa no admin",
+                )
+                count += 1
+        self.message_user(
+            request, f"{count} lugar(es) teve(tiveram) aprovação revogada."
+        )
+
+    revoke_approval.short_description = "Revogar aprovação de lugares selecionados"
 
     inlines = [PlaceImageInline]
 
@@ -56,19 +96,24 @@ class PlaceAdmin(admin.ModelAdmin):
 
     readonly_fields = ("created_at", "updated_at", "created_by")
 
+    actions = ["approve_places", "revoke_approval"]
+
     fieldsets = (
         (
-            "Basic Information",
+            "Informações Básicas",
             {"fields": ("name", "description", "address", "categories")},
         ),
         (
-            "Contact Information",
+            "Informações de Contato",
             {"fields": ("contact_phone", "contact_email", "contact_website")},
         ),
-        ("Location", {"fields": ("latitude", "longitude"), "classes": ("collapse",)}),
+        (
+            "Localização",
+            {"fields": ("latitude", "longitude"), "classes": ("collapse",)},
+        ),
         ("Status", {"fields": ("is_approved", "is_active")}),
         (
-            "Metadata",
+            "Metadados",
             {
                 "fields": ("created_by", "created_at", "updated_at"),
                 "classes": ("collapse",),
@@ -88,16 +133,16 @@ class PlaceImageAdmin(admin.ModelAdmin):
     readonly_fields = ("uploaded_at",)
 
     fieldsets = (
-        ("Image Information", {"fields": ("place", "image", "caption")}),
-        ("Display Settings", {"fields": ("is_primary", "display_order")}),
-        ("Timestamp", {"fields": ("uploaded_at",)}),
+        ("Informações da Imagem", {"fields": ("place", "image", "caption")}),
+        ("Configurações de Exibição", {"fields": ("is_primary", "display_order")}),
+        ("Data e Horário", {"fields": ("uploaded_at",)}),
     )
 
 
 @admin.register(PlaceApproval)
 class PlaceApprovalAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
-        if not change:  # If creating new object
+        if not change:  # Se estiver criando novo objeto
             obj.reviewer = request.user
         super().save_model(request, obj, form, change)
 
@@ -110,14 +155,17 @@ class PlaceApprovalAdmin(admin.ModelAdmin):
     readonly_fields = ("reviewed_at",)
 
     fieldsets = (
-        ("Review Information", {"fields": ("place", "action", "reviewer", "comments")}),
-        ("Timestamp", {"fields": ("reviewed_at",)}),
+        (
+            "Informações da Revisão",
+            {"fields": ("place", "action", "reviewer", "comments")},
+        ),
+        ("Data e Horário", {"fields": ("reviewed_at",)}),
     )
 
 
 @admin.register(PlaceReview)
 class PlaceReviewAdmin(admin.ModelAdmin):
-    """Admin for Place Reviews - full CRUD access for admins"""
+    """Administração de Avaliações de Lugares - acesso CRUD completo para administradores"""
 
     list_display = ("place", "user", "rating", "created_at", "get_comment_preview")
 
@@ -128,20 +176,23 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
 
     fieldsets = (
-        ("Review Information", {"fields": ("place", "user", "rating", "comment")}),
-        ("Timestamps", {"fields": ("created_at", "updated_at")}),
+        (
+            "Informações da Avaliação",
+            {"fields": ("place", "user", "rating", "comment")},
+        ),
+        ("Datas e Horários", {"fields": ("created_at", "updated_at")}),
     )
 
     def get_comment_preview(self, obj):
-        """Show first 50 characters of comment"""
+        """Mostrar os primeiros 50 caracteres do comentário"""
         return obj.comment[:50] + "..." if len(obj.comment) > 50 else obj.comment
 
-    get_comment_preview.short_description = "Comment Preview"
+    get_comment_preview.short_description = "Prévia do Comentário"
 
 
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
-    """Admin for Favorites - manage user saved places"""
+    """Administração de Favoritos - gerenciar lugares salvos pelos usuários"""
 
     list_display = ("user", "place", "created_at")
 
@@ -152,6 +203,6 @@ class FavoriteAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at",)
 
     fieldsets = (
-        ("Favorite Information", {"fields": ("user", "place")}),
-        ("Timestamp", {"fields": ("created_at",)}),
+        ("Informações do Favorito", {"fields": ("user", "place")}),
+        ("Data e Horário", {"fields": ("created_at",)}),
     )
