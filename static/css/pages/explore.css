@@ -302,6 +302,10 @@
   color: #ffc107;
 }
 
+.star-rating-container .star-label.star-selected {
+  color: #ffc107;
+}
+
 /* Related Places */
 .related-place-card {
   text-decoration: none;

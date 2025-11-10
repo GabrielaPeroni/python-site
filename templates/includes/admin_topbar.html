@@ -19,23 +19,11 @@
       <input type="text" placeholder="Pesquisar" id="topbarSearch">
     </div>
 
-    <!-- Notificações -->
-    <div class="notification-btn" id="notificationBtn">
-      <i class="bi bi-bell"></i>
-      {% if pending_places > 0 %}
-        <span class="notification-badge">{{ pending_places }}</span>
-      {% endif %}
-    </div>
-
     <!-- Menu do Usuário -->
     <div class="user-menu" id="userMenuToggle">
-      {% if request.user.profile_picture %}
-        <img src="{{ request.user.profile_picture.url }}" alt="{{ request.user.username }}" class="user-avatar">
-      {% else %}
-        <div class="user-avatar-placeholder">
-          <i class="bi bi-person-circle"></i>
-        </div>
-      {% endif %}
+      <div class="user-avatar-placeholder">
+        <i class="bi bi-person-circle"></i>
+      </div>
       <span class="user-name d-none d-md-inline">{{ request.user.username }}</span>
       <i class="bi bi-chevron-down"></i>
     </div>

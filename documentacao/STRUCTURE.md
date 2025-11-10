@@ -184,9 +184,8 @@ marica-city-remake/
 │       └── hero/                  # Imagens do carrossel hero
 │
 ├── media/                          # Arquivos enviados por usuários
-│   ├── places/
-│   │   └── images/                # Imagens de locais (organizadas por data)
-│   └── profiles/                  # Fotos de perfil de usuários
+│   └── places/
+│       └── images/                # Imagens de locais (organizadas por data)
 │
 ├── staticfiles/                    # Arquivos estáticos coletados (produção)
 │
@@ -281,7 +280,7 @@ MaricaCity segue o padrão **MVT (Model-View-Template)** do Django com uma arqui
 
 - `User` (apps/accounts/models.py)
   - Usuário customizado estendendo AbstractUser
-  - Campos: bio, profile_picture, contact_phone, contact_email, contact_website
+  - Campos: bio, contact_phone, contact_email, contact_website
   - Propriedades: `can_create_places` (todos autenticados), `can_moderate` (apenas staff/superuser)
 
 **Views:**

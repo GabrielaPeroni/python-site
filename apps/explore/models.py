@@ -254,7 +254,6 @@ class PlaceReview(models.Model):
         ordering = ["-created_at"]
         verbose_name = "Avaliação de Lugar"
         verbose_name_plural = "Avaliações de Lugares"
-        unique_together = [["place", "user"]]  # Uma avaliação por usuário por lugar
         indexes = [
             models.Index(fields=["place", "-created_at"]),
             models.Index(fields=["user", "-created_at"]),

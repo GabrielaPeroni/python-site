@@ -150,6 +150,43 @@ function confirmDeleteReview() {
  */
 
 /**
+ * Inicializar comportamento visual da avaliação por estrelas
+ */
+function initStarRating() {
+  const ratingInputs = document.querySelectorAll('input[name="rating"]');
+
+  ratingInputs.forEach(input => {
+    input.addEventListener('change', function () {
+      updateStarVisuals(this.value);
+    });
+  });
+
+  // Definir estado inicial se houver um radio marcado
+  const checkedInput = document.querySelector('input[name="rating"]:checked');
+  if (checkedInput) {
+    updateStarVisuals(checkedInput.value);
+  }
+}
+
+/**
+ * Atualizar visuais das estrelas para preencher todas até a avaliação selecionada
+ * @param {string|number} rating - Valor da avaliação selecionada
+ */
+function updateStarVisuals(rating) {
+  const ratingValue = parseInt(rating);
+  const allLabels = document.querySelectorAll('.star-label');
+
+  allLabels.forEach((label, index) => {
+    const starValue = index + 1;
+    if (starValue <= ratingValue) {
+      label.classList.add('star-selected');
+    } else {
+      label.classList.remove('star-selected');
+    }
+  });
+}
+
+/**
  * Inicializar Carrossel do Local
  */
 function initPlaceCarousel() {
@@ -206,11 +243,21 @@ function initPlaceCarousel() {
   });
 }
 
-// Inicializar carrossel quando o DOM estiver pronto
+// Inicializar carrossel e avaliação por estrelas quando o DOM estiver pronto
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initPlaceCarousel);
+  document.addEventListener('DOMContentLoaded', () => {
+    initPlaceCarousel();
+    initStarRating();
+  });
 } else {
   initPlaceCarousel();
+  initStarRating();
+}
+
+// Reinicializar avaliação por estrelas quando o modal for exibido
+const reviewModal = document.getElementById('reviewModal');
+if (reviewModal) {
+  reviewModal.addEventListener('shown.bs.modal', initStarRating);
 }
 
 // Exportar funções para uso global

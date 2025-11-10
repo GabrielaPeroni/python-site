@@ -23,13 +23,6 @@ class User(AbstractUser):
 
     bio = models.TextField(blank=True, null=True, help_text="Biografia do usuário")
 
-    profile_picture = models.ImageField(
-        upload_to="profiles/",
-        blank=True,
-        null=True,
-        help_text="Foto de perfil do usuário",
-    )
-
     # Informações de contato
     contact_phone = models.CharField(
         max_length=20, blank=True, null=True, help_text="Número de telefone de contato"

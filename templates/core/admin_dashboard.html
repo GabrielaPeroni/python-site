@@ -204,13 +204,9 @@
                   <td>#{{ user.id|stringformat:"06d" }}</td>
                   <td>
                     <div class="d-flex align-items-center gap-2">
-                      {% if user.profile_picture %}
-                        <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="user-avatar-mini">
-                      {% else %}
-                        <div class="user-avatar-placeholder-mini">
-                          <i class="bi bi-person"></i>
-                        </div>
-                      {% endif %}
+                      <div class="user-avatar-placeholder-mini">
+                        <i class="bi bi-person"></i>
+                      </div>
                       <span>{{ user.username }}</span>
                     </div>
                   </td>

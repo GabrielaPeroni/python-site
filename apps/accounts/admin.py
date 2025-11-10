@@ -20,7 +20,7 @@ class UserAdmin(BaseUserAdmin):
     ordering = ("-created_at",)
 
     fieldsets = BaseUserAdmin.fieldsets + (
-        ("Perfil", {"fields": ("bio", "profile_picture")}),
+        ("Perfil", {"fields": ("bio",)}),
         (
             "Informações de Contato",
             {"fields": ("contact_phone", "contact_email", "contact_website")},
