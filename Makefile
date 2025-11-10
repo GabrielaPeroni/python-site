@@ -21,7 +21,7 @@ else
     NULL := /dev/null
 endif
 
-.PHONY: help venv install setup migrate superuser run test clean lint lint-ci format shell collectstatic startapp dev-deps db-shell db-reset makemigrations test-accounts test-core test-explore test-theme coverage django-upgrade pre-commit-install
+.PHONY: help check venv install setup migrate superuser run test clean lint lint-ci format shell collectstatic startapp dev-deps db-shell db-reset makemigrations test-accounts test-core test-explore test-theme coverage django-upgrade pre-commit-install
 
 ## Mostrar mensagem de ajuda
 help:
@@ -29,6 +29,7 @@ help:
 	@echo Projeto Django - Comandos Disponiveis
 	@echo ==========================================
 	@echo Comandos de Configuracao:
+	@echo   make check               - Validar requisitos do sistema antes da instalacao
 	@echo   make venv                - Criar ambiente virtual
 	@echo   make install             - Instalar Poetry se nao estiver presente
 	@echo   make env                 - Criar arquivo .env com variaveis default

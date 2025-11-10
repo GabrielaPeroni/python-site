@@ -1,16 +1,5 @@
 {% load static %}
 
-<!-- Inline script to prevent flicker - runs immediately before sidebar renders -->
-<script>
-  (function() {
-    // Check localStorage before page renders
-    if (localStorage.getItem('sidebarCollapsed') === 'true') {
-      // Add class to html to apply collapsed styles immediately
-      document.documentElement.classList.add('sidebar-initially-collapsed');
-    }
-  })();
-</script>
-
 <div class="admin-sidebar" id="adminSidebar">
   <!-- Sidebar Header -->
   <div class="sidebar-header">
@@ -78,7 +67,6 @@
   document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('adminSidebar');
     const overlay = document.getElementById('sidebarOverlay');
-    const collapseBtn = document.getElementById('sidebarCollapseBtn');
     const adminContainer = document.querySelector('.admin-container');
 
     // Restaurar estado da barra lateral do localStorage
@@ -93,38 +81,19 @@
     // Remove the temporary class now that proper classes are applied
     document.documentElement.classList.remove('sidebar-initially-collapsed');
 
-    // Funcionalidade de colapso no desktop
-    if (collapseBtn) {
-      collapseBtn.addEventListener('click', function() {
+    // Make sidebar header toggle the sidebar state
+    const sidebarHeader = document.querySelector('.sidebar-header');
+    if (sidebarHeader) {
+      sidebarHeader.addEventListener('click', function() {
         const isCurrentlyCollapsed = sidebar.classList.toggle('collapsed');
 
         if (adminContainer) {
           adminContainer.classList.toggle('sidebar-collapsed');
         }
 
-        // Atualizar direção do ícone chevron
-        const icon = this.querySelector('i');
-        if (isCurrentlyCollapsed) {
-          icon.classList.remove('bi-chevron-left');
-          icon.classList.add('bi-chevron-right');
-          this.setAttribute('title', 'Expandir barra lateral');
-        } else {
-          icon.classList.remove('bi-chevron-right');
-          icon.classList.add('bi-chevron-left');
-          this.setAttribute('title', 'Recolher barra lateral');
-        }
-
-        // Salvar estado no localStorage
+        // Save state
         localStorage.setItem('sidebarCollapsed', isCurrentlyCollapsed);
       });
-
-      // Definir estado inicial do ícone
-      if (isCollapsed) {
-        const icon = collapseBtn.querySelector('i');
-        icon.classList.remove('bi-chevron-left');
-        icon.classList.add('bi-chevron-right');
-        collapseBtn.setAttribute('title', 'Expandir barra lateral');
-      }
     }
   });
 </script>

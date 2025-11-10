@@ -5,6 +5,14 @@
 <link rel="stylesheet" href="{% static 'css/components/admin_sidebar.css' %}">
 <link rel="stylesheet" href="{% static 'css/components/admin_topbar.css' %}">
 <link rel="stylesheet" href="{% static 'css/pages/admin.css' %}">
+<!-- Prevent sidebar flicker - must run before page renders -->
+<script>
+(function() {
+  if (localStorage.getItem('sidebarCollapsed') === 'true') {
+    document.documentElement.classList.add('sidebar-initially-collapsed');
+  }
+})();
+</script>
 {% endblock %}
 
 {% block content %}
