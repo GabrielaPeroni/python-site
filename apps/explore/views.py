@@ -29,8 +29,17 @@ def explore_view(request):
     }
     sort_order = valid_sorts.get(sort_by, "-created_at")
 
-    # Obter todos os lugares aprovados com pesquisa e ordenação opcionais
-    all_places = Place.objects.filter(is_approved=True, is_active=True)
+    # Base queryset: all approved and active places
+    base_query = Q(is_approved=True, is_active=True)
+
+    # If user is authenticated, also include their own pending places
+    if request.user.is_authenticated:
+        user_pending_query = Q(
+            created_by=request.user, is_approved=False, is_active=True
+        )
+        all_places = Place.objects.filter(base_query | user_pending_query)
+    else:
+        all_places = Place.objects.filter(base_query)
 
     # Aplicar filtro de pesquisa se houver consulta
     if search_query:
@@ -288,10 +297,8 @@ def place_delete_view(request, pk):
         messages.success(request, f'Lugar "{place_name}" foi excluído com sucesso.')
         return redirect("explore:explore")
 
-    context = {
-        "place": place,
-    }
-    return render(request, "explore/place_delete_confirm.html", context)
+    # If not POST, redirect back
+    return redirect("explore:place_edit", pk=pk)
 
 
 # Views de aprovação do administrador
@@ -352,11 +359,21 @@ def reject_place_view(request, pk):
     place = get_object_or_404(Place, pk=pk)
 
     if request.method == "POST":
-        comments = request.POST.get("comments", "")
+        reason = request.POST.get("reason", "")
+        custom_comments = request.POST.get("comments", "")
 
-        if not comments:
-            messages.error(request, "Por favor, forneça um motivo para a rejeição.")
-            return redirect("explore:backlog" + "?view=queue")
+        if not reason:
+            messages.error(request, "Por favor, selecione um motivo para a rejeição.")
+            return redirect("explore:reject_place", pk=pk)
+
+        # Use custom comments if "Outros" is selected, otherwise use the reason
+        if reason == "Outros":
+            if not custom_comments:
+                messages.error(request, "Por favor, especifique o motivo da rejeição.")
+                return redirect("explore:reject_place", pk=pk)
+            comments = custom_comments
+        else:
+            comments = reason
 
         # Criar registro de rejeição
         PlaceApproval.objects.create(
@@ -368,15 +385,12 @@ def reject_place_view(request, pk):
 
         messages.success(
             request,
-            f'Lugar "{place.name}" foi rejeitado.',
+            f'Lugar "{place.name}" foi removido.',
         )
         return redirect("explore:backlog" + "?view=queue")
 
-    # Se for GET, mostrar formulário de rejeição
-    context = {
-        "place": place,
-    }
-    return render(request, "explore/admin/reject_form.html", context)
+    # If GET request, redirect to backlog (modal handles rejection)
+    return redirect("explore:backlog")
 
 
 @login_required

@@ -66,6 +66,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
           }
 
+          // Armazenar flag para mostrar toast de sucesso após reload
+          sessionStorage.setItem('loginSuccess', 'true');
+          sessionStorage.setItem('loginUsername', data.username || 'usuário');
+
           // Recarregar página após breve atraso
           setTimeout(() => {
             location.reload();

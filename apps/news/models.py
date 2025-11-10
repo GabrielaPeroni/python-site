@@ -156,6 +156,24 @@ class News(models.Model):
                 self.content[:297] + "..." if len(self.content) > 300 else self.content
             )
 
+        # Auto-set publish_date when status changes to PUBLISHED
+        if self.status == self.PUBLISHED:
+            # Check if this is a new publication (comparing with DB state)
+            if self.pk:
+                try:
+                    old_instance = News.objects.get(pk=self.pk)
+                    # If status changed from non-published to published, update date
+                    if old_instance.status != self.PUBLISHED:
+                        self.publish_date = timezone.now()
+                except News.DoesNotExist:
+                    # New object being created as published
+                    if not self.publish_date or self.publish_date > timezone.now():
+                        self.publish_date = timezone.now()
+            else:
+                # New object, set publish date if not already set or future dated
+                if not self.publish_date or self.publish_date > timezone.now():
+                    self.publish_date = timezone.now()
+
         super().save(*args, **kwargs)
 
     @property

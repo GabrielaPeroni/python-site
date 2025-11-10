@@ -35,7 +35,7 @@ O projeto implementa operações CRUD seguindo o padrão MVT (Model-View-Templat
 
 - **DELETE**
   - `place_delete_view`: Dono ou admin pode deletar.
-  - Requer confirmação antes da exclusão.
+  - Confirmação via modal (sem navegação para nova página).
 
 ---
 
@@ -43,7 +43,7 @@ O projeto implementa operações CRUD seguindo o padrão MVT (Model-View-Templat
 
 - `approval_queue_view`: Fila de lugares pendentes (**admin**).
 - `approve_place_view`: Aprovar lugar (**admin**).
-- `reject_place_view`: Rejeitar lugar com motivo (**admin**).
+- `reject_place_view`: Remover lugar com motivo via modal (**admin**).
 - `backlog_view`: Exibe todos os lugares com filtros (**admin**).
 
 **Ações em Massa (Django Admin):**

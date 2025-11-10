@@ -82,22 +82,37 @@
       </div>
     </div>
 
+  <div class="row">
+    <div class="col-md-3 col-lg-2">
+      <div class="card border-0 shadow-sm mb-4 sticky-top" style="top: 20px;">
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            <a href="{% url 'core:admin_news_list' %}" class="list-group-item list-group-item-action {% if status_filter == 'all' %}active{% endif %} border-0 py-3">
+              <i class="bi bi-list-ul me-2"></i>Todas
+            </a>
+            <a href="{% url 'core:admin_news_list' %}?status=published" class="list-group-item list-group-item-action {% if status_filter == 'published' %}active{% endif %} border-0 py-3">
+              <i class="bi bi-check-circle me-2"></i>Publicadas
+            </a>
+            <a href="{% url 'core:admin_news_list' %}?status=draft" class="list-group-item list-group-item-action {% if status_filter == 'draft' %}active{% endif %} border-0 py-3">
+              <i class="bi bi-pencil-square me-2"></i>Rascunhos
+            </a>
+            <a href="{% url 'core:admin_news_list' %}?status=archived" class="list-group-item list-group-item-action {% if status_filter == 'archived' %}active{% endif %} border-0 py-3">
+              <i class="bi bi-archive me-2"></i>Arquivadas
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-9 col-lg-10">
+
     <!-- Filtros -->
     <div class="card mb-4">
       <div class="card-body">
         <form method="get" class="row g-3">
-          <div class="col-md-4">
-            <label for="status" class="form-label">Status</label>
-            <select name="status" id="status" class="form-select">
-              <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Todos</option>
-              <option value="draft" {% if status_filter == 'draft' %}selected{% endif %}>Rascunho</option>
-              <option value="published" {% if status_filter == 'published' %}selected{% endif %}>Publicado</option>
-              <option value="archived" {% if status_filter == 'archived' %}selected{% endif %}>Arquivado</option>
-            </select>
-          </div>
-          <div class="col-md-4">
+          <div class="col-md-6">
             <label for="category" class="form-label">Categoria</label>
-            <select name="category" id="category" class="form-select">
+            <select name="category" id="category" class="form-select" onchange="this.form.submit()">
               <option value="all" {% if category_filter == 'all' %}selected{% endif %}>Todas</option>
               {% for cat in categories %}
               <option value="{{ cat.name }}" {% if category_filter == cat.name %}selected{% endif %}>
@@ -106,7 +121,7 @@
               {% endfor %}
             </select>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-6">
             <label for="search" class="form-label">Buscar</label>
             <div class="input-group">
               <input type="text" name="q" id="search" class="form-control"
@@ -116,6 +131,7 @@
               </button>
             </div>
           </div>
+          <input type="hidden" name="status" value="{{ status_filter }}">
         </form>
       </div>
     </div>
@@ -203,6 +219,8 @@
         {% endif %}
       </div>
     </div>
+    </div>
+  </div>
       </div>
     </div>
   </div>

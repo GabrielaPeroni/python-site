@@ -1,0 +1,110 @@
+<!-- Remove Place Modal -->
+<div class="modal fade" id="removeModal" tabindex="-1" aria-labelledby="removeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold" id="removeModalLabel">
+          <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Remover Lugar
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" id="removeForm">
+        {% csrf_token %}
+        <div class="modal-body">
+          <p class="mb-3">Você está prestes a remover <strong id="placeName"></strong>.</p>
+
+          <div class="mb-3">
+            <label for="removeReason" class="form-label fw-bold">
+              Motivo da Remoção <span class="text-danger">*</span>
+            </label>
+            <select id="removeReason" name="reason" required class="form-select">
+              <option value="">Selecione um motivo</option>
+              <option value="Informações incompletas">Informações incompletas</option>
+              <option value="Conteúdo inadequado">Conteúdo inadequado</option>
+              <option value="Localização incorreta">Localização incorreta</option>
+              <option value="Duplicado">Duplicado</option>
+              <option value="Não é um lugar turístico">Não é um lugar turístico</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+
+          <div class="mb-3" id="customReasonField" style="display: none;">
+            <label for="removeComments" class="form-label fw-bold">
+              Especifique o Motivo <span class="text-danger">*</span>
+            </label>
+            <textarea id="removeComments" name="comments" rows="4" class="form-control"
+                      placeholder="Explique por que este lugar está sendo removido..."></textarea>
+          </div>
+
+          <div class="alert alert-danger border-0 mb-0">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Atenção:</strong> Este lugar será marcado como inativo e não aparecerá no site.
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash me-2"></i>Deletar Permanentemente
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    const removeForm = document.getElementById('removeForm');
+    const removeReason = document.getElementById('removeReason');
+    const customReasonField = document.getElementById('customReasonField');
+    const removeComments = document.getElementById('removeComments');
+
+    if (!removeForm) return;
+
+    // Show/hide custom reason field
+    removeReason.addEventListener('change', function() {
+      if (this.value === 'Outros') {
+        customReasonField.style.display = 'block';
+        removeComments.required = true;
+      } else {
+        customReasonField.style.display = 'none';
+        removeComments.required = false;
+        removeComments.value = '';
+      }
+    });
+
+    // Form validation
+    removeForm.addEventListener('submit', function(e) {
+      if (removeReason.value === 'Outros' && !removeComments.value.trim()) {
+        e.preventDefault();
+        alert('Por favor, especifique o motivo da remoção.');
+        removeComments.focus();
+        return;
+      }
+    });
+
+    // Reset form when modal is closed
+    document.getElementById('removeModal').addEventListener('hidden.bs.modal', function() {
+      removeForm.reset();
+      customReasonField.style.display = 'none';
+    });
+  });
+
+  // Global function to open the modal
+  window.openRemoveModal = function(placeId, placeName) {
+    const modal = document.getElementById('removeModal');
+    const form = document.getElementById('removeForm');
+
+    // Update form action
+    form.action = `/explore/admin/place/${placeId}/reject/`;
+
+    // Update place name
+    document.getElementById('placeName').textContent = placeName;
+
+    // Show modal
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+  };
+})();
+</script>

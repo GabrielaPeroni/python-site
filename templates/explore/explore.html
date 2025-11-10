@@ -72,7 +72,7 @@
       {% for place in all_places %}
       <div class="col-12 col-md-6 col-lg-4">
         <a href="{% url 'explore:place_detail' place.pk %}" class="text-decoration-none">
-          <div class="card place-card h-100 border-0 shadow-sm">
+          <div class="card place-card h-100 shadow-sm" {% if place.is_pending %}style="border: 2px solid #60a5fa !important;"{% else %}style="border: 0;"{% endif %}>
             <div class="position-relative place-card-image-wrapper">
               {% if place.primary_image %}
               <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="card-img-top place-card-img" loading="lazy">
@@ -80,6 +80,11 @@
               <div class="bg-light text-muted d-flex align-items-center justify-content-center place-card-placeholder">
                 <span class="display-4 fw-bold">{{ place.name|first }}</span>
               </div>
+              {% endif %}
+              {% if place.is_pending %}
+              <span class="badge bg-primary position-absolute top-0 start-0 m-2" style="font-size: 0.7rem; z-index: 10;">
+                <i class="bi bi-clock-history me-1"></i>Aguardando Aprovação
+              </span>
               {% endif %}
               <button class="btn btn-light btn-sm rounded-circle position-absolute favorite-btn-overlay favorite-btn"
                       data-place-id="{{ place.pk }}"

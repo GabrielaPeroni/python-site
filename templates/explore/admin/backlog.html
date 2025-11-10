@@ -18,29 +18,18 @@
 
     <div class="admin-content-wrapper">
       <div class="container-fluid px-4 py-4">
-
-  <div class="container py-4">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-      <div>
-        <h1 class="h3 fw-bold text-uppercase mb-2">
-          {% if view_mode == 'queue' %}
-          <i class="bi bi-hourglass-split me-2"></i>Fila de Aprovação
-          {% else %}
-          <i class="bi bi-archive me-2"></i>Histórico de Lugares
-          {% endif %}
-        </h1>
-        <p class="mb-0 text-muted">
-          {% if view_mode == 'queue' %}
-          Revise e aprove lugares enviados pela comunidade
-          {% else %}
-          Visualize e gerencie todos os lugares do sistema
-          {% endif %}
-        </p>
-      </div>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="admin-title">
+        {% if view_mode == 'queue' %}
+        <i class="bi bi-hourglass-split me-2"></i>Fila de Aprovação
+        {% else %}
+        <i class="bi bi-archive me-2"></i>Histórico de Lugares
+        {% endif %}
+      </h1>
     </div>
 
-    {% if view_mode == 'history' %}
-    <div class="row g-3">
+    <div class="row g-3 mb-4">
       <div class="col-6 col-md-3">
         <div class="stat-card-enhanced">
           <div class="stat-header">
@@ -94,16 +83,9 @@
         </div>
       </div>
     </div>
-    {% else %}
-    <div class="mb-3">
-      <span class="badge bg-warning text-dark fs-5 px-4 py-2">
-        {{ pending_count }} pendente{{ pending_count|pluralize:"s" }}
-      </span>
-    </div>
-    {% endif %}
-  </div>
 
-  <div class="row">
+
+    <div class="row">
     <div class="col-md-3 col-lg-2">
       <div class="card border-0 shadow-sm mb-4 sticky-top" style="top: 20px;">
         <div class="card-body p-0">
@@ -163,90 +145,87 @@
   {% endif %}
 
   {% if places %}
-  <div class="row g-3">
-    {% for place in places %}
-    <div class="col-12">
-      <div class="card border-2 shadow-sm hover-shadow">
-        <div class="row g-0">
-          <div class="col-md-3">
-            {% if place.primary_image %}
-            <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="img-fluid rounded-start h-100 w-100" style="object-fit: cover; min-height: 200px;" loading="lazy">
-            {% else %}
-            <div class="bg-dark text-white d-flex align-items-center justify-content-center rounded-start h-100" style="min-height: 200px;">
-              <span class="display-4 fw-bold">{{ place.name|first }}</span>
-            </div>
-            {% endif %}
-          </div>
-
-          <div class="col-md-9">
-            <div class="card-body p-4">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="flex-grow-1">
-                  <h2 class="h5 fw-bold text-uppercase mb-2">{{ place.name }}</h2>
-
-                  <div class="mb-3">
-                    {% if place.is_approved and place.is_active %}
-                    <span class="badge bg-success text-uppercase">Aprovado</span>
-                    {% elif not place.is_active %}
-                    <span class="badge bg-danger text-uppercase">Rejeitado</span>
-                    {% else %}
-                    <span class="badge bg-primary text-uppercase">Pendente</span>
-                    {% endif %}
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Lugar</th>
+              <th>Categorias</th>
+              <th>Status</th>
+              <th>Criado por</th>
+              <th>Data</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for place in places %}
+            <tr class="clickable-row" data-href="{% url 'explore:place_detail' place.pk %}" style="cursor: pointer;">
+              <td>
+                <div class="d-flex align-items-center">
+                  {% if place.primary_image %}
+                  <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}"
+                       class="me-2" style="width: 48px; height: 48px; object-fit: cover; border-radius: 4px;">
+                  {% else %}
+                  <div class="bg-dark text-white d-flex align-items-center justify-content-center me-2"
+                       style="width: 48px; height: 48px; border-radius: 4px;">
+                    <span class="fw-bold">{{ place.name|first }}</span>
                   </div>
-
-                  {% if place.categories.exists %}
-                  <div class="d-flex flex-wrap gap-2 mb-3">
-                    {% for category in place.categories.all %}
+                  {% endif %}
+                  <strong>{{ place.name }}</strong>
+                </div>
+              </td>
+              <td>
+                {% if place.categories.exists %}
+                  {% for category in place.categories.all|slice:":2" %}
                     <span class="badge bg-light text-dark">
                       {% if category.icon %}{{ category.icon }}{% endif %} {{ category.name }}
                     </span>
-                    {% endfor %}
-                  </div>
-                  {% endif %}
-
-                  <div class="text-muted small mb-3">
-                    <p class="mb-1">
-                      <span class="fw-semibold">Criado por:</span> {{ place.created_by.username }}
-                    </p>
-                    <p class="mb-0">
-                      <span class="fw-semibold">Data:</span> {{ place.created_at|date:"d/m/Y H:i" }}
-                    </p>
-                  </div>
-
-                  <p class="text-muted mb-0" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                    {{ place.description }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="d-flex flex-wrap gap-2 pt-3 border-top">
-                <a href="{% url 'explore:place_detail' place.pk %}" class="btn btn-sm btn-outline-secondary text-uppercase">
-                  <i class="bi bi-eye me-1"></i>Ver Detalhes
-                </a>
-
-                <a href="{% url 'explore:place_edit' place.pk %}" class="btn btn-sm btn-primary text-uppercase">
-                  <i class="bi bi-pencil me-1"></i>Editar
-                </a>
-
-                {% if not place.is_approved and place.is_active %}
-                <form method="post" action="{% url 'explore:approve_place' place.pk %}" class="d-inline">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-sm btn-success text-uppercase">
-                    <i class="bi bi-check-circle me-1"></i>Aprovar
-                  </button>
-                </form>
+                  {% endfor %}
+                {% else %}
+                  <span class="text-muted">-</span>
                 {% endif %}
-
-                <a href="{% url 'explore:place_delete' place.pk %}" class="btn btn-sm btn-danger text-uppercase">
-                  <i class="bi bi-trash me-1"></i>Excluir
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+              </td>
+              <td>
+                {% if place.is_approved and place.is_active %}
+                <span class="badge bg-success">Aprovado</span>
+                {% elif not place.is_active %}
+                <span class="badge bg-danger">Rejeitado</span>
+                {% else %}
+                <span class="badge bg-warning">Pendente</span>
+                {% endif %}
+              </td>
+              <td>{{ place.created_by.username }}</td>
+              <td>{{ place.created_at|date:"d/m/Y H:i" }}</td>
+              <td onclick="event.stopPropagation();">
+                <div class="btn-group btn-group-sm">
+                  <a href="{% url 'explore:place_edit' place.pk %}" class="btn btn-outline-primary"
+                     title="Editar">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  {% if not place.is_approved and place.is_active %}
+                  <a href="{% url 'explore:approve_place' place.pk %}" class="btn btn-outline-success"
+                     title="Aprovar" onclick="event.preventDefault(); this.nextElementSibling.submit();">
+                    <i class="bi bi-check-circle"></i>
+                  </a>
+                  <form method="post" action="{% url 'explore:approve_place' place.pk %}" style="display: none;">
+                    {% csrf_token %}
+                  </form>
+                  {% endif %}
+                  <button type="button" class="btn btn-outline-danger"
+                     title="Remover"
+                     onclick="openRemoveModal({{ place.pk }}, '{{ place.name|escapejs }}')">
+                    <i class="bi bi-x-circle"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
-    {% endfor %}
   </div>
   {% else %}
   <div class="card border-2 shadow-sm">
@@ -271,10 +250,22 @@
   {% endif %}
     </div>
   </div>
-    </div>
-  </div>
       </div>
     </div>
   </div>
 </div>
+
+{% include 'includes/remove_place_modal.html' %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Make table rows clickable
+  const clickableRows = document.querySelectorAll('.clickable-row');
+  clickableRows.forEach(row => {
+    row.addEventListener('click', function() {
+      window.open(this.dataset.href, '_blank');
+    });
+  });
+});
+</script>
 {% endblock %}

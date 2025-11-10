@@ -87,7 +87,12 @@ def login_view(request):
 @login_required
 def logout_view(request):
     logout(request)
-    messages.info(request, "Você saiu com sucesso.")
+    messages.success(request, "Você saiu com sucesso.")
+
+    # Redirect to the referring page or home
+    next_url = request.GET.get("next") or request.META.get("HTTP_REFERER")
+    if next_url:
+        return redirect(next_url)
     return redirect("core:landing")
 
 

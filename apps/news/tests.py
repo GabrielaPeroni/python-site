@@ -10,18 +10,21 @@ class NewsCategoryModelTests(TestCase):
     """Test suite for NewsCategory model"""
 
     def test_create_news_category(self):
-        """Test creating a news category"""
-        category = NewsCategory.objects.create(
-            name=NewsCategory.NEWS, description="Latest news", icon="📰"
+        """Test creating a news category (or getting existing from migration)"""
+        category, created = NewsCategory.objects.get_or_create(
+            name=NewsCategory.NEWS,
+            defaults={"description": "Latest news", "icon": "📰"},
         )
         self.assertEqual(category.name, NewsCategory.NEWS)
-        self.assertEqual(str(category), "News")
+        self.assertEqual(str(category), "Noticias")
 
     def test_category_choices(self):
         """Test that all category choices work"""
-        news_cat = NewsCategory.objects.create(name=NewsCategory.NEWS)
-        event_cat = NewsCategory.objects.create(name=NewsCategory.EVENT)
-        announcement_cat = NewsCategory.objects.create(name=NewsCategory.ANNOUNCEMENT)
+        news_cat, _ = NewsCategory.objects.get_or_create(name=NewsCategory.NEWS)
+        event_cat, _ = NewsCategory.objects.get_or_create(name=NewsCategory.EVENT)
+        announcement_cat, _ = NewsCategory.objects.get_or_create(
+            name=NewsCategory.ANNOUNCEMENT
+        )
 
         self.assertEqual(news_cat.get_name_display(), "Noticias")
         self.assertEqual(event_cat.get_name_display(), "Eventos")
@@ -36,8 +39,8 @@ class NewsModelTests(TestCase):
         self.user = User.objects.create_user(
             username="testauthor", password="testpass123", is_staff=True
         )
-        self.category = NewsCategory.objects.create(
-            name=NewsCategory.NEWS, description="Latest news"
+        self.category, _ = NewsCategory.objects.get_or_create(
+            name=NewsCategory.NEWS, defaults={"description": "Latest news"}
         )
 
     def test_create_news(self):
@@ -47,12 +50,12 @@ class NewsModelTests(TestCase):
             content="This is test content",
             author=self.user,
             category=self.category,
-            publish_date=timezone.now(),
             status=News.PUBLISHED,
         )
         self.assertEqual(news.title, "Test News Article")
         self.assertEqual(news.status, News.PUBLISHED)
         self.assertIsNotNone(news.slug)  # Auto-generated slug
+        self.assertIsNotNone(news.publish_date)  # Auto-set on publish
 
     def test_news_string_representation(self):
         """Test the string representation of news"""
@@ -89,7 +92,7 @@ class NewsModelTests(TestCase):
 
     def test_news_is_event_property(self):
         """Test is_event property for event category"""
-        event_category = NewsCategory.objects.create(name=NewsCategory.EVENT)
+        event_category, _ = NewsCategory.objects.get_or_create(name=NewsCategory.EVENT)
 
         news = News.objects.create(
             title="Regular News",
@@ -111,6 +114,30 @@ class NewsModelTests(TestCase):
         self.assertFalse(news.is_event)
         self.assertTrue(event.is_event)
 
+    def test_auto_publish_date_on_status_change(self):
+        """Test that publish_date is auto-set when status changes to PUBLISHED"""
+        # Create draft news
+        news = News.objects.create(
+            title="Draft News",
+            content="Content",
+            author=self.user,
+            category=self.category,
+            status=News.DRAFT,
+        )
+
+        # publish_date should not be set or be in future for drafts
+        news.publish_date
+
+        # Change status to published
+        news.status = News.PUBLISHED
+        news.save()
+
+        # publish_date should now be set to current time
+        self.assertIsNotNone(news.publish_date)
+        self.assertLessEqual(
+            news.publish_date, timezone.now() + timezone.timedelta(seconds=1)
+        )
+
 
 class NewsListViewTests(TestCase):
     """Test suite for news list view"""
@@ -122,7 +149,7 @@ class NewsListViewTests(TestCase):
         self.user = User.objects.create_user(
             username="testauthor", password="testpass123"
         )
-        self.category = NewsCategory.objects.create(name=NewsCategory.NEWS)
+        self.category, _ = NewsCategory.objects.get_or_create(name=NewsCategory.NEWS)
 
         # Create published news
         self.published_news = News.objects.create(
@@ -183,7 +210,7 @@ class NewsDetailViewTests(TestCase):
         """Set up test data"""
         self.client = Client()
         self.user = User.objects.create_user(username="testauthor")
-        self.category = NewsCategory.objects.create(name=NewsCategory.NEWS)
+        self.category, _ = NewsCategory.objects.get_or_create(name=NewsCategory.NEWS)
 
         self.news = News.objects.create(
             title="Test News Article",
@@ -238,7 +265,7 @@ class NewsFeaturedTests(TestCase):
         """Set up test data"""
         self.client = Client()
         self.user = User.objects.create_user(username="testauthor")
-        self.category = NewsCategory.objects.create(name=NewsCategory.NEWS)
+        self.category, _ = NewsCategory.objects.get_or_create(name=NewsCategory.NEWS)
 
     def test_featured_news_appears_in_context(self):
         """Test that featured news are available in context"""

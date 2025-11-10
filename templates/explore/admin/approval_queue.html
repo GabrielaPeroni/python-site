@@ -20,91 +20,78 @@
       <div class="container-fluid px-4 py-4">
 
   <!-- Header -->
-  <div class="d-flex align-items-center justify-content-between mb-4">
-    <div>
-      <h1 class="admin-title">
-        <i class="bi bi-hourglass-split me-2"></i>Fila de Aprovação
-      </h1>
-      <p class="text-muted mb-0">Revise e aprove lugares enviados pela comunidade</p>
-    </div>
-    <div>
-      <span class="badge bg-warning text-dark fs-5 px-4 py-2">
-        {{ pending_count }} pendente{{ pending_count|pluralize:"s" }}
-      </span>
-    </div>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="admin-title">
+      <i class="bi bi-hourglass-split me-2"></i>Fila de Aprovação
+    </h1>
   </div>
 
   {% if pending_places %}
-  <div class="row g-4">
-    {% for place in pending_places %}
-    <div class="col-12">
-      <div class="card border-2 shadow-sm hover-shadow">
-        <div class="row g-0">
-          <div class="col-md-4">
-            {% if place.primary_image %}
-            <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}" class="img-fluid rounded-start h-100 w-100" style="object-fit: cover; min-height: 250px;" loading="lazy">
-            {% else %}
-            <div class="bg-dark text-white d-flex align-items-center justify-content-center rounded-start h-100" style="min-height: 250px;">
-              <span class="display-1 fw-bold">{{ place.name|first }}</span>
-            </div>
-            {% endif %}
-          </div>
-
-          <div class="col-md-8">
-            <div class="card-body p-4">
-              <div class="mb-3">
-                <h2 class="h4 fw-bold text-uppercase mb-2">{{ place.name }}</h2>
-
-                {% if place.categories.exists %}
-                <div class="d-flex flex-wrap gap-2 mb-3">
-                  {% for category in place.categories.all %}
-                  <span class="badge bg-light text-dark fs-6 px-3 py-2">
-                    {% if category.icon %}{{ category.icon }}{% endif %} {{ category.name }}
-                  </span>
-                  {% endfor %}
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Lugar</th>
+              <th>Categorias</th>
+              <th>Criado por</th>
+              <th>Data</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for place in pending_places %}
+            <tr class="clickable-row" data-href="{% url 'explore:place_detail' place.pk %}" style="cursor: pointer;">
+              <td>
+                <div class="d-flex align-items-center">
+                  {% if place.primary_image %}
+                  <img src="{{ place.primary_image.image.url }}" alt="{{ place.name }}"
+                       class="me-2" style="width: 48px; height: 48px; object-fit: cover; border-radius: 4px;">
+                  {% else %}
+                  <div class="bg-dark text-white d-flex align-items-center justify-content-center me-2"
+                       style="width: 48px; height: 48px; border-radius: 4px;">
+                    <span class="fw-bold">{{ place.name|first }}</span>
+                  </div>
+                  {% endif %}
+                  <strong>{{ place.name }}</strong>
                 </div>
+              </td>
+              <td>
+                {% if place.categories.exists %}
+                  {% for category in place.categories.all|slice:":2" %}
+                    <span class="badge bg-light text-dark">
+                      {% if category.icon %}{{ category.icon }}{% endif %} {{ category.name }}
+                    </span>
+                  {% endfor %}
+                {% else %}
+                  <span class="text-muted">-</span>
                 {% endif %}
-
-                <p class="text-muted small mb-0">
-                  Criado por <span class="fw-bold text-dark">{{ place.created_by.username }}</span>
-                  • {{ place.created_at|date:"d M, Y" }}
-                </p>
-              </div>
-
-              <div class="mb-3">
-                <p class="text-muted mb-0" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
-                  {{ place.description }}
-                </p>
-              </div>
-
-              <div class="mb-4">
-                <p class="text-muted small mb-0">
-                  <i class="bi bi-geo-alt-fill me-1"></i><span class="fw-semibold">Localização:</span> {{ place.address }}
-                </p>
-              </div>
-
-              <div class="d-flex flex-wrap gap-2 pt-3 border-top">
-                <a href="{% url 'explore:place_detail' place.pk %}" class="btn btn-outline-secondary text-uppercase">
-                  <i class="bi bi-eye me-2"></i>Ver Detalhes
-                </a>
-
-                <form method="post" action="{% url 'explore:approve_place' place.pk %}" class="d-inline">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-success text-uppercase">
-                    <i class="bi bi-check-circle me-2"></i>Aprovar
+              </td>
+              <td>{{ place.created_by.username }}</td>
+              <td>{{ place.created_at|date:"d/m/Y H:i" }}</td>
+              <td onclick="event.stopPropagation();">
+                <div class="btn-group btn-group-sm">
+                  <a href="{% url 'explore:approve_place' place.pk %}" class="btn btn-outline-success"
+                     title="Aprovar" onclick="event.preventDefault(); this.nextElementSibling.submit();">
+                    <i class="bi bi-check-circle"></i>
+                  </a>
+                  <form method="post" action="{% url 'explore:approve_place' place.pk %}" style="display: none;">
+                    {% csrf_token %}
+                  </form>
+                  <button type="button" class="btn btn-outline-danger"
+                     title="Rejeitar"
+                     onclick="openRemoveModal({{ place.pk }}, '{{ place.name|escapejs }}')">
+                    <i class="bi bi-x-circle"></i>
                   </button>
-                </form>
-
-                <a href="{% url 'explore:reject_place' place.pk %}" class="btn btn-danger text-uppercase">
-                  <i class="bi bi-x-circle me-2"></i>Rejeitar
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
-    {% endfor %}
   </div>
   {% else %}
   <div class="card border-2 shadow-sm">
@@ -122,4 +109,18 @@
     </div>
   </div>
 </div>
+
+{% include 'includes/remove_place_modal.html' %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Make table rows clickable
+  const clickableRows = document.querySelectorAll('.clickable-row');
+  clickableRows.forEach(row => {
+    row.addEventListener('click', function() {
+      window.open(this.dataset.href, '_blank');
+    });
+  });
+});
+</script>
 {% endblock %}

@@ -26,6 +26,9 @@ function handleCredentialResponse(response) {
   })
     .then(res => {
       if (res.ok) {
+        // Armazenar flag para mostrar toast de sucesso após redirect
+        sessionStorage.setItem('loginSuccess', 'true');
+        sessionStorage.setItem('loginUsername', payload.name || 'usuário');
         window.location.href = '/';
       } else {
         console.error('Autenticação do Google falhou');

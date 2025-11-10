@@ -32,7 +32,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .venv
-          key: venv-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}
+          key: venv-${{ runner.os }}-3.11-v2-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
@@ -114,7 +114,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .venv
-          key: venv-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}
+          key: venv-${{ runner.os }}-3.11-v2-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
@@ -129,6 +129,8 @@ jobs:
           echo "DEBUG=True" > .env
           echo "SECRET_KEY=test-secret-key-for-ci" >> .env
           echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/test_db" >> .env
+          echo "GOOGLE_OAUTH_CLIENT_ID=test-client-id-for-ci-only" >> .env
+          echo "RATELIMIT_ENABLE=False" >> .env
 
       - name: Check Django system
         run: |

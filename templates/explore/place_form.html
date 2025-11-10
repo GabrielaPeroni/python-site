@@ -170,11 +170,10 @@
 
             <div class="d-flex gap-2">
               {% if place %}
-              <a href="{% url 'explore:place_delete' place.pk %}"
-                 class="btn btn-danger"
-                 onclick="return confirm('Tem certeza que deseja excluir este lugar?')">
+              <button type="button" class="btn btn-danger"
+                      data-bs-toggle="modal" data-bs-target="#deleteModal">
                 Excluir
-              </a>
+              </button>
               {% endif %}
 
               <button type="submit" class="btn btn-dark px-4">
@@ -202,6 +201,38 @@
     </div>
   </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+{% if place %}
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold text-danger" id="deleteModalLabel">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Exclusão
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3">Você está prestes a excluir permanentemente <strong>{{ place.name }}</strong>.</p>
+        <div class="alert alert-danger border-0 mb-0">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <strong>Atenção:</strong> Esta ação não pode ser desfeita. Todos os dados, imagens e avaliações associados a este lugar serão removidos permanentemente.
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form method="post" action="{% url 'explore:place_delete' place.pk %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash me-2"></i>Deletar Permanentemente
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}

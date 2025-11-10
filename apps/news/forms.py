@@ -9,17 +9,20 @@ class NewsForm(forms.ModelForm):
     class Meta:
         model = News
         fields = [
+            # Core Content
             "title",
-            "content",
-            "excerpt",
             "category",
+            "excerpt",
+            "content",
+            # Media
             "featured_image",
             "image_caption",
+            # Event Details (conditional)
             "event_date",
-            "event_location",
             "event_end_date",
+            "event_location",
+            # Publishing Options
             "status",
-            "publish_date",
             "is_featured",
         ]
         widgets = {
@@ -75,34 +78,27 @@ class NewsForm(forms.ModelForm):
                 format="%Y-%m-%dT%H:%M",
             ),
             "status": forms.Select(attrs={"class": "form-select"}),
-            "publish_date": forms.DateTimeInput(
-                attrs={
-                    "class": "form-control",
-                    "type": "datetime-local",
-                },
-                format="%Y-%m-%dT%H:%M",
-            ),
             "is_featured": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
         labels = {
             "title": "Título",
-            "content": "Conteúdo",
-            "excerpt": "Resumo",
             "category": "Categoria",
+            "excerpt": "Resumo",
+            "content": "Conteúdo",
             "featured_image": "Imagem Destacada",
             "image_caption": "Legenda da Imagem",
             "event_date": "Data do Evento",
-            "event_location": "Local do Evento",
             "event_end_date": "Data Final do Evento",
+            "event_location": "Local do Evento",
             "status": "Status",
-            "publish_date": "Data de Publicação",
             "is_featured": "Destacar",
         }
         help_texts = {
+            "category": "Escolha 'Evento' se for um evento com data específica",
             "excerpt": "Deixe em branco para gerar automaticamente do conteúdo",
             "event_date": "Obrigatório apenas para eventos",
             "event_location": "Obrigatório apenas para eventos",
-            "publish_date": "Data e hora em que a notícia será publicada",
+            "status": "A data de publicação será definida automaticamente ao publicar",
         }
 
     def __init__(self, *args, **kwargs):

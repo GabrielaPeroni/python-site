@@ -1,5 +1,16 @@
 {% load static %}
 
+<!-- Inline script to prevent flicker - runs immediately before sidebar renders -->
+<script>
+  (function() {
+    // Check localStorage before page renders
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      // Add class to html to apply collapsed styles immediately
+      document.documentElement.classList.add('sidebar-initially-collapsed');
+    }
+  })();
+</script>
+
 <div class="admin-sidebar" id="adminSidebar">
   <!-- Sidebar Header -->
   <div class="sidebar-header">
@@ -78,6 +89,9 @@
         adminContainer.classList.add('sidebar-collapsed');
       }
     }
+
+    // Remove the temporary class now that proper classes are applied
+    document.documentElement.classList.remove('sidebar-initially-collapsed');
 
     // Funcionalidade de colapso no desktop
     if (collapseBtn) {

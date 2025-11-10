@@ -517,16 +517,16 @@ class PlaceDeleteViewTests(TestCase):
         # Should redirect to landing page where login modal is available
         self.assertRedirects(response, f"/?next=/explore/place/{self.place.pk}/delete/")
 
-    def test_place_delete_confirmation_page(self):
-        """Test place deletion confirmation page loads"""
+    def test_place_delete_get_redirects_to_edit(self):
+        """Test GET request to delete redirects to edit page (modal handles deletion)"""
         self.client.login(username="creator", password="pass123")
         response = self.client.get(
             reverse("explore:place_delete", kwargs={"pk": self.place.pk})
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "explore/place_delete_confirm.html")
-        self.assertContains(response, "Confirmar Exclusão")
-        self.assertContains(response, self.place.name)
+        # Should redirect to edit page where the delete modal is available
+        self.assertRedirects(
+            response, reverse("explore:place_edit", kwargs={"pk": self.place.pk})
+        )
 
     def test_creator_can_delete_own_place(self):
         """Test place creator can delete their own place"""
