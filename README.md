@@ -58,45 +58,6 @@ poetry run python manage.py createsuperuser
 poetry run python manage.py runserver
 ```
 
-## 🛠️ Troubleshooting
-
-### Windows: Erro de caminho de arquivo muito longo
-
-Se você encontrar erros como `[WinError 206] O nome do arquivo ou extensão é muito longo` ou problemas ao instalar dependências (especialmente joblib ou outras libs), siga estes passos:
-
-**Solução 1: Usar a configuração do projeto (Recomendado)**
-Este projeto já inclui `poetry.toml` que cria o ambiente virtual em `.venv/` no diretório do projeto, evitando caminhos longos.
-
-```bash
-# Remova qualquer ambiente virtual existente
-poetry env remove --all
-
-# Reinstale as dependências (o poetry.toml será aplicado automaticamente)
-poetry install
-```
-
-**Solução 2: Habilitar caminhos longos no Windows 10/11**
-Execute como Administrador no PowerShell:
-
-```powershell
-New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
-```
-
-Reinicie o computador após executar este comando.
-
-**Solução 3: Usar caminho mais curto para o projeto**
-Mova o projeto para um diretório com caminho mais curto, como:
-
-```
-C:\dev\marica-city\
-```
-
-ao invés de:
-
-```
-C:\Users\Noell\Documents\Personal\GitHub\marica-city-remake\
-```
-
 ## 📜 Licença
 
 - **Código Django**: [MIT](./documentacao/LICENSE.txt).
