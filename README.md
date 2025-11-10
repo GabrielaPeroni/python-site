@@ -9,6 +9,8 @@ O repositório original pode ser encontrado aqui: [Marica-City](https://github.c
 
 Para mais detalhes sobre a implementação do CRUD, consulte [CRUD.md](./documentacao/CRUD.md), e para uma visão completa da estrutura do projeto e arquitetura, consulte [STRUCTURE.md](./documentacao/STRUCTURE.md)
 
+- Exercicios da materia se encontram na pasta [aula_exercicios](./aula_exercicios)
+
 # 🚀 Como rodar o projeto
 
 ### Pre-requisitos
