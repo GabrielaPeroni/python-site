@@ -7,8 +7,7 @@ O repositório original pode ser encontrado aqui: [Marica-City](https://github.c
 - A estrutura permite adicionar múltiplos apps e páginas facilmente.
 - Todas as dependências gerenciadas com Poetry e Makefile.
 
-Para mais detalhes sobre a implementação do CRUD, consulte [CRUD.md](./documentacao/CRUD.md)
-Para uma visão completa da estrutura do projeto e arquitetura, consulte [STRUCTURE.md](./documentacao/STRUCTURE.md)
+Para mais detalhes sobre a implementação do CRUD, consulte [CRUD.md](./documentacao/CRUD.md), e para uma visão completa da estrutura do projeto e arquitetura, consulte [STRUCTURE.md](./documentacao/STRUCTURE.md)
 
 # 🚀 Como rodar o projeto
 
@@ -16,7 +15,6 @@ Para uma visão completa da estrutura do projeto e arquitetura, consulte [STRUCT
 
 - Python 3.10+
 - Make (para Windows, instale usando chocolatey: `choco install make` ou use Git Bash)
-- **Importante para Windows**: Este projeto inclui `poetry.toml` configurado para evitar problemas com caminhos de arquivo longos (MAX_PATH). O ambiente virtual será criado na pasta `.venv/` do projeto.
 
 ### 1. Instale as dependências e ative o ambiente virtual
 
