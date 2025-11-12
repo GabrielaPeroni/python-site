@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from django_ratelimit.decorators import ratelimit
 
@@ -341,7 +342,7 @@ def approve_place_view(request, pk):
             request,
             f'Lugar "{place.name}" foi aprovado com sucesso!',
         )
-        return redirect("explore:backlog" + "?view=queue")
+        return redirect(reverse("explore:backlog") + "?view=queue")
 
     # Se for GET, redirecionar para detalhes do lugar
     return redirect("explore:place_detail", pk=pk)
